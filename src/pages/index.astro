@@ -1,0 +1,157 @@
+---
+import HospitalFloor from '../components/HospitalFloor.astro';
+import { DEPARTMENTS } from '../content/departments.ts';
+import type { Department, DepartmentId } from '../content/departments.ts';
+import Base from '../layouts/Base.astro';
+
+const firstDepartmentId = DEPARTMENTS[0]?.id;
+
+const acronymOf = (id: DepartmentId) => DEPARTMENTS.find((department) => department.id === id)?.acronym ?? id;
+
+const flowsByTarget = ({ flows }: Department) => {
+  const grouped = new Map<DepartmentId, string[]>();
+  for (const { to, payload, protocol } of flows) {
+    grouped.set(to, [...(grouped.get(to) ?? []), protocol ? `${payload} (${protocol})` : payload]);
+  }
+  return [...grouped].map(([to, payloads]) => ({ target: acronymOf(to), payloads: payloads.join(', ') }));
+};
+---
+
+<Base title="How data flows through a hospital" fullscreen>
+  <div class="layout">
+    <HospitalFloor />
+    <aside class="panel" aria-label="Department details">
+      <h1>How data flows through a hospital</h1>
+      {
+        DEPARTMENTS.map((department, index) => (
+          <section
+            class="department"
+            data-panel={department.id}
+            hidden={department.id !== firstDepartmentId}
+            style={`--room: ${department.colour}`}
+          >
+            <h2>
+              <span class="number">{index + 1}</span>
+              <span class="acronym">{department.acronym}</span>
+              {department.acronym !== department.roomName && ` · ${department.roomName}`}
+            </h2>
+            <p class="full-name">{department.name}</p>
+            <p>{department.summary}</p>
+            <h3>Functions</h3>
+            <ul class="functions">
+              {department.functions.map((name) => (
+                <li>{name}</li>
+              ))}
+            </ul>
+            {department.flows.length > 0 && (
+              <>
+                <h3>Sends</h3>
+                <ul class="flows">
+                  {flowsByTarget(department).map(({ target, payloads }) => (
+                    <li>
+                      <strong>{target}</strong>
+                      {payloads}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </section>
+        ))
+      }
+    </aside>
+  </div>
+</Base>
+
+<style>
+  @media (min-width: 721px) {
+    .layout {
+      --panel-width: clamp(18rem, 22vw, 24rem);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) var(--panel-width);
+      height: 100dvh;
+    }
+
+    .panel {
+      overflow-y: auto;
+    }
+  }
+
+  .panel {
+    margin: 1rem;
+    padding: 1.25rem 1.5rem 1.5rem;
+    background: var(--anatomy-paper);
+    border: 1px solid var(--anatomy-faint);
+    border-radius: 0.75rem;
+  }
+
+  .department {
+    --room-ink-share: 65%;
+    --room-ink: color-mix(in srgb, var(--room) var(--room-ink-share), var(--anatomy-strong));
+    padding-left: 1rem;
+    border-left: 3px solid var(--room);
+  }
+
+  h1 {
+    margin: 0 0 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--anatomy-faint);
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  h2 {
+    margin: 0;
+    color: var(--anatomy-strong);
+    font-size: 1.25rem;
+  }
+
+  h3 {
+    margin: 1rem 0 0.25rem;
+    color: var(--anatomy-muted);
+    font-family: var(--anatomy-mono);
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .number {
+    display: inline-block;
+    min-width: 1.6rem;
+    color: var(--room-ink);
+    font-family: var(--anatomy-mono);
+  }
+
+  .acronym {
+    color: var(--room-ink);
+  }
+
+  .full-name {
+    margin: 0.2rem 0 0.6rem;
+    color: var(--anatomy-muted);
+    font-size: 0.9rem;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .functions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+  }
+
+  .flows li {
+    display: grid;
+    grid-template-columns: 6.25rem 1fr;
+  }
+
+  .flows strong {
+    color: var(--anatomy-strong);
+    font-weight: 500;
+  }
+</style>

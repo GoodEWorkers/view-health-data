@@ -1,0 +1,177 @@
+---
+import { DEPARTMENTS } from '../content/departments.ts';
+import { hospitalFloorCard } from '../figures/hospital-floor/build.ts';
+
+const card = hospitalFloorCard();
+const keyColours = DEPARTMENTS.map(({ colour }, index) => `.hospital-floor .iso-key:nth-child(${index + 1}){--room:${colour}}`).join('');
+---
+
+<style is:inline set:html={keyColours}></style>
+
+<div class="hospital-floor">
+  <Fragment set:html={card} />
+</div>
+
+<script>
+  import '../figures/hospital-floor/live.ts';
+</script>
+
+<style is:global>
+  .hospital-floor {
+    min-width: 0;
+  }
+
+  @media (min-width: 721px) {
+    .hospital-floor,
+    .hospital-floor .iso-figure,
+    .hospital-floor .iso-plate {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hospital-floor .iso-figure {
+      flex: 1;
+      min-height: 0;
+      margin: 0;
+    }
+
+    .hospital-floor .iso-plate,
+    .hospital-floor .iso-stage {
+      flex: 1 1 0;
+      min-height: 0;
+    }
+
+    .hospital-floor .iso-stage {
+      position: relative;
+    }
+
+    .hospital-floor .iso-svg {
+      position: absolute;
+      inset: 0;
+      height: 100%;
+    }
+  }
+
+  .hospital-floor .iso-legend {
+    margin: 0;
+    padding: 0.75rem 1.5rem 1rem;
+  }
+
+  .hospital-floor {
+    --floor-tint-rest: 16%;
+    --floor-tint-gain: 26%;
+    --numeral-opacity-rest: 0.6;
+    --numeral-opacity-gain: 0.2;
+  }
+
+  .hospital-floor [data-room] {
+    --glow: 0;
+    --lit-share: calc(var(--glow) * 100%);
+  }
+
+  .hospital-floor [data-room] .iso-line[data-tone='hi'] {
+    stroke: color-mix(in srgb, var(--anatomy-lit) var(--lit-share), var(--anatomy-hi));
+  }
+
+  .hospital-floor [data-room] .iso-line[data-tone='mid'] {
+    stroke: color-mix(in srgb, var(--anatomy-lit) var(--lit-share), var(--anatomy-mid));
+  }
+
+  .hospital-floor [data-room] .iso-line[data-tone='lo'] {
+    stroke: color-mix(in srgb, var(--anatomy-lit) var(--lit-share), var(--anatomy-lo));
+  }
+
+  .hospital-floor [data-room] .iso-line[data-tone='faint'] {
+    stroke: color-mix(in srgb, var(--anatomy-mid) var(--lit-share), var(--anatomy-faint));
+  }
+
+  .hospital-floor [data-room] .iso-fill {
+    fill: color-mix(in srgb, var(--anatomy-face) var(--lit-share), var(--anatomy-paper));
+  }
+
+  .hospital-floor [data-room] .room-floor .iso-fill {
+    fill: color-mix(in srgb, var(--room) calc(var(--floor-tint-rest) + var(--glow) * var(--floor-tint-gain)), var(--anatomy-paper));
+  }
+
+  .hospital-floor [data-room] .iso-top {
+    fill: color-mix(in srgb, var(--anatomy-lit-top) var(--lit-share), var(--anatomy-top));
+  }
+
+  .hospital-floor [data-room] .iso-shade {
+    fill: color-mix(in srgb, var(--anatomy-lit-shade) var(--lit-share), var(--shade-rest, var(--anatomy-shade-1)));
+  }
+
+  .hospital-floor [data-room] .iso-shade[data-shade='0'] {
+    --shade-rest: var(--anatomy-shade-0);
+  }
+
+  .hospital-floor [data-room] .iso-shade[data-shade='1'] {
+    --shade-rest: var(--anatomy-shade-1);
+  }
+
+  .hospital-floor [data-room] .iso-shade[data-shade='2'] {
+    --shade-rest: var(--anatomy-shade-2);
+  }
+
+  .hospital-floor [data-room] .iso-shade[data-shade='3'] {
+    --shade-rest: var(--anatomy-shade-3);
+  }
+
+  .hospital-floor [data-room] .room-numeral .iso-face-text {
+    font-weight: 700;
+    fill: var(--room);
+    mix-blend-mode: multiply;
+    opacity: calc(var(--numeral-opacity-rest) + var(--glow) * var(--numeral-opacity-gain));
+  }
+
+  .hospital-floor .iso-key {
+    cursor: default;
+    border-radius: 2px;
+  }
+
+  .hospital-floor .iso-key .iso-swatch {
+    display: none;
+  }
+
+  .hospital-floor .iso-key::before {
+    content: '';
+    flex: none;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--room);
+  }
+
+  .hospital-floor .iso-key[data-active] {
+    color: var(--anatomy-strong);
+  }
+
+  .hospital-floor .iso-key:focus-visible,
+  .hospital-floor .iso-stage:focus-visible {
+    outline: 1px solid var(--anatomy-muted);
+    outline-offset: 4px;
+  }
+
+  .hospital-floor .iso-stage {
+    outline-offset: 6px;
+  }
+
+  @media (max-width: 560px) {
+    .hospital-floor .iso-plate {
+      overflow: hidden;
+    }
+
+    .hospital-floor .iso-stage {
+      /* Cancels the 12px side padding of .iso-plate in iso.css; the figure keeps its own pad. */
+      margin-inline: -0.75rem;
+    }
+  }
+
+  .hospital-floor-announcer {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+</style>

@@ -1,0 +1,49 @@
+---
+import '../iso/iso.css';
+
+type Props = {
+  title: string;
+  fullscreen?: boolean;
+};
+
+const { title, fullscreen = false } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+  </head>
+  <body class="iso" data-theme="light">
+    <main data-fullscreen={fullscreen}>
+      <slot />
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  body {
+    margin: 0;
+    background: var(--anatomy-page);
+    color: var(--anatomy-text);
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.7;
+  }
+
+  main {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  main[data-fullscreen] {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  h1 {
+    color: var(--anatomy-strong);
+  }
+</style>
