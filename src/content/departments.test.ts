@@ -5,6 +5,9 @@ import { DEPARTMENTS } from './departments.ts';
 
 const SENTENCE_BREAK = /(?<=[.!?])\s+/;
 const HEX_COLOUR = /^#[0-9a-f]{6}$/;
+const SOFTWARE_EXAMPLE = /^.+ \(.+\)$/;
+const MIN_SOFTWARE_EXAMPLES = 2;
+const MAX_SOFTWARE_EXAMPLES = 4;
 
 describe('departments', () => {
   it('lists the eight systems of the source diagram in reading order', () => {
@@ -40,6 +43,14 @@ describe('departments', () => {
     for (const { id, summary } of DEPARTMENTS) {
       const sentences = summary.split(SENTENCE_BREAK).length;
       assert.ok(sentences >= 2 && sentences <= 3, `${id} has ${sentences} sentences`);
+    }
+  });
+
+  it('names two to four software examples as Product (Vendor) for each system', () => {
+    for (const { id, softwareExamples } of DEPARTMENTS) {
+      const count = softwareExamples.length;
+      assert.ok(count >= MIN_SOFTWARE_EXAMPLES && count <= MAX_SOFTWARE_EXAMPLES, `${id} has ${count} examples`);
+      for (const example of softwareExamples) assert.match(example, SOFTWARE_EXAMPLE, id);
     }
   });
 

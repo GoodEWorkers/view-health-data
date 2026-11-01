@@ -2,6 +2,7 @@
 import HospitalFloor from '../components/HospitalFloor.astro';
 import { DEPARTMENTS } from '../content/departments.ts';
 import type { Department, DepartmentId } from '../content/departments.ts';
+import { listInFrench } from '../content/listInFrench.ts';
 import Base from '../layouts/Base.astro';
 
 const firstDepartmentId = DEPARTMENTS[0]?.id;
@@ -17,11 +18,11 @@ const flowsByTarget = ({ flows }: Department) => {
 };
 ---
 
-<Base title="How data flows through a hospital" fullscreen>
+<Base title="Comment les données circulent dans un hôpital" fullscreen>
   <div class="layout">
     <HospitalFloor />
-    <aside class="panel" aria-label="Department details">
-      <h1>How data flows through a hospital</h1>
+    <aside class="panel" aria-label="Détails du service">
+      <h1>Comment les données circulent dans un hôpital</h1>
       {
         DEPARTMENTS.map((department, index) => (
           <section
@@ -36,8 +37,10 @@ const flowsByTarget = ({ flows }: Department) => {
               {department.acronym !== department.roomName && ` · ${department.roomName}`}
             </h2>
             <p class="full-name">{department.name}</p>
-            <p>{department.summary}</p>
-            <h3>Functions</h3>
+            <p>
+              {department.summary} Des logiciels comme {listInFrench(department.softwareExamples)} remplissent ce rôle.
+            </p>
+            <h3>Fonctions</h3>
             <ul class="functions">
               {department.functions.map((name) => (
                 <li>{name}</li>
@@ -45,7 +48,7 @@ const flowsByTarget = ({ flows }: Department) => {
             </ul>
             {department.flows.length > 0 && (
               <>
-                <h3>Sends</h3>
+                <h3>Envoie vers</h3>
                 <ul class="flows">
                   {flowsByTarget(department).map(({ target, payloads }) => (
                     <li>

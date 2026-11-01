@@ -18,15 +18,15 @@ import { theatreParts } from './rooms/theatre.ts';
 import { baseboardSvg } from './shell.ts';
 import { floorsSvg, leavesSvg, numeralsSvg, trunkingSvg, wallsSvg } from './structure.ts';
 
-const FIGURE_NUMBER = 'Fig 1';
-const TITLE = 'Hospital floor';
-const HINT = 'Hover a room or press the arrow keys';
-const READOUT = 'Eight rooms, one floor';
+const FIGURE_NUMBER = 'Fig. 1';
+const TITLE = 'Plan de l\'hôpital';
+const HINT = 'Survolez une salle ou utilisez les flèches';
+const READOUT = 'Huit salles, un étage';
 const FIGURE_LABEL =
-  'An architect\'s model of one hospital floor on a baseboard, cut low so every room can be seen from above: ' +
-  'eight rooms recognisable by their furniture around a ring corridor, ' +
-  'with floor cable trunking that reaches every doorway and ends in the server room.';
-const STAGE_LABEL = 'Hospital floor model. Arrow keys move between the eight rooms.';
+  'Maquette d\'architecte d\'un étage d\'hôpital posée sur un socle et coupée bas, de sorte que chaque salle se voit d\'en haut. ' +
+  'Huit salles reconnaissables à leur mobilier entourent un couloir en anneau, ' +
+  'et des goulottes de câbles au sol desservent chaque porte et aboutissent dans la salle serveurs.';
+const STAGE_LABEL = 'Maquette de l\'étage d\'hôpital. Les flèches du clavier permettent de passer d\'une des huit salles à la suivante.';
 
 const ROOM_PARTS: Record<DepartmentId, () => readonly Part[]> = {
   gam: admissionsParts,

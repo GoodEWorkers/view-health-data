@@ -982,6 +982,10 @@ anatomy skill's `scripts/capture.mjs` (desktop, 390 px, hover, 4× `--zoom` clos
 and `scripts/lines.mjs` (must print `line ends: 0`) against it, and read every PNG.
 The skill lives at `~/.claude/skills/anatomy/`.
 
+**Language.** Everything the visitor reads is French (page chrome, panel, summaries,
+legend); the source diagram's acronyms and payload names stay as printed. Code,
+identifiers, comments, tests, README and this file stay English (§3).
+
 **Risk class (§13.1).** Everything under `src/` is *own work under a quality bar*:
 read every generated line. `src/iso/` is vendored and read-only.
 

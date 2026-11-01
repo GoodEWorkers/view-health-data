@@ -17,6 +17,7 @@ export type Department = {
   readonly functions: readonly string[];
   readonly flows: readonly Flow[];
   readonly summary: string;
+  readonly softwareExamples: readonly string[];
 };
 
 export const DEPARTMENTS: readonly Department[] = [
@@ -35,7 +36,8 @@ export const DEPARTMENTS: readonly Department[] = [
       { to: 'eai', payload: 'ADT messages', protocol: 'HL7 v2' },
     ],
     summary:
-      'The Accueil / Admissions hall sits beside the main entrance, where reception staff register each arrival and open the stay. The GAM (Gestion Administrative des Malades) creates the patient identity and records every admission, discharge and bed movement. It hands identity and movements to the DPI and availabilities and planning to RDV, and sends ADT messages to the EAI.',
+      'Le hall Accueil / Admissions jouxte l\'entrée principale, où le personnel d\'accueil enregistre chaque arrivée et ouvre le séjour. La GAM (Gestion Administrative des Malades) crée l\'identité du patient et consigne chaque admission, chaque sortie et chaque mouvement de lit. Elle transmet l\'identité et les mouvements au DPI, les disponibilités et le planning au RDV, et alimente l\'EAI en ADT messages.',
+    softwareExamples: ['M-GAM (Docaposte Santé)', 'Pastel (Mipih)', 'i-GAP (CPage)'],
   },
   {
     id: 'rdv',
@@ -49,7 +51,8 @@ export const DEPARTMENTS: readonly Department[] = [
       { to: 'eai', payload: 'Scheduling', protocol: 'HL7 v2' },
     ],
     summary:
-      'The Rendez-vous office has a counter with a screen and a telephone, and a planner board on the wall. The RDV (Gestion des rendez-vous) plans consultations and books the resources they need. It receives availabilities and planning from the GAM, passes scheduled consultations to the DPI and sends Scheduling messages to the EAI.',
+      'Le bureau Rendez-vous comprend un comptoir équipé d\'un écran et d\'un téléphone, et un tableau de planification accroché au mur. Le RDV (Gestion des rendez-vous) planifie les consultations et réserve les ressources dont elles ont besoin. Il reçoit les disponibilités et le planning de la GAM, transmet les consultations programmées au DPI et alimente l\'EAI en Scheduling.',
+    softwareExamples: ['Doctolib (Doctolib)', 'Maiia (Cegedim Santé)'],
   },
   {
     id: 'dpi',
@@ -68,7 +71,13 @@ export const DEPARTMENTS: readonly Department[] = [
       { to: 'eai', payload: 'Clinical data', protocol: 'HL7 v2' },
     ],
     summary:
-      'The nursing station is the hub of the floor, with an island desk of workstations, a shelf of records and a bay with two ward beds. The DPI (Dossier Patient Informatisé) holds the clinical data, the observations and the stay of every patient. It receives results, images and reports from the services, sends them prescriptions and the operating programme, and copies Clinical data to the EAI.',
+      'Le poste de soins est le pivot de l\'étage, avec un bureau en îlot garni de postes de travail, une étagère de dossiers et une alcôve de deux lits d\'hospitalisation. Le DPI (Dossier Patient Informatisé) conserve les données cliniques, les observations et le séjour de chaque patient. Il reçoit des services les résultats, les images et les comptes-rendus, leur adresse les prescriptions et la programmation du bloc, et alimente l\'EAI en Clinical data.',
+    softwareExamples: [
+      'Easily (Hopsis)',
+      'DxCare (Dedalus)',
+      'Hopital Manager (Softway Medical)',
+      'Maincare IC (Docaposte Santé)',
+    ],
   },
   {
     id: 'sgl',
@@ -82,7 +91,8 @@ export const DEPARTMENTS: readonly Department[] = [
       { to: 'eai', payload: 'ORU messages', protocol: 'HL7 v2' },
     ],
     summary:
-      'The Laboratoire runs along one long side of the floor, with benches, an analyser, a centrifuge and a sample fridge. The SGL (Système de Gestion de Laboratoire) tracks every sample from the biology prescription to the validated result. It consumes prescriptions and observations from the DPI, returns Résultats d\'analyses to it and sends ORU messages to the EAI.',
+      'Le Laboratoire longe un grand côté de l\'étage, avec des paillasses, un automate d\'analyse, une centrifugeuse et un réfrigérateur à échantillons. Le SGL (Système de Gestion de Laboratoire) suit chaque échantillon, de la prescription de biologie jusqu\'au résultat validé. Il reçoit du DPI les prescriptions et les observations, lui renvoie les Résultats d\'analyses et alimente l\'EAI en ORU messages.',
+    softwareExamples: ['GLIMS (Clinisys)', 'Hexalis (Dedalus)', 'TDNexLabs (Technidata)'],
   },
   {
     id: 'pacs-ris',
@@ -97,7 +107,8 @@ export const DEPARTMENTS: readonly Department[] = [
       { to: 'eai', payload: 'Images + metadata', protocol: 'DICOM' },
     ],
     summary:
-      'The Imagerie suite in the back corner holds a CT scanner with its patient table and a lead-glass control bay. The PACS/RIS stores the medical images and runs the radiology workflow, from booking to report and billing. It takes imaging prescriptions from the DPI, returns Images and Comptes-rendus, and sends images with metadata to the EAI over DICOM.',
+      'Le service Imagerie, dans l\'angle du fond, abrite un scanner avec sa table d\'examen et une cabine de commande à vitre plombée. Le PACS/RIS archive les images médicales et pilote le circuit de radiologie, de la prise de rendez-vous au compte-rendu et à la facturation. Il reçoit du DPI les prescriptions d\'imagerie, lui renvoie les Images et les Comptes-rendus, et alimente l\'EAI en Images + metadata via DICOM.',
+    softwareExamples: ['Xplore (EDL)', 'DeepUnity (Dedalus)', 'Enterprise Imaging (Agfa HealthCare)'],
   },
   {
     id: 'pharmacie',
@@ -112,7 +123,8 @@ export const DEPARTMENTS: readonly Department[] = [
       { to: 'eai', payload: 'Pharmacy messages', protocol: 'HL7 v2' },
     ],
     summary:
-      'The Pharmacie lines the other long side of the floor with shelving, a dispensing hatch, a drug fridge and a stock trolley. Its system validates prescriptions and ordonnances and keeps the stock of every drug. It receives medication prescriptions from the DPI, returns Prescriptions and Interactions, and sends Pharmacy messages to the EAI.',
+      'La Pharmacie borde l\'autre grand côté de l\'étage, avec des rayonnages, un guichet de dispensation, un réfrigérateur à médicaments et un chariot de stock. Son système valide les prescriptions et les ordonnances et tient le stock de chaque médicament. Il reçoit du DPI les prescriptions médicamenteuses, lui renvoie les Prescriptions et les Interactions, et alimente l\'EAI en Pharmacy messages.',
+    softwareExamples: ['Pharma (Computer Engineering)', 'Copilote (Docaposte Santé)'],
   },
   {
     id: 'bloc',
@@ -126,7 +138,8 @@ export const DEPARTMENTS: readonly Department[] = [
       { to: 'eai', payload: 'Surgical reports', protocol: 'HL7 v2' },
     ],
     summary:
-      'The Bloc opératoire is the operating theatre at the back, with a table, a surgical lamp, an anaesthesia machine and a scrub sink. The Bloc (Gestion Bloc Opératoire) schedules interventions and records what was done in each one. It receives Programmation and the anaesthesia file from the DPI, returns operative reports, and sends Surgical reports to the EAI.',
+      'Le Bloc opératoire est la salle d\'opération du fond, avec une table, un scialytique, un appareil d\'anesthésie et un lavabo chirurgical. Le Bloc (Gestion Bloc Opératoire) programme les interventions et consigne ce qui a été fait lors de chacune. Il reçoit du DPI la Programmation et le dossier d\'anesthésie, lui renvoie les Comptes-rendus opératoires et alimente l\'EAI en Surgical reports.',
+    softwareExamples: ['OpRoom (Evolucare)', 'Hopital Manager (Softway Medical)'],
   },
   {
     id: 'eai',
@@ -137,6 +150,7 @@ export const DEPARTMENTS: readonly Department[] = [
     functions: ['Orchestration', 'Transformation', 'Routage'],
     flows: [],
     summary:
-      'The Salle serveurs at the back centre holds server racks, a patch panel, a UPS and an air-conditioning unit, and the floor trunking ends here. The EAI (Enterprise Application Integration) receives the HL7 v2 and DICOM messages of every other system. It orchestrates them, transforms them and routes each one to its destination.',
+      'La Salle serveurs, au centre du fond, abrite des baies de serveurs, un panneau de brassage, un onduleur et un climatiseur, et les goulottes de câbles de l\'étage y aboutissent. L\'EAI (Enterprise Application Integration) reçoit les messages HL7 v2 et DICOM de tous les autres systèmes. Il les orchestre, les transforme et achemine chacun vers sa destination.',
+    softwareExamples: ['Enovacom Integration Engine (Enovacom)', 'InterSystems IRIS for Health (InterSystems)'],
   },
 ];
