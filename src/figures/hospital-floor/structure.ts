@@ -1,4 +1,4 @@
-// Floors, room numerals lying on the floor above the flat ground marks and under everything that stands, trunking, walls and door leaves. Furniture stays clear of near walls (+y side) because it is painted after them.
+// Floors, room numerals lying on the floor under every object (ground marks, trunking, walls, furniture, door leaves). Furniture stays clear of near walls (+y side) because it is painted after them.
 
 import { extrude, faceTextSvg, groupSvg, insetPlan, planOutline, slabOf, topMatrix } from '../../iso/iso-kit.ts';
 import type { Plan, Plane } from '../../iso/iso-kit.ts';
@@ -20,32 +20,15 @@ import {
   wallsOf,
 } from './model.ts';
 import type { Door, DoorFrame, Room } from './model.ts';
+import { roomZoneColour, roomZoneTint } from './zoneColours.ts';
 
 const TINTED_FLOOR = 'room-floor';
 export const FLOOR_HEIGHT = 0.1;
 const FLOOR_OUTLINE_INSET = 1;
-const NUMERAL_SIZE_SHARES: Record<DepartmentId, number> = {
-  gam: 0.7,
-  rdv: 0.6,
-  dpi: 0.5,
-  sgl: 0.6,
-  'pacs-ris': 0.7,
-  pharmacie: 0.6,
-  bloc: 0.7,
-  eai: 0.7,
-};
-const NUMERAL_OFFSETS: Record<DepartmentId, Plane> = {
-  gam: [0, 0],
-  rdv: [-11, 17.5],
-  dpi: [-21, 12],
-  sgl: [11.5, 3],
-  'pacs-ris': [30, -3],
-  pharmacie: [-38, 5],
-  bloc: [38, -3],
-  eai: [0, 0],
-};
-// Digit height as a share of the font size; monospace fonts differ by a few percent, so the numeral may sit that much off centre.
+const NUMERAL_SHORT_SIDE_SHARE = 0.75;
+// Digit height and width as shares of the font size; the width is a generous bound for a bold digit.
 const DIGIT_HEIGHT_SHARE = 0.7;
+export const DIGIT_WIDTH_SHARE = 0.65;
 const LEAF_THICKNESS = 1.1;
 const LEAF_SWING = (55 * Math.PI) / 180;
 const LEAF_CLEARANCE = 0.3;
@@ -58,7 +41,7 @@ const flat = (plan: Plan, tone: 'lo' | 'faint', className?: string) =>
 
 const roomColour = (id: DepartmentId) => DEPARTMENTS.find((department) => department.id === id)!.colour;
 
-export const roomGroup = (children: string, id: DepartmentId) => groupSvg(children, { 'data-room': id, style: `--room: ${roomColour(id)}` });
+export const roomGroup = (children: string, id: DepartmentId) => groupSvg(children, { 'data-room': id, style: `--room: ${roomColour(id)}; --zone: ${roomZoneColour(id)}; --zone-tint: ${roomZoneTint(id)}` });
 
 export function floorsSvg(): string {
   const corridor = flat(SPUR, 'lo') + flat(RING_FLOOR, 'lo');
@@ -74,13 +57,16 @@ export function numeralsSvg(): string {
   return ROOMS.map((room) => roomGroup(numeralSvg(room), room.id)).join('');
 }
 
+// One size for the eight digits: three quarters of the short side of the smallest room, so each fits inside its walls.
+export const NUMERAL_SIZE = NUMERAL_SHORT_SIDE_SHARE * Math.min(...ROOMS.map(({ plan: { w, d } }) => Math.min(w, d)));
+
+export const numeralCentre = ({ plan: { x, y, w, d } }: Room): Plane => [x + w / 2, y + d / 2];
+
 function numeralSvg(room: Room): string {
   const number = DEPARTMENTS.findIndex(({ id }) => id === room.id) + 1;
-  const { x, y, w, d } = room.plan;
-  const size = NUMERAL_SIZE_SHARES[room.id] * Math.min(w, d);
-  const [offsetX, offsetY] = NUMERAL_OFFSETS[room.id];
-  const baseline: Plane = [x + w / 2 + offsetX, y + d / 2 + offsetY + (size * DIGIT_HEIGHT_SHARE) / 2];
-  const text = faceTextSvg(topMatrix(baseline, FLOOR_HEIGHT, PROJECTION, 'x'), String(number), { size, tone: 'lo', anchor: 'middle' });
+  const [centreX, centreY] = numeralCentre(room);
+  const baseline: Plane = [centreX, centreY + (NUMERAL_SIZE * DIGIT_HEIGHT_SHARE) / 2];
+  const text = faceTextSvg(topMatrix(baseline, FLOOR_HEIGHT, PROJECTION, 'x'), String(number), { size: NUMERAL_SIZE, tone: 'lo', anchor: 'middle' });
   return groupSvg(text, { class: 'room-numeral' });
 }
 

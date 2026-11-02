@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "src/components/networkLayer.css"
+        ],
+        "createdAt": "2026-11-02T17:13:47.453Z",
+        "reason": "orchestrator: .key-line is a legend line swatch (3px border-top on a zero-height span), not an accent border on a card"
+      }
+    ]
+  }
+}

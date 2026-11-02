@@ -1,0 +1,35 @@
+---
+type Props = { title: string; summary: string; badge?: string; chip?: string; previous?: string; next?: string };
+
+const { title, summary, badge, chip, previous, next } = Astro.props;
+---
+
+<header class="in-head">
+  <div class="in-title">
+    <h2 class="in-name">{title}</h2>
+    {badge && <span class="in-badge">{badge}</span>}
+    {chip && <span class="in-service"><i class="in-dot" />{chip}</span>}
+  </div>
+  <div class="in-nav">
+    {
+      previous && (
+        <button type="button" class="in-button" data-action="previous" title={`${previous} (flèche gauche)`} aria-label={`Flux précédent : ${previous}`} aria-keyshortcuts="ArrowLeft">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" /></svg>
+          <span class="in-button-label">Flux précédent</span>
+        </button>
+      )
+    }
+    {
+      next && (
+        <button type="button" class="in-button" data-action="next" title={`${next} (flèche droite)`} aria-label={`Flux suivant : ${next}`} aria-keyshortcuts="ArrowRight">
+          <span class="in-button-label">Flux suivant</span>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg>
+        </button>
+      )
+    }
+    <button type="button" class="in-button in-close" data-action="close" title="Fermer (Échap)" aria-label="Fermer" aria-keyshortcuts="Escape">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" /></svg>
+    </button>
+  </div>
+  <p class="in-summary">{summary}</p>
+</header>

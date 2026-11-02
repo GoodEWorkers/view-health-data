@@ -1,0 +1,71 @@
+---
+import { DEPARTMENTS } from '../../content/departments.ts';
+import { PARTNERS, partnerOfExternal } from '../../content/network/partners.ts';
+import { PROTOCOL_FAMILIES } from '../../content/network/protocols.ts';
+import { flowKey } from '../../figures/hospital-floor/network/sheets.ts';
+import ViewHead from './ViewHead.astro';
+import { PATH_LABELS } from './labels.ts';
+
+const SUMMARY =
+  'Le boîtier de l\'opérateur est le dernier équipement du bâtiment : au-delà, Internet. Chaque partenaire ci-dessous est joint par un chemin imposé (proxy, relais de la DMZ ou tunnel VPN), prouve son identité d\'une façon précise et relève d\'un cadre de certification.';
+const familyOf = (id: string) => PROTOCOL_FAMILIES.find((family) => family.id === id)!;
+const rooms = DEPARTMENTS.filter(({ network }) => network.externalFlows.length > 0);
+---
+
+<article class="in-file nv-partners" data-view="partners" style="--room: var(--anatomy-strong)" hidden>
+  <ViewHead title="Partenaires externes" summary={SUMMARY} chip={`${PARTNERS.length} partenaires`} />
+  <div class="nv-body nv-body-wide">
+    <section aria-label="Les partenaires">
+      <h3 class="nv-heading">Les partenaires de l'hôpital</h3>
+      <div class="nv-cards">
+        {
+          PARTNERS.map(({ name, operator, path, family, identity, certification, explain }) => (
+            <article class="nv-card" style={`--room: ${familyOf(family).colour}`}>
+              <h4>{name}</h4>
+              <p class="nv-operator">Exploité par {operator}</p>
+              <p class="nv-prose">{explain}</p>
+              <dl class="nv-rule-body">
+                <dt>Chemin</dt>
+                <dd>{PATH_LABELS[path]}</dd>
+                <dt>Protocole</dt>
+                <dd>{familyOf(family).label} · <span class="nv-mono">{familyOf(family).ports}</span></dd>
+                <dt>Identité</dt>
+                <dd>{identity}</dd>
+                <dt>Certification</dt>
+                <dd>{certification}</dd>
+              </dl>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+    <section aria-label="Les flux externes de chaque salle">
+      <h3 class="nv-heading">Les flux externes de chaque salle</h3>
+      <div class="nv-rooms">
+        {
+          rooms.map(({ id, acronym, roomName, network }) => (
+            <div class="nv-room">
+              <h4>{acronym === roomName ? acronym : `${acronym} · ${roomName}`}</h4>
+              <ul>
+                {
+                  network.externalFlows.map((flow) => (
+                    <li>
+                      <button type="button" class="nv-link" data-open-flow={flowKey(id, flow.payload)}>
+                        {flow.partner}
+                      </button>
+                      <span class="nv-sub">{flow.payload} · {flow.transport} · {PATH_LABELS[flow.zone]} · {partnerOfExternal(flow).operator}</span>
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+  </div>
+  <footer class="in-foot">
+    <span>Un clic sur un partenaire ouvre la fiche du flux</span>
+    <span class="in-travel">Échap pour revenir au plan</span>
+  </footer>
+</article>

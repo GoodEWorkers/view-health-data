@@ -5,7 +5,8 @@ import { DEPARTMENTS } from '../../content/departments.ts';
 import { SCREENS_MARKER, hospitalFloorCard } from './build.ts';
 
 const card = hospitalFloorCard();
-const TOTAL_FLOWS = DEPARTMENTS.reduce((total, { flows }) => total + flows.length, 0);
+const TOTAL_FLOWS = DEPARTMENTS.reduce((total, { flows, network }) => total + flows.length + network.externalFlows.length, 0);
+const INTERNAL_FLOWS = DEPARTMENTS.reduce((total, { flows }) => total + flows.length, 0);
 
 const indexOfMarker = (marker: string): number => {
   const index = card.indexOf(marker);
@@ -27,13 +28,14 @@ describe('hospitalFloorCard', () => {
     assert.equal(card.match(/<g data-pill=""/g)?.length, TOTAL_FLOWS);
     assert.equal(card.match(/<path class="cable-core"/g)?.length, TOTAL_FLOWS);
     assert.equal(card.match(/<path class="cable-glow"/g)?.length, TOTAL_FLOWS);
-    assert.match(card, /<g data-cable="" data-from="gam" data-to="dpi" data-flow="0" style="--room: #0284c7">/);
+    assert.match(card, /<g data-cable="" data-from="gam" data-to="dpi" data-flow="0" data-family="mllp" data-dash="" data-trace="gam:Identité patient"/);
   });
 
-  it('gives every pill and device label one text per sheet layer', () => {
-    for (const layer of ['logiciels', 'donnees', 'reseau']) {
-      assert.equal(card.match(new RegExp(`<text data-layer="${layer}"`, 'g'))?.length, TOTAL_FLOWS + DEPARTMENTS.length, layer);
+  it('gives every pill and device label one text per sheet layer, but the pill of an external cable only the network one', () => {
+    for (const layer of ['logiciels', 'donnees']) {
+      assert.equal(card.match(new RegExp(`<text data-layer="${layer}"`, 'g'))?.length, INTERNAL_FLOWS + DEPARTMENTS.length, layer);
     }
+    assert.equal(card.match(/<text data-layer="reseau"/g)?.length, TOTAL_FLOWS + DEPARTMENTS.length);
   });
 
   it('leaves one slot for the floating screens, at the end of the stage and before the legend', () => {
@@ -42,9 +44,11 @@ describe('hospitalFloorCard', () => {
     assert.ok(card.indexOf(SCREENS_MARKER) < card.indexOf('<figcaption'));
   });
 
-  it('keeps the room keys alone in the legend and opens on the rooms layer', () => {
+  it('keeps the room keys in the legend, with the zone and family keys of the network layer beside them, and opens on the rooms layer', () => {
     const legend = card.split('<figcaption')[1]!;
     assert.equal((legend.match(/data-keys="rooms"/g) ?? []).length, 1);
+    assert.equal((legend.match(/data-keys="zones"/g) ?? []).length, 1);
+    assert.equal((legend.match(/data-keys="families"/g) ?? []).length, 1);
     assert.ok(!card.includes('data-keys="lines"'));
     assert.match(card, /data-corner="title">Plan de l'hôpital</);
     assert.match(card, /Survolez une salle ou utilisez les flèches/);

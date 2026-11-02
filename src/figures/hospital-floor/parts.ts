@@ -3,10 +3,11 @@
 import { cylinder, dotGrid, extrude, insetPlan, planOutline, slabOf } from '../../iso/iso-kit.ts';
 import type { Plan, Plane, Point3, Tone } from '../../iso/iso-kit.ts';
 import { PROJECTION, at, depth, dots, line, polyline, solid } from './camera.ts';
+import { equipmentColour } from './zoneColours.ts';
 
 export type DeviceRole = 'equipment' | 'anchor';
 
-export type Part = { readonly svg: string; readonly depth: number; readonly device?: DeviceRole };
+export type Part = { readonly svg: string; readonly depth: number; readonly device?: DeviceRole; readonly equipmentId?: string };
 
 export type Face = 'front' | 'left';
 
@@ -52,7 +53,14 @@ export function prism(ring: readonly Plane[], z: number, height: number, style: 
 
 const DEVICE_TAGS: Record<DeviceRole, string> = { equipment: '<g data-device>', anchor: '<g data-device data-anchor>' };
 
-const flattened = ({ svg, device }: Part): string => (device ? `${DEVICE_TAGS[device]}${svg}</g>` : svg);
+export const asEquipment = (part: Part, equipmentId: string): Part => ({ ...part, device: 'equipment', equipmentId });
+
+const flattened = ({ svg, device, equipmentId }: Part): string => {
+  if (device === undefined) return svg;
+  if (equipmentId === undefined) return `${DEVICE_TAGS[device]}${svg}</g>`;
+  const colour = equipmentColour(equipmentId);
+  return `<g data-device data-equipment="${equipmentId}"${colour === undefined ? '' : ` style="--gear: ${colour}"`}>${svg}</g>`;
+};
 
 export const asDevice = (part: Part, role: DeviceRole = 'equipment'): Part => ({ ...part, device: role });
 

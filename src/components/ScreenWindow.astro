@@ -2,7 +2,9 @@
 import { DEPARTMENTS } from '../content/departments.ts';
 import type { DepartmentId } from '../content/departments.ts';
 import { plainName } from '../content/layerLabels.ts';
+import { EDITOR_FILES } from '../content/messages/index.ts';
 import { LOGICAL, socketCentre } from '../figures/hospital-floor/screens/jackWires.ts';
+import Editor from './Editor.astro';
 
 type Props = {
   id: DepartmentId;
@@ -30,6 +32,7 @@ const sockets = [
   role="group"
   aria-label={`Écran de ${acronym} : ${product}`}
   style={`--room: ${colour}; width: ${LOGICAL.width}px; height: ${LOGICAL.height}px`}
+  data-content="skeleton"
   hidden
 >
   <div class="screen-frame">
@@ -37,8 +40,11 @@ const sockets = [
       <header class="screen-title">
         <span class="screen-product">{product}</span>
         <span class="screen-system">{acronym}</span>
+        <span class="screen-loading">Chargement…</span>
+        <span class="screen-progress"></span>
       </header>
       <div class="screen-body"><slot /></div>
+      <Editor file={EDITOR_FILES[id]} acronym={acronym} />
     </div>
     {sockets.map(([x, y]) => <i class="socket" style={`left: ${x}px; top: ${y}px`} />)}
   </div>

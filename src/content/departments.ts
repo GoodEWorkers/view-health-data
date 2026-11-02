@@ -43,6 +43,9 @@ export type NetworkLayer = {
   readonly paragraph: string;
   readonly zones: readonly NetworkZone[];
   readonly externalFlows: readonly ExternalFlow[];
+  // Ids of EQUIPMENT (network/equipment.ts), the access switch of the room first.
+  readonly equipmentIds: readonly string[];
+  readonly resilience: string;
 };
 
 export type Department = {
@@ -104,6 +107,9 @@ export const DEPARTMENTS: readonly Department[] = [
         { external: true, partner: 'Téléservice INSi', payload: 'Récupération et vérification de l\'INS', transport: 'HTTPS', zone: 'proxy' },
         { external: true, partner: 'e-PMSI (ATIH)', payload: 'Transmission des données PMSI', transport: 'HTTPS', zone: 'proxy' },
       ],
+      equipmentIds: ['switch-gam'],
+      resilience:
+        'L\'accueil continue en mode dégradé si le réseau tombe : admissions notées sur papier puis ressaisies, les identités déjà copiées dans chaque système restant consultables.',
     },
   },
   {
@@ -139,6 +145,9 @@ export const DEPARTMENTS: readonly Department[] = [
       externalFlows: [
         { external: true, partner: 'Agenda en ligne', payload: 'Créneaux et rendez-vous des patients', transport: 'HTTPS', zone: 'dmz' },
       ],
+      equipmentIds: ['switch-rdv'],
+      resilience:
+        'Si le réseau tombe, le comptoir passe en mode dégradé avec un planning papier, ressaisi au retour du réseau.',
     },
   },
   {
@@ -190,6 +199,9 @@ export const DEPARTMENTS: readonly Department[] = [
         { external: true, partner: 'DMP / Mon espace santé', payload: 'Documents de santé au format CDA R2', transport: 'HTTPS', zone: 'dmz' },
         { external: true, partner: 'MSSanté', payload: 'Courriers et documents de santé', transport: 'SMTP', zone: 'dmz' },
       ],
+      equipmentIds: ['switch-dpi'],
+      resilience:
+        'Le DPI est le service le plus critique : s\'il tombe, les soins passent en mode dégradé sur dossiers papier, et ce sont les sauvegardes déconnectées du réseau qui permettent la reprise.',
     },
   },
   {
@@ -223,6 +235,9 @@ export const DEPARTMENTS: readonly Department[] = [
         'L\'automate d\'analyse est un équipement biomédical : il est rattaché à son propre réseau, séparé des serveurs par un pare-feu interne. Le SGL échange ensuite avec le DPI et l\'EAI en MLLP, sur les serveurs du SIH. Il n\'a pas d\'échange externe direct, les résultats destinés à l\'extérieur passant par le DPI.',
       zones: ['hospital-servers', 'biomedical-modalities'],
       externalFlows: [],
+      equipmentIds: ['switch-sgl'],
+      resilience:
+        'Si le réseau tombe, le laboratoire passe en mode dégradé : résultats reportés à la main, puis ressaisis ou remontés au retour du réseau.',
     },
   },
   {
@@ -265,6 +280,9 @@ export const DEPARTMENTS: readonly Department[] = [
       externalFlows: [
         { external: true, partner: 'Téléradiologie', payload: 'Images pour interprétation à distance', messageType: 'C-STORE', transport: 'DICOM', zone: 'vpn' },
       ],
+      equipmentIds: ['switch-pacs-ris'],
+      resilience:
+        'Si le réseau tombe, l\'imagerie passe en mode dégradé : le scanner reste utilisable seul, et les images rejoignent le PACS au retour du réseau.',
     },
   },
   {
@@ -301,6 +319,9 @@ export const DEPARTMENTS: readonly Department[] = [
       externalFlows: [
         { external: true, partner: 'Grossiste-répartiteur', payload: 'Commandes de médicaments', transport: 'HTTPS', zone: 'proxy' },
       ],
+      equipmentIds: ['switch-pharmacie'],
+      resilience:
+        'Si le réseau tombe, la pharmacie dispense en mode dégradé avec les ordonnances papier et ressaisit ensuite les mouvements de stock.',
     },
   },
   {
@@ -334,6 +355,9 @@ export const DEPARTMENTS: readonly Department[] = [
         'L\'appareil d\'anesthésie est un équipement biomédical : il reste sur son réseau dédié, séparé du reste par un pare-feu interne. Le logiciel de bloc, sur les serveurs du SIH, échange avec le DPI et l\'EAI en MLLP. Il n\'a pas d\'échange externe direct.',
       zones: ['biomedical-modalities', 'hospital-servers'],
       externalFlows: [],
+      equipmentIds: ['switch-bloc'],
+      resilience:
+        'Si le réseau tombe, le bloc continue d\'opérer en mode dégradé : l\'appareil d\'anesthésie fonctionne isolé et les comptes-rendus sont rédigés sur papier, puis ressaisis.',
     },
   },
   {
@@ -364,6 +388,9 @@ export const DEPARTMENTS: readonly Department[] = [
         'L\'EAI est au centre du réseau des serveurs du SIH : chaque système lui envoie ses messages, en MLLP pour HL7 v2 et en DICOM pour les images. Ces échanges restent à l\'intérieur de la zone des serveurs. Les échanges avec l\'extérieur sont relayés par une passerelle placée en DMZ.',
       zones: ['hospital-servers', 'dmz'],
       externalFlows: [],
+      equipmentIds: ['switch-eai', 'core-eai', 'firewall-eai', 'router-eai', 'telecom-eai', 'ups-eai'],
+      resilience:
+        'La salle serveurs tient sur un onduleur et sur un cœur de réseau doublé, et si l\'EAI s\'arrête les services passent en mode dégradé, leurs messages attendant en file d\'attente d\'être rejoués.',
     },
   },
 ];

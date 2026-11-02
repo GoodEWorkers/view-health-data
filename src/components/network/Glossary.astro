@@ -1,0 +1,36 @@
+---
+import { GLOSSARY } from '../../content/network/glossary.ts';
+import { searchTextOf } from '../../figures/hospital-floor/network/glossaryFilter.ts';
+import ViewHead from './ViewHead.astro';
+
+const SUMMARY = 'Les mots du réseau, vus du côté de l\'hôpital. Tapez un mot pour filtrer : la recherche ignore les accents et les majuscules et cherche dans les définitions.';
+---
+
+<article class="in-file nv-glossary" data-view="glossary" style="--room: var(--anatomy-strong)" hidden>
+  <ViewHead title="Glossaire" summary={SUMMARY} chip={`${GLOSSARY.length} termes`} />
+  <div class="nv-body nv-body-wide">
+    <div class="nv-filter">
+      <label for="glossary-filter">Filtrer les termes</label>
+      <input id="glossary-filter" type="search" name="filtre" placeholder="Par exemple : MLLP, pare-feu, VLAN" autocomplete="off" spellcheck="false" data-glossary-filter />
+      <p class="nv-count" data-glossary-count aria-live="polite">{GLOSSARY.length} termes</p>
+    </div>
+    <dl class="nv-terms" data-glossary-list>
+      {
+        GLOSSARY.map(({ term, definition, source }) => (
+          <div class="nv-term" data-search={searchTextOf(term, definition)}>
+            <dt>{term}</dt>
+            <dd>
+              <p>{definition}</p>
+              {source && <a href={source} target="_blank" rel="noopener noreferrer">Source</a>}
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+    <p class="nv-none" data-glossary-empty hidden>Aucun terme ne correspond. Essayez un mot plus court.</p>
+  </div>
+  <footer class="in-foot">
+    <span>Chaque définition renvoie à sa source quand elle en a une</span>
+    <span class="in-travel">Échap pour revenir au plan</span>
+  </footer>
+</article>

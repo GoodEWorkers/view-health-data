@@ -1,10 +1,12 @@
-// Assembles Figure 1: baseboard, floors, ground marks, numerals, trunking, cables with their packet layer, walls, standing furniture back to front, door leaves, then the labels of cables and devices on top.
+// Assembles Figure 1: baseboard, floors, numerals, zone patches and ground marks, trunking, cables with their packet layer, walls, standing furniture back to front, door leaves, then the labels of cables and devices on top.
 
 import { figureSvg, plateHtml } from '../../iso/iso-kit.ts';
 import { DEPARTMENTS } from '../../content/departments.ts';
 import type { DepartmentId } from '../../content/departments.ts';
 import { DEFAULT_LAYER, layerById } from '../../content/layers.ts';
 import { cablesSvg } from './cables.ts';
+import { networkLegendHtml } from './networkLegend.ts';
+import { networkParts } from './networkParts.ts';
 import { labelsSvg } from './cableLabels.ts';
 import { VIEW_BOX, depth } from './camera.ts';
 import { isOnGround, paint } from './parts.ts';
@@ -20,6 +22,7 @@ import { serverRoomParts } from './rooms/serverRoom.ts';
 import { theatreParts } from './rooms/theatre.ts';
 import { baseboardSvg } from './shell.ts';
 import { floorsSvg, leavesSvg, numeralsSvg, roomGroup, trunkingSvg, wallsSvg } from './structure.ts';
+import { zonePatchesSvg, zonePatternsSvg } from './zonePatches.ts';
 
 const FIGURE_NUMBER = 'Fig. 1';
 const READOUT = 'Huit salles, un étage';
@@ -51,10 +54,12 @@ export function hospitalFloorCard(): string {
     height: VIEW_BOX.height,
     label: FIGURE_LABEL,
     body: [
+      zonePatternsSvg(),
       baseboardSvg(),
       floorsSvg(),
-      roomPartsSvg(isOnGround),
       numeralsSvg(),
+      zonePatchesSvg(),
+      roomPartsSvg(isOnGround),
       trunkingSvg(),
       cablesSvg(),
       wallsSvg(),
@@ -74,14 +79,14 @@ export function hospitalFloorCard(): string {
     })),
     body: `<div class="iso-stage" tabindex="0" role="group" aria-label="${STAGE_LABEL}">${figure}${SCREENS_MARKER}</div>`,
   });
-  return plate.replace('<span class="iso-keys">', ROOM_KEYS);
+  return plate.replace('<span class="iso-keys">', ROOM_KEYS).replace('</figcaption>', `${networkLegendHtml()}</figcaption>`);
 }
 
 const isStanding = (part: Part): boolean => !isOnGround(part);
 
 function roomPartsSvg(keep: (part: Part) => boolean): string {
   const byRoomDepth = [...ROOMS].sort((first, second) => roomDepth(first.plan) - roomDepth(second.plan));
-  return byRoomDepth.map(({ id }) => roomGroup(paint(ROOM_PARTS[id]().filter(keep)), id)).join('');
+  return byRoomDepth.map(({ id }) => roomGroup(paint([...ROOM_PARTS[id](), ...networkParts(id)].filter(keep)), id)).join('');
 }
 
 const roomDepth = ({ x, y, w, d }: { x: number; y: number; w: number; d: number }) => depth([x + w / 2, y + d / 2, 0]);

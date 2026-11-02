@@ -4,14 +4,14 @@ import { PROJECTION, dots, line, at } from '../camera.ts';
 import { rack } from '../equipment.ts';
 import { anchorMonitor, chair, counter, keyboard, trolley } from '../furniture.ts';
 import type { Screen } from '../furniture.ts';
-import { asDevice, box, compose, dotsOnTop, faceDots, faceRect, floorMark, markup, onGround, post, rect, sorted, topOutline } from '../parts.ts';
+import { asDevice, asEquipment, box, compose, dotsOnTop, faceDots, faceRect, floorMark, markup, onGround, post, rect, sorted, topOutline } from '../parts.ts';
 import type { Part } from '../parts.ts';
 
-const RACK_HEIGHT = 22;
-const RACK_PLANS = [-131, -119.5, -108].map((x) => rect(x, -25.8, 10, 9.5, 0.5));
+export const RACK_HEIGHT = 22;
+export const RACK_PLANS = [-131, -119.5, -108].map((x) => rect(x, -25.8, 10, 9.5, 0.5));
 const TRAY = rect(-131, -22.2, 33, 3, 0.3);
 const TRAY_RUNG_PITCH = 3;
-const UPS = rect(-146.5, -25, 13, 10, 0.8);
+export const UPS = rect(-146.5, -25, 13, 10, 0.8);
 const UPS_HEIGHT = 10;
 const AIR_CONDITIONER = rect(-70, -26, 14, 6, 0.8);
 const AIR_BOTTOM = 3;
@@ -21,7 +21,7 @@ const PATCH_HEIGHT = 7.5;
 const DESK = rect(-92, -25.8, 18, 8, 0.6);
 const DESK_HEIGHT = 7.5;
 export const EAI_SCREEN: Screen = { centre: [DESK.x + 12, DESK.y + 2.6], z: DESK_HEIGHT, face: 'left' };
-const MAINTENANCE_CART_ORIGIN: Plane = [-122, 2];
+const MAINTENANCE_CART_ORIGIN: Plane = [-122, 15];
 const EXTINGUISHER_CENTRE: Plane = [-48, -23.5];
 const COLD_AISLE_TILES = [-131, -119, -107].map((x) => rect(x, -15, 12, 7.5, 0.8));
 const PERFORATION = { columns: 5, rows: 3, gap: 1.8, inset: 1.8, height: 0.1 };
@@ -30,7 +30,7 @@ export function serverRoomParts(): Part[] {
   return [
     ...COLD_AISLE_TILES.flatMap(perforatedTile),
     serverRacks(),
-    asDevice(upsCabinet()),
+    asEquipment(upsCabinet(), 'ups-eai'),
     airConditioner(),
     asDevice(patchFrame()),
     maintenanceDesk(),

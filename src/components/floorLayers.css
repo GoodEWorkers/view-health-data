@@ -1,4 +1,4 @@
-/* The software, data and network layers in the floor: lit devices, cables, pills, labels. --device-light (0 on Salles, 1 elsewhere) fades in 320 ms. On Logiciels cables and labels stay hidden (--cable-show 0) and anchors take the --wave glow. */
+/* Software, data and network layers in the floor: lit devices, cables, pills, labels. --device-light (0 on Salles, 1 elsewhere) fades in 320 ms. While windows are open (Logiciels, Données) cables and labels stay hidden (--cable-show 0). */
 
 @property --device-light {
   syntax: '<number>';
@@ -12,27 +12,41 @@
   initial-value: 1;
 }
 
+@property --net-light {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
 .layout {
   --device-light: 0;
   --cable-show: 1;
+  --net-light: 0;
   --pill-ink-share: 65%;
   transition:
     --device-light 320ms var(--anatomy-ease),
-    --cable-show 320ms var(--anatomy-ease);
+    --cable-show 320ms var(--anatomy-ease),
+    --net-light 320ms var(--anatomy-ease);
 }
 
-.layout[data-layer='logiciels'] {
+.layout:is([data-layer='logiciels'], [data-layer='donnees']) {
   --cable-show: 0;
-  transition: --device-light 320ms var(--anatomy-ease);
+  transition:
+    --device-light 320ms var(--anatomy-ease),
+    --net-light 320ms var(--anatomy-ease);
 }
 
 .layout:not([data-layer='salles']) {
   --device-light: 1;
 }
 
+.layout[data-layer='reseau'] {
+  --net-light: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .layout,
-  .layout[data-layer='logiciels'] {
+  .layout:is([data-layer='logiciels'], [data-layer='donnees']) {
     transition: none;
   }
 }
@@ -55,7 +69,7 @@
   pointer-events: none;
 }
 
-.layout[data-layer='logiciels'] .hospital-floor [data-anchor] {
+.layout:is([data-layer='logiciels'], [data-layer='donnees']) .hospital-floor [data-anchor] {
   cursor: pointer;
 }
 
@@ -78,14 +92,6 @@
 
 .hospital-floor .cable-core {
   stroke-width: 0.9;
-}
-
-.layout:not([data-layer='salles']) .hospital-floor .cable-glow {
-  pointer-events: stroke;
-}
-
-.layout[data-layer='logiciels'] .hospital-floor .cable-glow {
-  pointer-events: none;
 }
 
 .hospital-floor :is([data-cable-labels], [data-device-labels]) [data-layer] {

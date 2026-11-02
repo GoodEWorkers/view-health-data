@@ -1,0 +1,70 @@
+---
+import { FIREWALL_RULES } from '../../content/network/firewall.ts';
+import { PROTOCOL_FAMILIES } from '../../content/network/protocols.ts';
+import { zoneColour } from '../../figures/hospital-floor/zoneColours.ts';
+import ViewHead from './ViewHead.astro';
+import ZoneChip from './ZoneChip.astro';
+import { END_LABELS, zoneOfEnd } from './labels.ts';
+
+const SUMMARY =
+  'Le pare-feu applique cette matrice, de haut en bas : chaque ligne autorise un protocole et un port d\'une zone vers une autre, et tout le reste est refusé. La règle d\'un flux ne s\'applique que s\'il change de zone.';
+const familyLabel = (id: string): string => PROTOCOL_FAMILIES.find((family) => family.id === id)?.label ?? 'Tous les protocoles';
+---
+
+<article class="in-file nv-rules" data-view="rules" style={`--room: var(--anatomy-strong); --deny: ${zoneColour('dmz')}`} hidden>
+  <ViewHead title="Table de règles du pare-feu" summary={SUMMARY} chip="Matrice de flux" />
+  <div class="nv-body nv-body-wide">
+    <p class="nv-hit-note" data-hit-note aria-live="polite">Survolez un câble sur le plan : la règle de son flux s'allume ici.</p>
+    <div class="nv-scroll" role="region" aria-label="Table de règles" tabindex="0">
+      <table class="nv-rules-table">
+        <thead>
+          <tr>
+            <th scope="col">N°</th>
+            <th scope="col">De</th>
+            <th scope="col">Vers</th>
+            <th scope="col">Service</th>
+            <th scope="col">Port</th>
+            <th scope="col">Action</th>
+            <th scope="col">Objet</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            FIREWALL_RULES.map((rule) => (
+              <tr data-rule-id={rule.id} data-action-kind={rule.action}>
+                <th scope="row" class="nv-mono">{rule.id}</th>
+                <td><ZoneChip zone={zoneOfEnd(rule.from)} label={END_LABELS[rule.from]} /></td>
+                <td><ZoneChip zone={zoneOfEnd(rule.to)} label={END_LABELS[rule.to]} /></td>
+                <td>
+                  {rule.service}
+                  <span class="nv-sub">{familyLabel(rule.family)}</span>
+                </td>
+                <td class="nv-mono">{rule.port}</td>
+                <td>
+                  {
+                    rule.action === 'allow' ? (
+                      <span class="nv-allow">
+                        <svg viewBox="0 0 8 8" aria-hidden="true"><rect x="0.75" y="0.75" width="6.5" height="6.5" /></svg>
+                        Autoriser
+                      </span>
+                    ) : (
+                      <span class="nv-refus">
+                        <svg viewBox="0 0 8 8" aria-hidden="true"><rect width="8" height="8" /></svg>
+                        Refus
+                      </span>
+                    )
+                  }
+                </td>
+                <td>{rule.purpose}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <footer class="in-foot">
+    <span>{FIREWALL_RULES.length} règles, la dernière refuse tout le reste</span>
+    <span class="in-travel">Échap pour revenir au plan</span>
+  </footer>
+</article>

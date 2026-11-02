@@ -20,8 +20,8 @@ describe('wireDrafts', () => {
     assert.equal(wireDrafts().length, TOTAL_FLOWS);
   });
 
-  it('writes the label of the Logiciels layer on each wire', () => {
-    assert.equal(wires[0]!.label, 'ADT^A01 · MLLP');
+  it('writes on each wire the label of each layer', () => {
+    assert.deepEqual(wires[0]!.labels, { logiciels: 'ADT^A01 · MLLP', donnees: 'Identité patient · HL7 v2', reseau: 'MLLP · port 2575' });
   });
 });
 

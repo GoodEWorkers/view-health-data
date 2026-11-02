@@ -1,0 +1,245 @@
+/* The editor view of a window on Données: brand-less chrome (file tab, format badge, service), an excerpt of 7 rows of 23 columns at 25 logical px, a highlighted range with its hint, folds, and the loading state. Logical pixels. */
+
+.screen-title {
+  position: relative;
+}
+
+.screen-loading {
+  display: none;
+  color: var(--anatomy-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.screen-progress {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: calc(var(--load, 0) * 100%);
+  height: 2px;
+  background: var(--screen-ink);
+  opacity: 0;
+}
+
+.layout[data-layer='donnees'] :is(.screen-product, .screen-system) {
+  visibility: hidden;
+}
+
+.screen[data-content='loading'] .screen-loading {
+  display: inline;
+}
+
+.screen[data-content='loading'] .screen-system {
+  display: none;
+}
+
+.screen[data-content='loading'] .screen-progress {
+  opacity: 1;
+}
+
+.screen-body,
+.screen-editor {
+  transition: opacity 240ms var(--anatomy-ease);
+}
+
+.screen[data-content='loading'] .screen-body {
+  opacity: 0.3;
+}
+
+.screen[data-content='editor'] .screen-body {
+  opacity: 0;
+}
+
+.screen-editor {
+  --token-structure: color-mix(in srgb, var(--room) 58%, var(--anatomy-strong));
+  --token-string: color-mix(in srgb, var(--line-pharmacie) 62%, var(--anatomy-strong));
+  --token-number: color-mix(in srgb, var(--line-rdv) 62%, var(--anatomy-strong));
+  --token-name: color-mix(in srgb, var(--line-dpi) 62%, var(--anatomy-strong));
+  --token-quiet: var(--anatomy-text);
+  --tint: color-mix(in srgb, var(--room) 14%, var(--anatomy-face));
+  --gutter: 38px;
+  --line: 27px;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--anatomy-face);
+  opacity: 0;
+}
+
+.screen[data-content='editor'] .screen-editor {
+  opacity: 1;
+}
+
+.ed-tabs {
+  flex: none;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  height: 20px;
+  padding-right: 8px;
+  background: var(--anatomy-shade-2);
+  border-bottom: 1px solid var(--anatomy-faint);
+}
+
+.ed-tab {
+  display: flex;
+  align-items: center;
+  margin-bottom: -1px;
+  padding: 0 8px;
+  border-right: 1px solid var(--anatomy-faint);
+  border-bottom: 2px solid var(--screen-ink);
+  background: var(--anatomy-face);
+  color: var(--anatomy-strong);
+  font: 600 14px/1 var(--anatomy-mono);
+}
+
+.ed-badge {
+  align-self: center;
+  padding: 1px 6px;
+  border: 1px solid color-mix(in srgb, var(--room) 50%, var(--anatomy-paper));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--room) 14%, var(--anatomy-paper));
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ed-system {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  color: var(--screen-ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ed-system::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--room);
+}
+
+.ed-views {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.ed-view {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 160ms var(--anatomy-ease);
+}
+
+.ed-view[data-on] {
+  opacity: 1;
+}
+
+.ed-lens {
+  height: 16px;
+  padding-right: 8px;
+  color: var(--token-structure);
+  font-size: 14px;
+  font-variant-caps: all-small-caps;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 16px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.ed-lines {
+  position: relative;
+  padding-top: 2px;
+  font: 25px/var(--line) var(--anatomy-mono);
+}
+
+.ed-lines::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--gutter);
+  background: var(--anatomy-shade-3);
+}
+
+.ed-line {
+  position: relative;
+  display: flex;
+  height: var(--line);
+  overflow: hidden;
+  white-space: pre;
+}
+
+.ed-line[data-hit] {
+  background: var(--tint);
+}
+
+.ed-number {
+  flex: none;
+  width: var(--gutter);
+  padding-right: 8px;
+  box-sizing: border-box;
+  color: var(--anatomy-text);
+  font-style: normal;
+  text-align: right;
+  user-select: none;
+}
+
+.ed-line[data-hit] .ed-number {
+  box-shadow: inset 5px 0 0 var(--room);
+}
+
+.ed-text {
+  padding-left: 6px;
+  color: var(--anatomy-strong);
+}
+
+.ed-fold .ed-text {
+  color: var(--token-quiet);
+  font-style: italic;
+}
+
+.ed-text [data-token='segment'],
+.ed-text [data-token='tag'],
+.ed-text [data-token='key'] {
+  color: var(--token-structure);
+  font-weight: 700;
+}
+
+.ed-text [data-token='separator'],
+.ed-text [data-token='punctuation'],
+.ed-text [data-token='comment'] {
+  color: var(--token-quiet);
+}
+
+.ed-text [data-token='comment'] {
+  font-style: italic;
+}
+
+.ed-text [data-token='time'],
+.ed-text [data-token='number'],
+.ed-text [data-token='literal'] {
+  color: var(--token-number);
+}
+
+.ed-text [data-token='attribute'],
+.ed-text [data-token='vr'] {
+  color: var(--token-name);
+}
+
+.ed-text [data-token='value'],
+.ed-text [data-token='string'] {
+  color: var(--token-string);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen-body,
+  .screen-editor,
+  .ed-view {
+    transition: none;
+  }
+}

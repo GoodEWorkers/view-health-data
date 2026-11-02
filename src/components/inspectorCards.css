@@ -1,0 +1,191 @@
+/* The readable pane of the inspector (one card per segment or block, label and value rows) and the detail strip that explains the hovered or pinned field. */
+
+.in-cards {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.75rem var(--in-pad) 1.25rem;
+}
+
+.in-card {
+  overflow: hidden;
+  border: 1px solid var(--anatomy-faint);
+  border-radius: 0.5rem;
+  background: var(--anatomy-face);
+  box-shadow: var(--anatomy-lift);
+}
+
+.in-card:is([data-on], [data-hot]) .in-card-head {
+  background: var(--tint);
+}
+
+.in-card[data-on] {
+  border-color: color-mix(in srgb, var(--room) 55%, var(--anatomy-face));
+}
+
+.in-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--anatomy-faint);
+  background: var(--anatomy-shade-3);
+}
+
+.in-card-head h4 {
+  margin: 0;
+  font-size: var(--in-md);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.in-card-head h4 span {
+  margin-left: 0.5rem;
+  color: var(--anatomy-text);
+  font-weight: 400;
+}
+
+.in-card-head code,
+.in-label code {
+  color: var(--anatomy-text);
+  font: var(--in-xs) / 1.4 var(--anatomy-mono);
+  overflow-wrap: anywhere;
+}
+
+.in-group {
+  margin: 0;
+  padding: 0.5rem 0.75rem 0.125rem;
+  border-top: 1px solid var(--anatomy-shade-1);
+  color: var(--anatomy-text);
+  font-size: var(--in-sm);
+  font-weight: 600;
+}
+
+.in-row {
+  display: grid;
+  grid-template-columns: minmax(6.5rem, 10.5rem) minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.4rem 0.75rem;
+  border-top: 1px solid var(--anatomy-shade-1);
+  cursor: pointer;
+  transition: background-color 100ms var(--in-ease);
+}
+
+.in-rows > :first-child {
+  border-top: 0;
+}
+
+.in-group + .in-row {
+  border-top: 0;
+}
+
+.in-row:is([data-on], [data-hot]) {
+  background: var(--tint);
+}
+
+.in-row[data-on] {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--room) 55%, var(--anatomy-face));
+}
+
+.in-row:focus-visible {
+  outline: 2px solid var(--anatomy-strong);
+  outline-offset: -2px;
+}
+
+.in-label {
+  display: flex;
+  flex-direction: column;
+  color: var(--anatomy-text);
+  font-size: var(--in-sm);
+  line-height: 1.3;
+}
+
+.in-value {
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+  white-space: pre-line;
+  font-variant-numeric: tabular-nums;
+}
+
+@container (max-width: 26rem) {
+  .in-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.125rem;
+  }
+}
+
+.in-detail {
+  flex: none;
+  display: flex;
+  align-items: center;
+  min-height: 4.25rem;
+  padding: 0.5rem var(--in-pad);
+  border-top: 1px solid var(--anatomy-faint);
+  background: var(--anatomy-paper);
+}
+
+.in-detail p {
+  margin: 0;
+}
+
+.in-detail-hint {
+  color: var(--anatomy-text);
+}
+
+.in-detail-body {
+  display: grid;
+  grid-template-columns: minmax(9rem, 17rem) minmax(0, 1fr);
+  align-items: start;
+  width: 100%;
+  gap: 0 1.25rem;
+}
+
+.in-detail-head {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.in-detail-head strong {
+  font-size: var(--in-md);
+  line-height: 1.35;
+}
+
+.in-detail-head code {
+  color: var(--anatomy-text);
+  font: var(--in-sm) / 1.4 var(--anatomy-mono);
+}
+
+.in-detail-text {
+  max-width: 78ch;
+  text-wrap: pretty;
+}
+
+.in-detail-raw {
+  display: flex;
+  gap: 0.5rem;
+  min-width: 0;
+  color: var(--anatomy-text);
+  font-size: var(--in-sm);
+}
+
+.in-detail-head .in-detail-raw code {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--anatomy-strong);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.in-file[data-detail-block] .in-detail-raw,
+.in-file[data-detail-empty] .in-detail-body,
+.in-file:not([data-detail-empty]) .in-detail-hint {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .in-row {
+    transition: none;
+  }
+}

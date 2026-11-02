@@ -7,7 +7,7 @@ import { LANE_PITCH, MAX_HALF_WIDTH, offsetsOf, overlapping, runsOf, shiftedPath
 
 const EPSILON = 1e-6;
 const LEG = 20;
-const MOST_CROSSINGS_IN_THE_LAYOUT = 25;
+const MOST_CROSSINGS_IN_THE_LAYOUT = 240;
 const EAST_THEN_SOUTH: Plane[] = [[0, 0], [LEG, 0], [LEG, 10]];
 const EAST_THEN_NORTH: Plane[] = [[0, 0], [LEG, 0], [LEG, -10]];
 
@@ -71,7 +71,7 @@ describe('offsetsOf', () => {
   });
 
   it('gives no two cables the same lane on an overlapping leg of the real layout', () => {
-    const paths = CABLE_LINES.map(({ points }) => points);
+    const paths = CABLE_LINES.flatMap(({ centrelines }) => centrelines);
     const runs = runsOf(paths);
     const offsets = offsetsOf(paths);
     const offsetOfRun = (index: number) => offsets[runs[index]!.cable]![runs[index]!.leg]!;
@@ -82,12 +82,12 @@ describe('offsetsOf', () => {
     });
   });
 
-  it('crosses no more than the measured handful of strands in the real layout', () => {
-    assert.ok(crossingCount(CABLE_LINES.map(({ points }) => points)) <= MOST_CROSSINGS_IN_THE_LAYOUT);
+  it('crosses no more than the measured number of strands in the real layout, where the way back to a room and the way out to the telecom box share the trunking', () => {
+    assert.ok(crossingCount(CABLE_LINES.flatMap(({ centrelines }) => centrelines)) <= MOST_CROSSINGS_IN_THE_LAYOUT);
   });
 
   it('assigns the same lanes every time it is asked', () => {
-    const paths = CABLE_LINES.map(({ points }) => points);
+    const paths = CABLE_LINES.flatMap(({ centrelines }) => centrelines);
     assert.deepEqual(offsetsOf(paths), offsetsOf(paths));
   });
 });

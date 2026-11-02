@@ -1,0 +1,11 @@
+---
+import { zoneLook } from '../../figures/hospital-floor/network/sheets.ts';
+import type { Zone } from '../../content/network/zones.ts';
+
+type Props = { zone: Zone | 'edge' | undefined; label?: string };
+
+const { zone, label } = Astro.props;
+const look = zoneLook(zone);
+---
+
+<span class="nv-chip" style={`--zone: ${look.colour}`}><i class="nv-chip-dot"></i>{label ?? look.label}</span>

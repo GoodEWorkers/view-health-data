@@ -11,6 +11,15 @@ export const MOCK_PATIENT = {
   unit: 'Cardiologie',
   bed: '214-B',
   physician: 'Dr ROUX',
+  patientId: '0058214',
+  birthStamp: '19580614',
+  birthIso: '1958-06-14',
+  entryStamp: '202611020840',
+  entryIso: '2026-11-02T08:40:00+01:00',
+  physicianName: 'ROUX',
+  physicianFirstName: 'Hugues',
+  room: '214',
+  bedLetter: 'B',
 } as const;
 
 export type Field = readonly [label: string, value: string];
@@ -35,6 +44,7 @@ export type Slot = { readonly day: number; readonly row: number; readonly span: 
 
 export const AGENDA_DAYS: readonly string[] = ['Lun 02', 'Mar 03', 'Mer 04', 'Jeu 05', 'Ven 06'];
 export const AGENDA_HOURS: readonly string[] = ['08h', '09h', '10h', '11h', '14h'];
+export const PATIENT_APPOINTMENT = { stamp: '202611020900', minutes: 30, reason: 'Consultation de cardiologie' } as const;
 export const AGENDA_SLOTS: readonly Slot[] = [
   { day: 0, row: 1, span: 1, label: 'Durand' },
   { day: 0, row: 3, span: 2, label: 'Leroy' },
@@ -70,20 +80,28 @@ export const LAB_RESULTS: readonly LabResult[] = [
 ];
 export const LAB_STATUS = 'Validation biologique 10:42';
 
-export type Exam = { readonly patient: string; readonly exam: string; readonly time: string; readonly status: string };
+export type Exam = { readonly patient: string; readonly exam: string; readonly time: string; readonly status: string; readonly accession: string };
 export const IMAGING_WORKLIST: readonly Exam[] = [
-  { patient: 'DURAND M.', exam: 'Scanner thorax', time: '09:30', status: 'Réalisé' },
-  { patient: 'LEROY C.', exam: 'IRM genou', time: '10:15', status: 'En cours' },
-  { patient: 'PETIT H.', exam: 'Radio poignet', time: '10:40', status: 'Planifié' },
-  { patient: 'FAURE E.', exam: 'Échographie', time: '11:05', status: 'Planifié' },
+  { patient: 'DURAND M.', exam: 'Scanner thorax', time: '09:30', status: 'Réalisé', accession: 'ACC260412' },
+  { patient: 'LEROY C.', exam: 'IRM genou', time: '10:15', status: 'En cours', accession: 'ACC260413' },
+  { patient: 'PETIT H.', exam: 'Radio poignet', time: '10:40', status: 'Planifié', accession: 'ACC260414' },
+  { patient: 'FAURE E.', exam: 'Échographie', time: '11:05', status: 'Planifié', accession: 'ACC260415' },
 ];
 export const IMAGING_CAPTION = ['S2 · 148/312', 'L40 W400'] as const;
 
-export type PrescriptionLine = { readonly drug: string; readonly dose: string; readonly duration: string };
+export type PrescriptionLine = {
+  readonly drug: string;
+  readonly dose: string;
+  readonly duration: string;
+  readonly atc: string;
+  readonly amount: string;
+  readonly unit: string;
+  readonly timesPerDay: number;
+};
 export const PRESCRIPTION_LINES: readonly PrescriptionLine[] = [
-  { drug: 'Amoxicilline', dose: '1 g · 3 / jour', duration: '7 jours' },
-  { drug: 'Warfarine', dose: '5 mg · 1 / jour', duration: 'En continu' },
-  { drug: 'Paracétamol', dose: '1 g · 3 / jour', duration: '5 jours' },
+  { drug: 'Amoxicilline', dose: '1 g · 3 / jour', duration: '7 jours', atc: 'J01CA04', amount: '1', unit: 'g', timesPerDay: 3 },
+  { drug: 'Warfarine', dose: '5 mg · 1 / jour', duration: 'En continu', atc: 'B01AA03', amount: '5', unit: 'mg', timesPerDay: 1 },
+  { drug: 'Paracétamol', dose: '1 g · 3 / jour', duration: '5 jours', atc: 'N02BE01', amount: '1', unit: 'g', timesPerDay: 3 },
 ];
 export const PRESCRIPTION_ALERT = ['Interaction', 'Warfarine + amoxicilline : INR à surveiller'] as const;
 

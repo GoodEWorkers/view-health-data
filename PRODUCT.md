@@ -52,9 +52,11 @@ standard or to `doc/sources.md`.
   layers are drawn into that same drawing: each room's IT equipment is lit and
   coloured cables link it; a label on each cable states what it carries and
   appears only for the hovered cable or a room pinned on purpose, never on
-  phones, where it is too small and the panel carries it. On the software layer
-  opening the layer lights the computers, draws the jack wires between them
-  and lifts the eight screens, skeleton interfaces with synthetic data.
+  phones, where it is too small and the panel carries it. On the software and
+  data layers, opening the layer lights the computers, draws the jack wires
+  between them and lifts the eight screens: skeleton interfaces with synthetic
+  data on Logiciels, and on Données the message or document each service holds
+  about the same synthetic patient, in an editor view.
 - Static output (Astro), pinned dependencies, no backend.
 
 ## Open decisions

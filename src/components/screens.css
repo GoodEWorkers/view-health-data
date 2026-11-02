@@ -48,6 +48,27 @@
 
 .screens[data-state='up'] .screen {
   pointer-events: auto;
+  cursor: zoom-in;
+}
+
+.screens[data-state='up'] .screen[data-focus] {
+  cursor: zoom-out;
+}
+
+.screen-shadow {
+  z-index: 1;
+}
+
+.screens .wires {
+  z-index: 2;
+}
+
+.screen {
+  z-index: 3;
+}
+
+.screens .wire-labels {
+  z-index: 6;
 }
 
 .screen-frame {
@@ -168,6 +189,16 @@
 .plug-body,
 .plug-relief {
   fill: var(--anatomy-strong);
+}
+
+[data-wire-label] [data-layer] {
+  display: none;
+}
+
+.layout[data-layer='logiciels'] [data-wire-label] [data-layer='logiciels'],
+.layout[data-layer='donnees'] [data-wire-label] [data-layer='donnees'],
+.layout[data-layer='reseau'] [data-wire-label] [data-layer='reseau'] {
+  display: inline;
 }
 
 [data-wire-label] {

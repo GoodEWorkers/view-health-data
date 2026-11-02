@@ -1,7 +1,9 @@
 ---
 import './floorLayers.css';
+import './networkLayer.css';
 import { DEPARTMENTS } from '../content/departments.ts';
 import { SCREENS_MARKER, hospitalFloorCard } from '../figures/hospital-floor/build.ts';
+import NetworkViews from './NetworkViews.astro';
 import Screens from './Screens.astro';
 
 const [cardBeforeScreens = '', cardAfterScreens = ''] = hospitalFloorCard().split(SCREENS_MARKER);
@@ -11,12 +13,14 @@ const keyColours = DEPARTMENTS.map(({ colour }, index) => `.hospital-floor [data
 <style is:inline set:html={keyColours}></style>
 
 <div class="hospital-floor">
-  <Fragment set:html={cardBeforeScreens} /><Screens /><Fragment set:html={cardAfterScreens} />
+  <Fragment set:html={cardBeforeScreens} /><Screens /><NetworkViews /><Fragment set:html={cardAfterScreens} />
 </div>
 
 <script>
   import '../figures/hospital-floor/live.ts';
   import '../figures/hospital-floor/labelReveal.ts';
+  import '../figures/hospital-floor/network/networkLive.ts';
+  import '../figures/hospital-floor/network/traceLive.ts';
 </script>
 
 <style is:global>
@@ -63,6 +67,7 @@ const keyColours = DEPARTMENTS.map(({ colour }, index) => `.hospital-floor [data
   .hospital-floor {
     --floor-tint-rest: 16%;
     --floor-tint-gain: 26%;
+    --zone-glow-gain: 0.4;
     --numeral-opacity-rest: 0.6;
     --numeral-opacity-gain: 0.2;
   }
@@ -93,7 +98,13 @@ const keyColours = DEPARTMENTS.map(({ colour }, index) => `.hospital-floor [data
   }
 
   .hospital-floor [data-room] .room-floor .iso-fill {
-    fill: color-mix(in srgb, var(--room) calc(var(--floor-tint-rest) + var(--glow) * var(--floor-tint-gain)), var(--anatomy-paper));
+    --tint: calc(var(--floor-tint-rest) + var(--glow) * var(--floor-tint-gain));
+    --zone-fill: calc(var(--zone-tint) * (1 + var(--glow) * var(--zone-glow-gain)));
+    fill: color-mix(
+      in srgb,
+      var(--zone) calc(var(--zone-in) * var(--zone-fill)),
+      color-mix(in srgb, var(--room) calc((1 - var(--zone-out)) * var(--tint)), var(--anatomy-paper))
+    );
   }
 
   .hospital-floor [data-room] .iso-top {

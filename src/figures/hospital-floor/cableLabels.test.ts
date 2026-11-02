@@ -47,20 +47,32 @@ describe('labelsSvg', () => {
   const pills = svg.slice(0, svg.indexOf('data-device-labels'));
   const labels = svg.slice(svg.indexOf('data-device-labels'));
 
-  it('holds one pill per cable with a paper rectangle and a text for each sheet layer', () => {
+  it('holds one pill per cable with a paper rectangle and a text for each sheet layer, the external cables on the Réseau layer only', () => {
     assert.equal(pills.match(/<g data-pill=""/g)?.length, CABLES.length);
     for (const layer of SHEET_LAYERS) {
-      assert.equal(pills.match(new RegExp(`<rect data-layer="${layer}"`, 'g'))?.length, CABLES.length);
-      assert.equal(pills.match(new RegExp(`<text data-layer="${layer}"`, 'g'))?.length, CABLES.length);
+      const count = layer === 'reseau' ? CABLES.length : CABLES.filter(({ external }) => !external).length;
+      assert.equal(pills.match(new RegExp(`<rect data-layer="${layer}"`, 'g'))?.length, count);
+      assert.equal(pills.match(new RegExp(`<text data-layer="${layer}"`, 'g'))?.length, count);
     }
     assert.ok(pills.includes('rx="1.5"'));
+  });
+
+  it('starts the network text of every cable with the name of its protocol family', () => {
+    for (const { family } of CABLES) assert.ok(pills.includes(`>${family.label} · ${family.ports}`), family.label);
+  });
+
+  it('writes the family, the port, the way out and the partner on an external cable', () => {
+    assert.match(pills, /<tspan[^>]*>HTTPS · 443 · proxy → Téléservice INSi</);
+    assert.match(pills, /<tspan[^>]*>HTTPS · 443 · DMZ → DMP</);
+    assert.match(pills, /<tspan[^>]*>SMTP sécurisé · 587 · DMZ → MSSanté</);
+    assert.match(pills, /<tspan[^>]*>DICOM · 104 ou 11112 · VPN → Téléradiologie</);
   });
 
   it('writes the wire label, the payload with its format and the transport with its port', () => {
     const first = pills.slice(pills.indexOf('<g data-pill=""'), pills.indexOf('</g>', pills.indexOf('<g data-pill=""')));
     assert.match(first, /<text data-layer="logiciels"[^>]*><tspan[^>]*>ADT\^A01 · MLLP</);
     assert.match(first, /<text data-layer="donnees"[^>]*><tspan[^>]*>Identité patient · HL7 v2</);
-    assert.match(first, /<text data-layer="reseau"[^>]*><tspan[^>]*>MLLP · port 2575</);
+    assert.match(first, /<text data-layer="reseau"[^>]*><tspan[^>]*>HL7 v2 sur MLLP · 2575</);
   });
 
   it('never lets two pills of the same layer overlap', () => {

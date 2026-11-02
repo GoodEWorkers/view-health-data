@@ -22,7 +22,8 @@ describe('wiresSvg', () => {
   });
 
   it('numbers the wires like the cables and names the source room, its colour and the sockets', () => {
-    assert.match(markup, /<g data-wire="" data-room="gam" data-from="gam" data-to="dpi" data-flow="0" data-source-slot="\d+" data-source-count="5" data-target-slot="\d+" data-target-count="\d+" data-route="[^"]+" style="--room: #0284c7">/);
+    assert.match(markup, /<g data-wire="" data-room="gam" data-from="gam" data-to="dpi" data-flow="0" data-source-slot="\d+" data-source-count="5" data-target-slot="\d+" data-target-count="\d+" data-route="[^"]+" data-source-range="identity" data-target-range="patient" style="--room: #0284c7">/);
+    assert.equal(count(markup, /data-target-range=/g), 23, 'only the flow whose destination declares nothing for its payload carries no target range');
     assert.equal(count(markup, /data-flow="23"/g), 1);
   });
 });
@@ -30,13 +31,17 @@ describe('wiresSvg', () => {
 describe('wireLabelsSvg', () => {
   const markup = wireLabelsSvg(wires);
 
-  it('holds one label per wire with the text of the Logiciels layer', () => {
+  it('holds one label per wire with a text for each layer: message type, payload with format, transport with port', () => {
     assert.equal(count(markup, /<g data-wire-label=""/g), TOTAL_FLOWS);
-    assert.match(markup, /<text[^>]*>ADT\^A01 · MLLP<\/text>/);
+    for (const layer of ['logiciels', 'donnees', 'reseau']) assert.equal(count(markup, new RegExp(`<text data-layer="${layer}"`, 'g')), TOTAL_FLOWS, layer);
+    assert.match(markup, /<text data-layer="logiciels"[^>]*>ADT\^A01 · MLLP<\/text>/);
+    assert.match(markup, /<text data-layer="donnees"[^>]*>Identité patient · HL7 v2<\/text>/);
+    assert.match(markup, /<text data-layer="reseau"[^>]*>MLLP · port 2575<\/text>/);
   });
 
-  it('sizes each pill to its text', () => {
-    assert.match(markup, new RegExp(`<rect x="${(-labelWidthOf('ADT^A01 · MLLP') / 2).toFixed(1)}" y="${-LABEL_HEIGHT / 2}" width="${labelWidthOf('ADT^A01 · MLLP').toFixed(1)}"`));
+  it('sizes each pill to its text, the group keeping the widest', () => {
+    assert.match(markup, new RegExp(`<rect data-layer="logiciels" x="${(-labelWidthOf('ADT^A01 · MLLP') / 2).toFixed(1)}" y="${-LABEL_HEIGHT / 2}" width="${labelWidthOf('ADT^A01 · MLLP').toFixed(1)}"`));
     assert.ok(labelWidthOf('ADT^A01 · MLLP') > labelWidthOf('ADT'));
+    assert.match(markup, new RegExp(`data-width="${labelWidthOf('Identité patient · HL7 v2').toFixed(1)}"`));
   });
 });

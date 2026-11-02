@@ -3,6 +3,7 @@
 import { DEPARTMENTS } from '../../../content/departments.ts';
 import type { DepartmentId, Flow } from '../../../content/departments.ts';
 import { wireTexts } from '../../../content/layerLabels.ts';
+import type { SheetLayerId } from '../../../content/layers.ts';
 import type { Corner } from './homography.ts';
 import { PLUG_LENGTH, plugEnd, scaleOfQuad, socketEnd } from './jackWires.ts';
 import type { Box, WireEnd } from './jackWires.ts';
@@ -15,7 +16,7 @@ export type Wire = {
   readonly source: DepartmentId;
   readonly target: DepartmentId;
   readonly flow: Flow;
-  readonly label: string;
+  readonly labels: Readonly<Record<SheetLayerId, string>>;
   readonly sourceSlot: number;
   readonly sourceCount: number;
   readonly targetSlot: number;
@@ -35,8 +36,13 @@ const MAX_SAG = 2.5;
 
 const centreX = (id: DepartmentId): number => LIFTED_RECTS[id].x + LIFTED_RECTS[id].width / 2;
 
+const labelsOf = (flow: Flow): Readonly<Record<SheetLayerId, string>> => {
+  const { logiciels, donnees, reseau } = wireTexts([flow]);
+  return { logiciels: logiciels[0]!, donnees: donnees[0]!, reseau: reseau[0]! };
+};
+
 export const wireDrafts = (): Draft[] =>
-  DEPARTMENTS.flatMap(({ id, flows }) => flows.map((flow) => ({ source: id, target: flow.to, flow, label: wireTexts([flow]).logiciels[0]! }))).map((draft, index) => ({ ...draft, index }));
+  DEPARTMENTS.flatMap(({ id, flows }) => flows.map((flow) => ({ source: id, target: flow.to, flow, labels: labelsOf(flow) }))).map((draft, index) => ({ ...draft, index }));
 
 function slotsOf(drafts: readonly Draft[], host: 'source' | 'target'): Map<number, Slot> {
   const other = host === 'source' ? 'target' : 'source';

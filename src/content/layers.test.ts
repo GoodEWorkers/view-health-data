@@ -16,11 +16,11 @@ describe('LAYERS', () => {
     ]);
   });
 
-  it('titles the plate after the layer shown, and hints at the keys of the floor, at the wires and windows of the software layer or at the devices and cables', () => {
+  it('titles the plate after the layer shown, and hints at the keys of the floor, at the wires and windows of the two layers that open them or at the devices and cables of the network layer', () => {
     assert.deepEqual(LAYERS.map(({ title }) => title), ['Plan de l\'hôpital', 'Logiciels', 'Données', 'Réseau']);
     assert.equal(layerById('salles').hint, 'Survolez une salle ou utilisez les flèches');
-    assert.equal(layerById('logiciels').hint, 'Survolez un fil ou cliquez une fenêtre');
-    assert.deepEqual((['donnees', 'reseau'] as const).map((id) => layerById(id).hint), Array(2).fill('Survolez un équipement ou un câble'));
+    assert.deepEqual((['logiciels', 'donnees'] as const).map((id) => layerById(id).hint), Array(2).fill('Survolez un fil ou cliquez une fenêtre'));
+    assert.equal(layerById('reseau').hint, 'Survolez un équipement ou un câble');
   });
 
   it('opens on the rooms layer', () => {

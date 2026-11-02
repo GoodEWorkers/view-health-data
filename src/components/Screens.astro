@@ -2,11 +2,13 @@
 import './screens.css';
 import './skeleton.css';
 import './skeletonViews.css';
+import './editor.css';
 import { DEPARTMENTS } from '../content/departments.ts';
 import { VIEW_BOX } from '../figures/hospital-floor/camera.ts';
 import { LIFTED_RECTS, quadOfRect, startQuadOf } from '../figures/hospital-floor/screens/lift.ts';
 import { wireLabelsSvg, wiresSvg } from '../figures/hospital-floor/screens/wireMarkup.ts';
 import { wiresIn } from '../figures/hospital-floor/screens/wires.ts';
+import Inspector from './Inspector.astro';
 import ScreenWindow from './ScreenWindow.astro';
 import Bloc from './screens/bloc.astro';
 import Dpi from './screens/dpi.astro';
@@ -18,12 +20,13 @@ import Rdv from './screens/rdv.astro';
 import Sgl from './screens/sgl.astro';
 
 const wires = wiresIn(VIEW_BOX);
+const lineColours = DEPARTMENTS.map(({ id, colour }) => `--line-${id}:${colour}`).join(';');
 const contents = { gam: Gam, rdv: Rdv, dpi: Dpi, sgl: Sgl, 'pacs-ris': PacsRis, pharmacie: Pharmacie, bloc: Bloc, eai: Eai };
 const cornersOf = (quad: readonly (readonly [number, number])[]): string => quad.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' ');
 const countOf = (id: string, side: 'source' | 'target'): number => wires.filter((wire) => wire[side] === id).length;
 ---
 
-<div class="screens" data-screens data-view={`${VIEW_BOX.width} ${VIEW_BOX.height}`}>
+<div class="screens" data-screens data-view={`${VIEW_BOX.width} ${VIEW_BOX.height}`} style={lineColours}>
   <svg class="wires" aria-hidden="true" set:html={wiresSvg(wires)} />
   {DEPARTMENTS.map(({ id }) => <div class="screen-shadow" data-shadow={id} hidden></div>)}
   {
@@ -37,6 +40,7 @@ const countOf = (id: string, side: 'source' | 'target'): number => wires.filter(
     })
   }
   <svg class="wire-labels" aria-hidden="true" set:html={wireLabelsSvg(wires)} />
+  <Inspector />
 </div>
 
 <script>

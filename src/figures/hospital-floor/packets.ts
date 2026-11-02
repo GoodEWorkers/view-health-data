@@ -27,7 +27,7 @@ type Packet = {
 };
 
 function cablesOf(stage: Element, id: string): Cable[] {
-  return [...stage.querySelectorAll<SVGPathElement>(`[data-cable][data-from="${id}"] .cable-core`)].map((path) => ({ path, length: path.getTotalLength() }));
+  return [...stage.querySelectorAll<SVGPathElement>(`[data-cable]:not([data-external])[data-from="${id}"] .cable-core`)].map((path) => ({ path, length: path.getTotalLength() }));
 }
 
 export function createPackets(stage: Element, still: MediaQueryList): Packets | null {

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { DRAW_SPAN, FADE_SECONDS, GLOW_SPAN, OPEN_SPAN, REVERSE_SECONDS, TOTAL_SECONDS, advanceTime, cascadeBySeconds, cascadeByStep, progressAt, timelineOf } from './sequence.ts';
+import { DRAW_SPAN, FADE_SECONDS, GLOW_SPAN, LOAD_SECONDS, LOAD_STEP_SECONDS, OPEN_SPAN, REVERSE_SECONDS, TOTAL_SECONDS, advanceTime, cascadeBySeconds, cascadeByStep, loadingEndsAt, progressAt, timelineOf, viewAt } from './sequence.ts';
 
 const ROOMS = 8;
 const WIRES = 24;
@@ -87,5 +87,28 @@ describe('advanceTime', () => {
     const middle = advanceTime(0, true, 0.9, false);
     assert.equal(middle, 0.9);
     assert.ok(advanceTime(middle, false, 0.01, false) < middle);
+  });
+});
+
+describe('the loading of the windows on Données', () => {
+  it('lasts 500 ms per window, 40 ms apart', () => {
+    assert.equal(LOAD_SECONDS, 0.5);
+    assert.equal(LOAD_STEP_SECONDS, 0.04);
+  });
+
+  it('shows the skeleton until the window\'s turn, the progress during its 500 ms and the editor after', () => {
+    assert.deepEqual(viewAt(0, 0), { mode: 'loading', progress: 0 });
+    assert.deepEqual(viewAt(0.25, 0), { mode: 'loading', progress: 0.5 });
+    assert.deepEqual(viewAt(0.5, 0), { mode: 'editor', progress: 1 });
+    assert.deepEqual(viewAt(0.1, 3), { mode: 'skeleton', progress: 0 });
+    assert.equal(viewAt(0.12, 3).mode, 'loading');
+  });
+
+  it('staggers by rank: the last of eight starts at 280 ms and everything is an editor at 780 ms', () => {
+    assert.ok(Math.abs(loadingEndsAt(ROOMS) - 0.78) < TOLERANCE);
+    assert.equal(viewAt(0.27, 7).mode, 'skeleton');
+    assert.equal(viewAt(0.29, 7).mode, 'loading');
+    assert.equal(viewAt(loadingEndsAt(ROOMS), 7).mode, 'editor');
+    assert.equal(viewAt(loadingEndsAt(ROOMS) - 0.01, 7).mode, 'loading');
   });
 });

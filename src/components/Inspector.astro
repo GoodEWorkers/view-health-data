@@ -1,0 +1,155 @@
+---
+import './inspector.css';
+import './inspectorLayout.css';
+import './inspectorRaw.css';
+import './inspectorCards.css';
+import { INSPECTIONS } from '../content/decode/index.ts';
+import { TOKEN_LEGENDS } from '../content/decode/legend.ts';
+import { shortCode } from '../content/decode/types.ts';
+import { DEPARTMENTS } from '../content/departments.ts';
+import { neighbourIndex } from '../figures/hospital-floor/inspector/navigation.ts';
+
+const BREAK_AFTER = /[|~]$/;
+const count = INSPECTIONS.length;
+const groupChanges = (rows: readonly { group?: string }[], position: number): boolean => rows[position]!.group !== undefined && rows[position]!.group !== rows[position - 1]?.group;
+---
+
+<div class="inspector" data-inspector hidden>
+  <div class="inspector-scrim" data-scrim data-action="close"></div>
+  <section class="inspector-panel" data-panel data-view="readable" role="dialog" aria-modal="false" aria-label="Inspecteur de fichier" tabindex="-1">
+    {
+      INSPECTIONS.map((inspection, index) => {
+        const { id, file, summary, travel, initial, cards, lines } = inspection;
+        const { acronym, roomName, colour } = DEPARTMENTS[index]!;
+        const [previous, next] = [INSPECTIONS[neighbourIndex(index, -1, count)]!, INSPECTIONS[neighbourIndex(index, 1, count)]!];
+        return (
+          <article class="in-file" data-file={id} data-initial={initial.join(' ')} style={`--room: ${colour}`} hidden>
+            <header class="in-head">
+              <div class="in-title">
+                <h2 class="in-name">{file.name}</h2>
+                <span class="in-badge">{file.badge}</span>
+                <span class="in-service">
+                  <i class="in-dot" />
+                  {acronym === roomName ? acronym : `${acronym} · ${roomName}`}
+                </span>
+              </div>
+              <div class="in-nav">
+                <button type="button" class="in-button" data-action="previous" title={`${previous.file.name} (flèche gauche)`} aria-label={`Fichier précédent : ${previous.file.name}`} aria-keyshortcuts="ArrowLeft">
+                  <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" /></svg>
+                  <span class="in-button-label">Fichier précédent</span>
+                </button>
+                <button type="button" class="in-button" data-action="next" title={`${next.file.name} (flèche droite)`} aria-label={`Fichier suivant : ${next.file.name}`} aria-keyshortcuts="ArrowRight">
+                  <span class="in-button-label">Fichier suivant</span>
+                  <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg>
+                </button>
+                <button type="button" class="in-button in-close" data-action="close" title="Fermer (Échap)" aria-label="Fermer l'inspecteur" aria-keyshortcuts="Escape">
+                  <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" /></svg>
+                </button>
+              </div>
+              <p class="in-summary">{summary}</p>
+            </header>
+            <div class="in-views" role="group" aria-label="Affichage">
+              <button type="button" class="in-view" data-view-button="raw" aria-pressed="false">Brut</button>
+              <button type="button" class="in-view" data-view-button="readable" aria-pressed="true">Lisible</button>
+            </div>
+            <div class="in-body">
+              <section class="in-pane in-raw" data-pane="raw" aria-label="Brut : le fichier tel qu'il circule" tabindex="0">
+                <h3 class="in-pane-title">Brut<span>le fichier tel qu'il circule, sans rien replier</span></h3>
+                <div class="in-code" data-format={file.format}>
+                  {
+                    lines.map((line) => (
+                      <div class="in-line" data-ref={line.block ?? undefined} style={`--indent: ${line.indent}`}>
+                        <i class="in-number">{line.number}</i>
+                        <b class="in-tag">{line.tag}</b>
+                        <span class="in-text">
+                          {line.units.map(({ ref, tokens }) => {
+                            const pieces = tokens.map(({ kind, text }) => (
+                              <>
+                                <span data-token={kind}>{text}</span>
+                                {BREAK_AFTER.test(text) && <wbr />}
+                              </>
+                            ));
+                            return ref ? <span class="in-unit" data-ref={ref}>{pieces}</span> : pieces;
+                          })}
+                        </span>
+                      </div>
+                    ))
+                  }
+                </div>
+              </section>
+              <section class="in-pane in-read" data-pane="readable" aria-label="Lisible : le même contenu, décodé">
+                <h3 class="in-pane-title">Lisible<span>le même contenu, décodé</span></h3>
+                <div class="in-cards">
+                  {
+                    cards.map((card) => (
+                      <article class="in-card" data-ref={card.ref} data-label={card.title} data-code={card.code} data-explain={card.explain ?? ''} data-raw="" aria-label={card.title}>
+                        <header class="in-card-head">
+                          <h4>
+                            {card.title}
+                            {card.subtitle && <span>{card.subtitle}</span>}
+                          </h4>
+                          <code>{card.code}</code>
+                        </header>
+                        <div class="in-rows">
+                          {card.rows.map((row, position) => (
+                            <>
+                              {groupChanges(card.rows, position) && <p class="in-group">{row.group}</p>}
+                              <div
+                                class="in-row"
+                                role="button"
+                                tabindex="0"
+                                aria-pressed="false"
+                                aria-label={`${row.label} : ${row.value.replaceAll('\n', ' ; ')}`}
+                                data-ref={row.ref}
+                                data-label={row.label}
+                                data-code={row.code}
+                                data-explain={row.explain ?? ''}
+                                data-raw={row.raw}
+                              >
+                                <span class="in-label">
+                                  {row.label}
+                                  <code>{shortCode(row.code)}</code>
+                                </span>
+                                <span class="in-value">{row.value}</span>
+                              </div>
+                            </>
+                          ))}
+                        </div>
+                      </article>
+                    ))
+                  }
+                </div>
+              </section>
+            </div>
+            <div class="in-detail">
+              <p class="in-detail-hint">Survolez ou cliquez un champ, dans l'un ou l'autre volet, pour comprendre à quoi il sert.</p>
+              <div class="in-detail-body">
+                <div class="in-detail-head">
+                  <strong data-detail="label" />
+                  <code data-detail="code" />
+                  <p class="in-detail-raw">
+                    <span>Brut</span>
+                    <code data-detail="raw" />
+                  </p>
+                </div>
+                <p class="in-detail-text" data-detail="explain" />
+              </div>
+            </div>
+            <footer class="in-foot">
+              <ul class="in-legend" aria-label="Couleurs du fichier brut">
+                {TOKEN_LEGENDS[file.format].map(({ kinds, label }) => <li><span data-token={kinds[0]}>Abc</span> {label}</li>)}
+              </ul>
+              <ul class="in-travel" aria-label="Circuit du fichier">
+                {travel.map((leg) => <li>{leg}</li>)}
+              </ul>
+            </footer>
+          </article>
+        );
+      })
+    }
+  </section>
+</div>
+
+<script>
+  import '../figures/hospital-floor/inspector/inspectorLive.ts';
+</script>

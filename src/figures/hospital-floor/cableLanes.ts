@@ -3,7 +3,7 @@
 import type { Plane } from '../../iso/iso-kit.ts';
 
 export const LANE_PITCH = 1.4;
-export const MAX_HALF_WIDTH = 4.2;
+export const MAX_HALF_WIDTH = 3;
 
 type Turn = -1 | 0 | 1;
 type End = 'low' | 'high';
@@ -111,8 +111,8 @@ export function assignSlots(runs: readonly Run[]): number[] {
     );
   const waiting = new Set(runs.keys());
   while (waiting.size > 0) {
-    const ready = [...waiting].filter((index) => owedBefore(index).every((before) => slots[before]! >= 0));
-    const index = ready[0] ?? [...waiting][0]!;
+    const unmet = (index: number): number => owedBefore(index).filter((before) => slots[before]! < 0).length;
+    const index = [...waiting].reduce((fewest, candidate) => (unmet(candidate) < unmet(fewest) ? candidate : fewest));
     const taken = new Set(runs.flatMap((other, otherIndex) => (slots[otherIndex]! >= 0 && overlapping(runs[index]!, other) ? [slots[otherIndex]!] : [])));
     let slot = Math.max(-1, ...owedBefore(index).map((before) => slots[before]!)) + 1;
     while (taken.has(slot)) slot += 1;

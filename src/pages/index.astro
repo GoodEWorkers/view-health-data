@@ -1,6 +1,7 @@
 ---
 import HospitalFloor from '../components/HospitalFloor.astro';
 import LayerTabs from '../components/LayerTabs.astro';
+import NetworkPanel from '../components/network/Panel.astro';
 import { DEPARTMENTS } from '../content/departments.ts';
 import type { Department, DepartmentId } from '../content/departments.ts';
 import { flowInterface, flowRowLabel, TRANSPORT_DETAILS, uniqueTransports, ZONE_LABELS } from '../content/layerLabels.ts';
@@ -156,6 +157,7 @@ const interfacesOf = ({ id, flows }: Department) => {
                   </ul>
                 </>
               )}
+              <NetworkPanel room={department.id} />
             </div>
           </section>
         ))

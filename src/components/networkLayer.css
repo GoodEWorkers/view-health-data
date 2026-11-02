@@ -1,0 +1,127 @@
+/* The Réseau layer in the floor: zone fills, gear lit in its zone colour, cables in the colour and dash of their protocol family, the legend swap. networkLive.ts drives --zone-show, --wave and --crossing. */
+
+.hospital-floor {
+  --zone-show: 0;
+  --zone-out: clamp(0, var(--zone-show) * 2, 1);
+  --zone-in: clamp(0, var(--zone-show) * 2 - 1, 1);
+}
+
+.hospital-floor [data-zone-patch] {
+  opacity: var(--zone-in);
+  pointer-events: none;
+}
+
+.hospital-floor .zone-patch .iso-fill {
+  fill: color-mix(in srgb, var(--zone) var(--zone-tint), var(--anatomy-paper));
+}
+
+.hospital-floor .zone-patch .iso-edge {
+  stroke: color-mix(in srgb, var(--zone) 62%, var(--anatomy-paper));
+  stroke-width: 0.8;
+}
+
+.hospital-floor [data-device][data-equipment] {
+  --room: var(--gear, var(--anatomy-muted));
+  --device-light: var(--net-light);
+  --emphasis: max(var(--glow), var(--wave, 0), var(--crossing, 0));
+  filter: var(--halo) drop-shadow(0 0 6px color-mix(in srgb, var(--room) calc(var(--crossing, 0) * 75%), transparent));
+}
+
+.layout[data-layer='reseau'] .hospital-floor :is([data-equipment='firewall-eai'], [data-equipment='telecom-eai']) {
+  cursor: pointer;
+}
+
+.layout[data-layer='reseau'] .hospital-floor :is(.cable-glow, .cable-core) {
+  stroke: var(--family);
+}
+
+.layout[data-layer='reseau'] .hospital-floor .cable-core {
+  stroke-dasharray: var(--dash, none);
+}
+
+.hospital-floor .cable-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: none;
+  pointer-events: none;
+}
+
+.layout[data-layer='reseau'] .hospital-floor .cable-hit {
+  pointer-events: stroke;
+  cursor: pointer;
+}
+
+.hospital-floor [data-cable][data-traced] .cable-glow {
+  opacity: 0.8;
+}
+
+.hospital-floor [data-cable][data-traced] .cable-core {
+  stroke-width: 1.5;
+}
+
+.hospital-floor :is(.cable-gate, .cable-gate-halo) {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: none;
+}
+
+.hospital-floor .cable-gate-halo {
+  stroke: var(--anatomy-paper);
+  stroke-width: 2.8;
+}
+
+.hospital-floor .cable-gate {
+  stroke: var(--room);
+  stroke-width: 1.1;
+}
+
+.layout[data-layer='reseau'] .hospital-floor .cable-gate {
+  stroke: var(--family);
+}
+
+.hospital-floor .legend-network {
+  display: grid;
+  gap: 0.375rem;
+  align-content: start;
+}
+
+.hospital-floor .iso-legend > * {
+  grid-area: 1 / 1;
+  transition:
+    opacity 320ms var(--anatomy-ease),
+    visibility 320ms;
+}
+
+.hospital-floor .legend-network {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.layout[data-layer='reseau'] .hospital-floor .legend-network {
+  opacity: 1;
+  visibility: visible;
+}
+
+.layout[data-layer='reseau'] .hospital-floor [data-keys='rooms'] {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.hospital-floor :is([data-keys='zones'], [data-keys='families']) .iso-key {
+  cursor: default;
+}
+
+.hospital-floor :is(.key-patch, .key-line) {
+  flex: none;
+  overflow: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hospital-floor .iso-legend > * {
+    transition: none;
+  }
+}

@@ -1,0 +1,109 @@
+---
+import { captureRows } from '../../figures/hospital-floor/network/captureRows.ts';
+import { zoneLook } from '../../figures/hospital-floor/network/sheets.ts';
+import type { FlowEntry } from '../../figures/hospital-floor/network/sheets.ts';
+import { DEPARTMENTS } from '../../content/departments.ts';
+import ViewHead from './ViewHead.astro';
+import ZoneChip from './ZoneChip.astro';
+import { END_LABELS, FRAMING_CAPTIONS, zoneOfEnd } from './labels.ts';
+
+type Props = { entry: FlowEntry; previous: FlowEntry; next: FlowEntry; position: number; count: number };
+
+const { entry, previous, next, position, count } = Astro.props;
+const { key, room, external, flow, sheet, family } = entry;
+const { rule, hops, stack, capture } = sheet;
+const { acronym, roomName } = DEPARTMENTS.find(({ id }) => id === room)!;
+const rows = captureRows(capture);
+const isTunnel = external && 'zone' in flow && flow.zone === 'vpn';
+const caption = FRAMING_CAPTIONS[isTunnel ? 'vpn' : family.id];
+---
+
+<article class="in-file nv-flow" data-view="flow" data-flow-key={key} data-room={room} data-rule={rule?.id ?? ''} style={`--room: ${family.colour}`} hidden>
+  <ViewHead title={sheet.title} summary={sheet.summary} badge={family.label} chip={external ? 'Flux externe' : 'Flux interne'} previous={previous.sheet.title} next={next.sheet.title} />
+  <div class="nv-body">
+    <div class="nv-col">
+      <section aria-label="Pile de protocoles">
+        <h3 class="nv-heading">Pile de protocoles</h3>
+        <table class="nv-stack">
+          <tbody>
+            {stack.map(({ layer, value }) => <tr><th scope="row">{layer}</th><td>{value}</td></tr>)}
+          </tbody>
+        </table>
+      </section>
+      <section aria-label="Règle du pare-feu">
+        <h3 class="nv-heading">Règle du pare-feu</h3>
+        {
+          rule === undefined ? (
+            <p class="nv-none">Aucun franchissement de zone : ce flux reste dans la zone des serveurs, le pare-feu ne le voit pas.</p>
+          ) : (
+            <div class="nv-rule" data-action-kind={rule.action}>
+              <div class="nv-rule-head">
+                <strong>Règle n° {rule.id}</strong>
+                <span class="nv-rule-action">{rule.action === 'allow' ? 'Autorise' : 'Refuse'}</span>
+              </div>
+              <dl class="nv-rule-body">
+                <dt>De</dt>
+                <dd><ZoneChip zone={zoneOfEnd(rule.from)} label={END_LABELS[rule.from]} /></dd>
+                <dt>Vers</dt>
+                <dd><ZoneChip zone={zoneOfEnd(rule.to)} label={END_LABELS[rule.to]} /></dd>
+                <dt>Service</dt>
+                <dd>{rule.service}</dd>
+                <dt>Port</dt>
+                <dd class="nv-mono">{rule.port}</dd>
+                <dt>Objet</dt>
+                <dd>{rule.purpose}</dd>
+              </dl>
+            </div>
+          )
+        }
+      </section>
+      <section aria-label="Trajet du flux">
+        <h3 class="nv-heading">Trajet du flux</h3>
+        <ol class="nv-steps">
+          {
+            hops.map(({ label, detail, zone }) => {
+              const look = zoneLook(zone);
+              return (
+                <li class="nv-step" style={`--zone: ${look.colour}`}>
+                  <i class="nv-dot"></i>
+                  <div>
+                    <p class="nv-step-title"><strong>{label}</strong> <span class="nv-step-zone">{look.label}</span></p>
+                    <p class="nv-step-detail">{detail}</p>
+                  </div>
+                </li>
+              );
+            })
+          }
+        </ol>
+      </section>
+    </div>
+    <div class="nv-col">
+      <section aria-label="Capture du flux">
+        <h3 class="nv-heading">Capture sur le réseau</h3>
+        <p class="nv-caption">Capture synthétique, lignes de type tcpdump. {caption}</p>
+        <div class="nv-code" role="region" aria-label="Capture du flux, lignes numérotées" tabindex="0">
+          {
+            rows.map(({ number, pieces }) => (
+              <div class="nv-line" data-hex={/^\s+0x/.test(pieces[0]!.text) ? '' : undefined}>
+                <i class="nv-number">{number}</i>
+                <span class="nv-text">{pieces.map(({ kind, text }, index) => (kind === 'frame' ? <mark data-piece="frame">{text}</mark> : <span data-piece={kind}>{index === 0 ? text.trimStart() : text}</span>))}</span>
+              </div>
+            ))
+          }
+        </div>
+      </section>
+      <section aria-label="Si ce flux est coupé">
+        <h3 class="nv-heading">Si ce flux est coupé</h3>
+        <p class="nv-prose">{sheet.ifBlocked}</p>
+      </section>
+      <section aria-label="Supervision">
+        <h3 class="nv-heading">Supervision</h3>
+        <p class="nv-prose">{sheet.monitoring}</p>
+      </section>
+    </div>
+  </div>
+  <footer class="in-foot">
+    <span>Flux {position} sur {count} · {acronym === roomName ? acronym : `${acronym} · ${roomName}`}</span>
+    <span class="in-travel">Flèches gauche et droite : flux suivant de la salle</span>
+  </footer>
+</article>

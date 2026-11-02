@@ -1,0 +1,41 @@
+---
+import './inspector.css';
+import './networkLists.css';
+import './networkSheet.css';
+import './networkViews.css';
+import { FLOW_ENTRIES } from '../figures/hospital-floor/network/sheets.ts';
+import FlowSheet from './network/FlowSheet.astro';
+import Glossary from './network/Glossary.astro';
+import Partners from './network/Partners.astro';
+import Rules from './network/Rules.astro';
+
+const sameRoom = (entry: (typeof FLOW_ENTRIES)[number]) => FLOW_ENTRIES.filter(({ room }) => room === entry.room);
+---
+
+<div class="inspector network-views" data-network-views hidden>
+  <div class="inspector-scrim" data-scrim data-action="close"></div>
+  <section class="inspector-panel" data-panel role="dialog" aria-modal="false" aria-label="Détail du réseau" tabindex="-1">
+    {
+      FLOW_ENTRIES.map((entry) => {
+        const group = sameRoom(entry);
+        const position = group.indexOf(entry);
+        return (
+          <FlowSheet
+            entry={entry}
+            previous={group[(position + group.length - 1) % group.length]!}
+            next={group[(position + 1) % group.length]!}
+            position={position + 1}
+            count={group.length}
+          />
+        );
+      })
+    }
+    <Rules />
+    <Partners />
+    <Glossary />
+  </section>
+</div>
+
+<script>
+  import '../figures/hospital-floor/network/viewsLive.ts';
+</script>

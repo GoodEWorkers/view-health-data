@@ -1,7 +1,9 @@
-// The build-time markup of the wire layer: one group per wire with its glow, core (both pathLength 1, so the draw is a dash offset), wide hit stroke and two plugs, and one label pill per wire above the screens.
+// The build-time markup of the wire layer: per wire a glow and core (pathLength 1, drawn by dash offset), a hit stroke, two plugs and the editor ranges its hover lights; per wire a label pill with a text for each layer.
 
 import { DEPARTMENTS } from '../../../content/departments.ts';
+import { rangesOfFlow } from '../../../content/messages/ranges.ts';
 import { groupSvg } from '../../../iso/iso-kit.ts';
+import { SHEET_LAYERS } from '../../../content/layers.ts';
 import { LABEL_HEIGHT, plugSvg } from './jackWires.ts';
 import type { Wire } from './wires.ts';
 
@@ -20,8 +22,9 @@ const routeAttribute = (route: Wire['route']): string => route.map(([x, y]) => `
 
 export const wiresSvg = (wires: readonly Wire[]): string =>
   wires
-    .map((wire) =>
-      groupSvg(['<path class="wire-hit"/>', '<path class="wire-glow" pathLength="1"/>', '<path class="wire-core" pathLength="1"/>', plugSvg(), plugSvg()], {
+    .map((wire) => {
+      const { source, target } = rangesOfFlow(wire.source, wire.flow);
+      return groupSvg(['<path class="wire-hit"/>', '<path class="wire-glow" pathLength="1"/>', '<path class="wire-core" pathLength="1"/>', plugSvg(), plugSvg()], {
         'data-wire': '',
         'data-room': wire.source,
         'data-from': wire.source,
@@ -32,23 +35,29 @@ export const wiresSvg = (wires: readonly Wire[]): string =>
         'data-target-slot': wire.targetSlot,
         'data-target-count': wire.targetCount,
         'data-route': routeAttribute(wire.route),
+        'data-source-range': source,
+        'data-target-range': target,
         style: `--room: ${colourOf(wire.source)}`,
-      }),
-    )
+      });
+    })
     .join('');
 
 export const wireLabelsSvg = (wires: readonly Wire[]): string =>
   wires
-    .map(({ source, target, index, label }) => {
-      const width = labelWidthOf(label);
-      const pill = `<rect x="${(-width / 2).toFixed(1)}" y="${-LABEL_HEIGHT / 2}" width="${width.toFixed(1)}" height="${LABEL_HEIGHT}" rx="${LABEL_RADIUS}"/>`;
-      const text = `<text font-size="${LABEL_FONT_SIZE}" text-anchor="middle" dominant-baseline="central">${escapeText(label)}</text>`;
-      return groupSvg(pill + text, {
+    .map(({ source, target, index, labels }) => {
+      const widths = SHEET_LAYERS.map((layer) => labelWidthOf(labels[layer]));
+      const variants = SHEET_LAYERS.map((layer, position) => {
+        const width = widths[position]!;
+        const pill = `<rect data-layer="${layer}" x="${(-width / 2).toFixed(1)}" y="${-LABEL_HEIGHT / 2}" width="${width.toFixed(1)}" height="${LABEL_HEIGHT}" rx="${LABEL_RADIUS}"/>`;
+        const text = `<text data-layer="${layer}" font-size="${LABEL_FONT_SIZE}" text-anchor="middle" dominant-baseline="central">${escapeText(labels[layer])}</text>`;
+        return pill + text;
+      });
+      return groupSvg(variants, {
         'data-wire-label': '',
         'data-from': source,
         'data-to': target,
         'data-flow': index,
-        'data-width': width.toFixed(1),
+        'data-width': Math.max(...widths).toFixed(1),
         style: `--room: ${colourOf(source)}`,
       });
     })

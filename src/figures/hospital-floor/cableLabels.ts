@@ -1,8 +1,8 @@
 // Cable pills and device labels at build time, as upright SVG text in plate units. A pill sits mid-leg, slid along its cable out of rooms and away from other labels; each label holds one text per sheet layer.
 
 import { DEPARTMENTS } from '../../content/departments.ts';
-import type { Department, DepartmentId } from '../../content/departments.ts';
-import { stationRows, wireTexts } from '../../content/layerLabels.ts';
+import type { Department, DepartmentId, ExternalZone } from '../../content/departments.ts';
+import { plainName, stationRows, wireTexts } from '../../content/layerLabels.ts';
 import type { StationRow } from '../../content/layerLabels.ts';
 import { SHEET_LAYERS } from '../../content/layers.ts';
 import type { SheetLayerId } from '../../content/layers.ts';
@@ -14,6 +14,7 @@ import { at } from './camera.ts';
 import { DEVICE_SCREENS } from './devices.ts';
 import { ROOMS } from './model.ts';
 
+const NETWORK_LAYER: SheetLayerId = 'reseau';
 const FONT_SIZE = 7.5;
 const CHARACTER_WIDTH = 0.56 * FONT_SIZE;
 const PILL_PADDING = { across: 3, along: 2.2 };
@@ -24,7 +25,7 @@ const ROOM_COST = 220;
 const LEG_RANK_COST = 40;
 const CLASH_COST = 400;
 const ROW_COST = 60;
-const ROWS: readonly number[] = [0, 1, -1];
+const ROWS: readonly number[] = [0, 1, -1, 2, -2, 3, -3];
 const LINE_HEIGHT = 8.6;
 const LABEL_LIFT = 4;
 const SCREEN_TOP = 6.5;
@@ -60,10 +61,9 @@ const escapeText = (text: string): string => text.replace(/&/g, '&amp;').replace
 
 type Leg = { readonly from: Plane; readonly to: Plane; readonly length: number };
 
-const legsLongestFirst = ({ corners }: Cable): Leg[] =>
-  corners
-    .slice(1)
-    .map((to, index): Leg => ({ from: corners[index]!, to, length: Math.hypot(to[0] - corners[index]![0], to[1] - corners[index]![1]) }))
+const legsLongestFirst = ({ legs }: Cable): Leg[] =>
+  legs
+    .flatMap(({ corners }) => corners.slice(1).map((to, index): Leg => ({ from: corners[index]!, to, length: Math.hypot(to[0] - corners[index]![0], to[1] - corners[index]![1]) })))
     .sort((first, second) => second.length - first.length);
 
 function positionsAlong({ from, to, length }: Leg): Plane[] {
@@ -91,8 +91,12 @@ function textMarkup(layer: SheetLayerId, lines: readonly string[], [x, y]: Flat)
   return `<text data-layer="${layer}" font-size="${FONT_SIZE}" text-anchor="middle" dominant-baseline="central">${spans.join('')}</text>`;
 }
 
-function pillSvg({ source, target, colour }: Cable, index: number, texts: Readonly<Record<SheetLayerId, string>>, [x, y]: Flat): string {
-  const variants = SHEET_LAYERS.map((layer) => {
+// An external cable only exists on the Réseau layer, so its pill carries that text alone.
+const layersOf = ({ external }: Cable): readonly SheetLayerId[] => (external ? [NETWORK_LAYER] : SHEET_LAYERS);
+
+function pillSvg(cable: Cable, index: number, texts: Readonly<Record<SheetLayerId, string>>, [x, y]: Flat): string {
+  const { source, target, colour } = cable;
+  const variants = layersOf(cable).map((layer) => {
     const width = textWidth(texts[layer]) + PILL_PADDING.across * 2;
     const height = FONT_SIZE + PILL_PADDING.along * 2;
     const box = `<rect data-layer="${layer}" x="${(x - width / 2).toFixed(1)}" y="${(y - height / 2).toFixed(1)}" width="${width.toFixed(1)}" height="${height.toFixed(1)}" rx="${PILL_RADIUS}"/>`;
@@ -101,13 +105,24 @@ function pillSvg({ source, target, colour }: Cable, index: number, texts: Readon
   return groupSvg(variants, { 'data-pill': '', 'data-from': source, 'data-to': target, 'data-flow': index, style: `--room: ${colour}` });
 }
 
+const SHORT_PARTNER_SEPARATOR = ' / ';
+const EXIT_WORDS: Readonly<Record<ExternalZone, string>> = { proxy: 'proxy', dmz: 'DMZ', vpn: 'VPN' };
+
+// The Réseau text of a cable always starts with the name of its protocol family, so the colour and the dash pattern are never the only cue: « HL7 v2 sur MLLP · 2575 », and for an external flow « HTTPS · 443 · proxy → DMP ».
+export function networkLabel(cable: Cable): string {
+  const { family } = cable;
+  if (!cable.external) return `${family.label} · ${family.ports}`;
+  const partner = plainName(cable.flow.partner).split(SHORT_PARTNER_SEPARATOR)[0]!;
+  return `${family.label} · ${family.ports} · ${EXIT_WORDS[cable.flow.zone]} → ${partner}`;
+}
+
 function pillsSvg(): string {
-  const texts = CABLES.map(({ flow }) => {
-    const { logiciels, donnees, reseau } = wireTexts([flow]);
-    return { logiciels: logiciels[0]!, donnees: donnees[0]!, reseau: reseau[0]! };
+  const texts = CABLES.map((cable) => {
+    const { logiciels, donnees } = wireTexts([cable.flow]);
+    return { logiciels: logiciels[0]!, donnees: donnees[0]!, reseau: networkLabel(cable) };
   });
   const candidates = CABLES.map((cable, index): Candidate => {
-    const widest = Math.max(...SHEET_LAYERS.map((layer) => textWidth(texts[index]![layer])));
+    const widest = Math.max(...layersOf(cable).map((layer) => textWidth(texts[index]![layer])));
     const options = legsLongestFirst(cable).flatMap((leg, rank) => positionsAlong(leg).flatMap((point) => optionsAt(point, rank)));
     return { options, width: widest + PILL_PADDING.across * 2, height: FONT_SIZE + PILL_PADDING.along * 2 };
   });

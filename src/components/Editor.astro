@@ -1,0 +1,41 @@
+---
+import { excerptOf } from '../content/excerpt.ts';
+import type { EditorFile } from '../content/messages/index.ts';
+
+type Props = { file: EditorFile; acronym: string };
+
+const { file, acronym } = Astro.props;
+const views = file.ranges.map(({ key }) => excerptOf(file, key));
+---
+
+<div class="screen-editor" aria-hidden="true" data-main-range={file.mainRange}>
+  <div class="ed-tabs">
+    <span class="ed-tab">{file.name}</span>
+    <span class="ed-badge">{file.badge}</span>
+    <span class="ed-system">{acronym}</span>
+  </div>
+  <div class="ed-views">
+    {
+      views.map(({ key, label, lines }) => (
+        <div class="ed-view" data-range={key} data-on={key === file.mainRange ? '' : undefined}>
+          <div class="ed-lens">{label}</div>
+          <div class="ed-lines" data-format={file.format}>
+            {lines.map((line) =>
+              line.kind === 'fold' ? (
+                <div class="ed-line ed-fold">
+                  <i class="ed-number" />
+                  <span class="ed-text">{line.text}</span>
+                </div>
+              ) : (
+                <div class="ed-line" data-hit={line.inRange ? '' : undefined}>
+                  <i class="ed-number">{line.number}</i>
+                  <span class="ed-text">{line.tokens.map(({ kind, text }) => <span data-token={kind}>{text}</span>)}</span>
+                </div>
+              ),
+            )}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>
