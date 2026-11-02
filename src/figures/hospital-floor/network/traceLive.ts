@@ -1,4 +1,4 @@
-// Hovering a cable of Réseau walks a packet along it hop by hop and shows its hop list in the side panel; the firewall glows when the flow crosses it. A click opens the view of a cable, the firewall or the telecom box.
+// Hovering a cable of Réseau walks a packet along it and lights its hops in the strip at the bottom of the side panel, only while the pointer is on the map or a flow button has keyboard focus. A click opens the view of a cable or a piece of gear.
 
 import { announceNetworkTrace, requestNetworkView } from './networkChannel.ts';
 import { walkAt } from './trace.ts';
@@ -92,8 +92,8 @@ function mount(figure: HTMLElement): void {
     return flow === undefined ? (element?.closest<SVGGElement>('[data-cable]') ?? null) : (cables.get(flow) ?? null);
   };
 
-  document.addEventListener('pointerover', (event) => trace(cableOf(event.target)));
-  document.addEventListener('focusin', (event) => trace(cableOf(event.target)));
+  figure.addEventListener('pointerover', (event) => trace(cableOf(event.target)));
+  document.addEventListener('focusin', (event) => trace(event.target instanceof Element && event.target.matches(':focus-visible') ? cableOf(event.target) : null));
   document.addEventListener('focusout', () => trace(null));
   figure.addEventListener('pointerleave', () => trace(null));
   new MutationObserver(() => isNetwork() || trace(null)).observe(layout, { attributes: true, attributeFilter: ['data-layer'] });

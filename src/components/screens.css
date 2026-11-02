@@ -34,7 +34,7 @@
 .screen {
   --ring: max(var(--glow, 0), var(--wire-lit, 0));
   --wire-lit: 0;
-  --screen-ink: color-mix(in srgb, var(--room) 65%, var(--anatomy-strong));
+  --screen-ink: var(--room-text);
   box-sizing: border-box;
   font-size: 13.5px;
   line-height: 1.25;
@@ -48,11 +48,11 @@
 
 .screens[data-state='up'] .screen {
   pointer-events: auto;
-  cursor: zoom-in;
+  cursor: pointer;
 }
 
-.screens[data-state='up'] .screen[data-focus] {
-  cursor: zoom-out;
+.screen[data-selected] {
+  --ring: 1;
 }
 
 .screen-shadow {
@@ -165,6 +165,7 @@
 
 .screens[data-state='up'] .wire-hit {
   pointer-events: stroke;
+  cursor: pointer;
 }
 
 [data-wire]:hover .wire-core {
@@ -218,7 +219,7 @@
 }
 
 [data-wire-label] text {
-  fill: color-mix(in srgb, var(--room) var(--pill-ink-share, 65%), var(--anatomy-strong));
+  fill: var(--room-text);
   font-weight: 600;
   font-feature-settings: 'tnum';
 }

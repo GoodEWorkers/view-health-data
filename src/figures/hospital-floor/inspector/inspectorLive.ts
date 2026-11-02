@@ -48,7 +48,7 @@ function mount(root: HTMLElement): void {
   function go(step: number): void {
     const next = neighbourIndex(current ?? 0, step, shown.length);
     requestInspector({ action: 'open', index: next });
-    requestRoom({ action: 'pin', index: next });
+    requestRoom({ action: 'select', index: next });
   }
 
   function setView(view: string): void {

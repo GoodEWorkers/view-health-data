@@ -44,6 +44,14 @@ describe('hospitalFloorCard', () => {
     assert.ok(card.indexOf(SCREENS_MARKER) < card.indexOf('<figcaption'));
   });
 
+  it('paints one selection outline per room after the walls and before the standing furniture, hidden until live.ts marks the room selected', () => {
+    assert.equal(card.match(/class="iso-line room-selection"/g)?.length, DEPARTMENTS.length);
+    const firstOutline = card.indexOf('room-selection-halo');
+    assert.ok(firstOutline > card.indexOf('data-cables'));
+    assert.ok(card.indexOf('data-device', firstOutline) > 0, 'standing devices come after the outlines');
+    assert.ok(card.lastIndexOf('room-selection-halo') < card.indexOf('data-cable-labels'));
+  });
+
   it('keeps the room keys in the legend, with the zone and family keys of the network layer beside them, and opens on the rooms layer', () => {
     const legend = card.split('<figcaption')[1]!;
     assert.equal((legend.match(/data-keys="rooms"/g) ?? []).length, 1);
@@ -51,6 +59,6 @@ describe('hospitalFloorCard', () => {
     assert.equal((legend.match(/data-keys="families"/g) ?? []).length, 1);
     assert.ok(!card.includes('data-keys="lines"'));
     assert.match(card, /data-corner="title">Plan de l'hôpital</);
-    assert.match(card, /Survolez une salle ou utilisez les flèches/);
+    assert.match(card, /Cliquez une salle ou utilisez les flèches/);
   });
 });

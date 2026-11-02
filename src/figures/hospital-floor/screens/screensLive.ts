@@ -1,7 +1,6 @@
 // Plays the window sequence off one clock: anchor glow, wires drawing, eight windows rising and staying open on Logiciels and Données, where each then loads and becomes an editor. Talks to live.ts only through activeRoom.ts.
 
-import { onActiveRoom, requestRoom } from '../activeRoom.ts';
-import type { ActiveRoom } from '../activeRoom.ts';
+import { onSelection, requestRoom } from '../activeRoom.ts';
 import { announceInspector, onInspectorRequest } from '../inspector/inspectorChannel.ts';
 import { FOCUS_SCALE, STAGE_MARGIN, focusQuad, stepFocus } from './focus.ts';
 import type { Bounds } from './focus.ts';
@@ -59,7 +58,7 @@ function mount(layer: HTMLElement): void {
   let inspected: number | null = null;
   let inspectFrom = 0;
   let inspectLevel = 0;
-  let activeRoom: ActiveRoom | null = null;
+  let selected: number | null = null;
   let time = 0;
   let dataTime = 0;
   let forward = false;
@@ -194,18 +193,11 @@ function mount(layer: HTMLElement): void {
     if (!OPEN_LAYERS.includes(currentLayer) || !(event.target instanceof Element) || event.target.closest('[data-inspector]')) return;
     const clicked = indexOfRoom(event.target.closest<HTMLElement>('[data-window]')?.dataset.window);
     if (clicked >= 0) {
-      requestRoom({ action: 'pin', index: clicked });
       if (currentLayer === EDITOR_LAYER) inspect(clicked);
       else focusOn(focused === clicked ? null : clicked);
       return;
     }
-    if (event.target.closest('[data-wire]')) return;
-    const room = event.target.closest('[data-anchor]')?.closest('[data-room]')?.getAttribute('data-room');
-    if (room) requestRoom({ action: 'pin', index: indexOfRoom(room) });
-    else {
-      requestRoom({ action: 'release' });
-      focusOn(null);
-    }
+    if (!event.target.closest('[data-wire], [data-anchor]')) focusOn(null);
   }
 
   function showRange(view: ScreenView, key: string | undefined): void {
@@ -225,15 +217,20 @@ function mount(layer: HTMLElement): void {
 
   stage.addEventListener('click', onClick);
   stage.addEventListener('keydown', (event) => {
-    if (event.key !== 'Enter' || event.target !== stage || currentLayer !== EDITOR_LAYER || !activeRoom?.deliberate) return;
+    if (event.key !== 'Enter' || event.target !== stage || currentLayer !== EDITOR_LAYER || selected === null) return;
     event.preventDefault();
-    inspect(activeRoom.index);
+    inspect(selected);
   });
-  document.addEventListener('keydown', (event) => event.key === 'Escape' && (inspected === null ? focusOn(null) : inspect(null)));
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || (inspected === null && focused === null)) return;
+    event.preventDefault();
+    if (inspected === null) focusOn(null);
+    else inspect(null);
+  });
   onInspectorRequest((request) => inspect(request.action === 'open' && currentLayer === EDITOR_LAYER ? request.index : null));
-  onActiveRoom((room) => {
-    activeRoom = room;
-    if (inspected !== null && room.deliberate && room.index !== inspected) inspect(room.index);
+  onSelection((selection) => {
+    selected = selection.selected;
+    if (inspected !== null && selected !== null && selected !== inspected) inspect(selected);
   });
   requestRoom({ action: 'sync' });
   layer.addEventListener('pointerover', onWireHover);

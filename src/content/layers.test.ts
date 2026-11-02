@@ -16,11 +16,18 @@ describe('LAYERS', () => {
     ]);
   });
 
-  it('titles the plate after the layer shown, and hints at the keys of the floor, at the wires and windows of the two layers that open them or at the devices and cables of the network layer', () => {
+  it('titles the plate after the layer shown, and tells the visitor what to click: a room, a window and a wire to hover, or a cable or a piece of gear', () => {
     assert.deepEqual(LAYERS.map(({ title }) => title), ['Plan de l\'hôpital', 'Logiciels', 'Données', 'Réseau']);
-    assert.equal(layerById('salles').hint, 'Survolez une salle ou utilisez les flèches');
-    assert.deepEqual((['logiciels', 'donnees'] as const).map((id) => layerById(id).hint), Array(2).fill('Survolez un fil ou cliquez une fenêtre'));
-    assert.equal(layerById('reseau').hint, 'Survolez un équipement ou un câble');
+    assert.equal(layerById('salles').hint, 'Cliquez une salle ou utilisez les flèches');
+    assert.deepEqual((['logiciels', 'donnees'] as const).map((id) => layerById(id).hint), Array(2).fill('Cliquez une fenêtre, survolez un fil'));
+    assert.equal(layerById('reseau').hint, 'Cliquez un câble ou un équipement');
+  });
+
+  it('gives every layer one overview sentence for the panel when no room is selected', () => {
+    for (const { id, overview } of LAYERS) {
+      assert.match(overview, /^[A-ZÀ-Ý].*[.]$/u, id);
+      assert.ok(overview.length < 160, id);
+    }
   });
 
   it('opens on the rooms layer', () => {

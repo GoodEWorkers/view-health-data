@@ -1,11 +1,35 @@
-const SHEET_HINT = 'Survolez un équipement ou un câble';
-const WINDOWS_HINT = 'Survolez un fil ou cliquez une fenêtre';
+const SHEET_HINT = 'Cliquez un câble ou un équipement';
+const WINDOWS_HINT = 'Cliquez une fenêtre, survolez un fil';
 
 export const LAYERS = [
-  { id: 'salles', label: 'Salles', title: 'Plan de l\'hôpital', hint: 'Survolez une salle ou utilisez les flèches' },
-  { id: 'logiciels', label: 'Logiciels', title: 'Logiciels', hint: WINDOWS_HINT },
-  { id: 'donnees', label: 'Données', title: 'Données', hint: WINDOWS_HINT },
-  { id: 'reseau', label: 'Réseau', title: 'Réseau', hint: SHEET_HINT },
+  {
+    id: 'salles',
+    label: 'Salles',
+    title: 'Plan de l\'hôpital',
+    hint: 'Cliquez une salle ou utilisez les flèches',
+    overview: 'Huit services sur un même étage : chaque salle garde sa couleur sur toutes les couches.',
+  },
+  {
+    id: 'logiciels',
+    label: 'Logiciels',
+    title: 'Logiciels',
+    hint: WINDOWS_HINT,
+    overview: 'Chaque service a son logiciel : les écrans s\'ouvrent au-dessus du plan, reliés par des fils qui sont autant d\'échanges de messages.',
+  },
+  {
+    id: 'donnees',
+    label: 'Données',
+    title: 'Données',
+    hint: WINDOWS_HINT,
+    overview: 'Chaque fenêtre montre le message ou le document qu\'un service garde sur le même patient fictif ; cliquez-la pour lire le fichier en entier.',
+  },
+  {
+    id: 'reseau',
+    label: 'Réseau',
+    title: 'Réseau',
+    hint: SHEET_HINT,
+    overview: 'Les mêmes échanges vus du réseau : zones, familles de protocoles et pare-feu. Survolez un câble pour suivre son trajet.',
+  },
 ] as const;
 
 export type LayerId = (typeof LAYERS)[number]['id'];

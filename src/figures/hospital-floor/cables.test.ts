@@ -89,7 +89,7 @@ describe('cablesSvg', () => {
   it('draws a glow stroke under a core stroke in each cable, tagged with its rooms, family, trace key and colours', () => {
     assert.equal(groups.length, CABLES.length);
     assert.ok(svg.includes('<g data-cable="" data-from="gam" data-to="dpi" data-flow="0" data-family="mllp" data-dash="" data-trace="gam:Identité patient"'));
-    assert.ok(svg.includes('style="--room: #0284c7; --family: #005191; --dash: none"'));
+    assert.ok(svg.includes(`style="--room: ${DEPARTMENTS[0]!.colour}; --family: #005191; --dash: none"`));
     assert.equal(svg.match(/class="cable-glow" d="([^"]+)"\/><path class="cable-core" d="\1"/g)?.length, CABLES.length);
     assert.equal(svg.match(/data-flow="\d+"/g)?.length, CABLES.length);
   });

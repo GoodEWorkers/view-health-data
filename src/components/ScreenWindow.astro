@@ -15,7 +15,7 @@ type Props = {
 };
 
 const { id, outgoing, incoming, start, end } = Astro.props;
-const { acronym, colour, softwareExamples } = DEPARTMENTS.find((department) => department.id === id)!;
+const { acronym, colour, textColour, softwareExamples } = DEPARTMENTS.find((department) => department.id === id)!;
 const product = plainName(softwareExamples[0]!);
 const sockets = [
   ...Array.from({ length: outgoing }, (_, slot) => socketCentre(slot, outgoing, 'bottom')),
@@ -31,7 +31,7 @@ const sockets = [
   data-end={end}
   role="group"
   aria-label={`Écran de ${acronym} : ${product}`}
-  style={`--room: ${colour}; width: ${LOGICAL.width}px; height: ${LOGICAL.height}px`}
+  style={`--room: ${colour}; --room-text: ${textColour}; width: ${LOGICAL.width}px; height: ${LOGICAL.height}px`}
   data-content="skeleton"
   hidden
 >

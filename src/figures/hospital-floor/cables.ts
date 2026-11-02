@@ -27,6 +27,7 @@ export type CableLeg = {
 
 export type Cable = CableLine & {
   readonly colour: string;
+  readonly textColour: string;
   readonly family: ProtocolInfo;
   readonly legs: readonly CableLeg[];
 };
@@ -57,7 +58,8 @@ function bundled(lines: readonly CableLine[]): Cable[] {
       const corners = shiftedPath(centre, legOffsets);
       return { offsets: legOffsets, corners, path: roundedPolyline(corners, (vertex) => cornerRadiusAt(centre, corners, vertex)) };
     });
-    return { ...line, colour: DEPARTMENTS.find(({ id }) => id === line.source)!.colour, family: protocolOf(transportOf(line.flow)), legs };
+    const { colour, textColour } = DEPARTMENTS.find(({ id }) => id === line.source)!;
+    return { ...line, colour, textColour, family: protocolOf(transportOf(line.flow)), legs };
   });
 }
 

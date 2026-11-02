@@ -22,7 +22,7 @@ describe('wiresSvg', () => {
   });
 
   it('numbers the wires like the cables and names the source room, its colour and the sockets', () => {
-    assert.match(markup, /<g data-wire="" data-room="gam" data-from="gam" data-to="dpi" data-flow="0" data-source-slot="\d+" data-source-count="5" data-target-slot="\d+" data-target-count="\d+" data-route="[^"]+" data-source-range="identity" data-target-range="patient" style="--room: #0284c7">/);
+    assert.match(markup, /<g data-wire="" data-room="gam" data-from="gam" data-to="dpi" data-flow="0" data-source-slot="\d+" data-source-count="5" data-target-slot="\d+" data-target-count="\d+" data-route="[^"]+" data-source-range="identity" data-target-range="patient" style="--room: #[0-9a-f]{6}">/);
     assert.equal(count(markup, /data-target-range=/g), 23, 'only the flow whose destination declares nothing for its payload carries no target range');
     assert.equal(count(markup, /data-flow="23"/g), 1);
   });

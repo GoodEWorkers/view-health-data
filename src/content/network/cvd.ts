@@ -1,4 +1,4 @@
-// Colour-vision checks: an sRGB colour as a deuteranope, protanope or tritanope sees it (Machado et al. 2009, severity 1.0, on linear RGB) and the distance of two colours in CIE Lab (ΔE76). Pure.
+// Colour checks: an sRGB colour as a deuteranope, protanope or tritanope sees it (Machado et al. 2009, severity 1.0, on linear RGB), the distance of two colours in CIE Lab (ΔE76) and their WCAG contrast ratio. Pure.
 
 export type Vision = 'normal' | 'deuteranopia' | 'protanopia' | 'tritanopia';
 export type Rgb = readonly [number, number, number];
@@ -28,6 +28,7 @@ const XYZ: Matrix = [[0.4124, 0.3576, 0.1805], [0.2126, 0.7152, 0.0722], [0.0193
 const LAB_KNEE = 0.008856;
 const LAB_SLOPE = 7.787;
 const LAB_OFFSET = 16 / 116;
+const CONTRAST_OFFSET = 0.05;
 
 export const rgbOfHex = (hex: string): Rgb => {
   const found = HEX_CHANNELS.exec(hex);
@@ -64,14 +65,23 @@ export function labOf(rgb: Rgb): Rgb {
 export const deltaE76 = (first: Rgb, second: Rgb): number => Math.hypot(...labOf(first).map((part, index) => part - labOf(second)[index]!));
 
 export const PAPER = '#fbfbfa';
+export const INK = '#18181a';
 
-const hexOf = (rgb: Rgb): string => `#${rgb.map((channel) => Math.round(channel).toString(16).padStart(2, '0')).join('')}`;
+export const hexOf = (rgb: Rgb): string => `#${rgb.map((channel) => Math.round(channel).toString(16).padStart(2, '0')).join('')}`;
 
 // The fill a colour makes when it takes the given share of a paper background, as the floor tints do.
 export const fillOver = (colour: string, share: number, paper: string = PAPER): string => {
   const [front, back] = [rgbOfHex(colour), rgbOfHex(paper)];
   return hexOf(front.map((channel, index) => channel * share + back[index]! * (1 - share)) as unknown as Rgb);
 };
+
+// Y of CIE XYZ is the relative luminance of WCAG 2.
+const luminanceOf = (hex: string): number => multiply(XYZ, rgbOfHex(hex).map(toLinear) as unknown as Rgb)[1];
+
+export function contrastRatio(first: string, second: string): number {
+  const [lighter, darker] = [luminanceOf(first), luminanceOf(second)].sort((one, other) => other - one);
+  return (lighter! + CONTRAST_OFFSET) / (darker! + CONTRAST_OFFSET);
+}
 
 export const lightnessOf = (hex: string): number => labOf(rgbOfHex(hex))[0];
 

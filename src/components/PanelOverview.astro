@@ -1,0 +1,135 @@
+---
+import { DEPARTMENTS } from '../content/departments.ts';
+import { DEFAULT_LAYER, LAYERS } from '../content/layers.ts';
+---
+
+<section class="overview" data-overview aria-labelledby="overview-prompt">
+  <p>Huit services d'un hôpital échangent des données sans arrêt : une admission, un résultat de laboratoire, une prescription. Ce plan montre qui envoie quoi, à qui.</p>
+  <p>
+    Quatre couches décrivent le même plan : les salles, les logiciels, les données et le réseau, du plus simple au plus technique. Passez de l'une à l'autre avec les onglets ou les
+    touches 1 à 4.
+  </p>
+  {LAYERS.map(({ id, overview }) => <p class="overview-layer" data-overview-layer={id} hidden={id !== DEFAULT_LAYER}>{overview}</p>)}
+  <h2 id="overview-prompt">Cliquez une salle pour la découvrir</h2>
+  <ul class="room-chips">
+    {
+      DEPARTMENTS.map(({ colour, acronym, roomName }, index) => (
+        <li>
+          <button type="button" class="room-chip" data-select-room={index} style={`--room: ${colour}`}>
+            <span class="room-chip-dot" aria-hidden="true"></span>
+            <span class="room-chip-number">{index + 1}</span>
+            <span class="room-chip-acronym">{acronym}</span>
+            {acronym !== roomName && <span class="room-chip-name">{roomName}</span>}
+          </button>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .overview p {
+    margin: 0 0 0.625rem;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+
+  .overview-layer {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.35rem;
+    background: color-mix(in srgb, var(--anatomy-strong) 5%, var(--anatomy-paper));
+    color: var(--anatomy-strong);
+  }
+
+  .overview-layer[hidden] {
+    display: none;
+  }
+
+  h2 {
+    margin: 1rem 0 0.5rem;
+    color: var(--anatomy-strong);
+    font-size: 1rem;
+  }
+
+  .room-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .room-chips li {
+    flex: 1 1 auto;
+    display: flex;
+  }
+
+  .room-chip {
+    display: inline-flex;
+    flex: 1 1 auto;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.125rem 0.375rem;
+    padding: 0.35rem 0.625rem 0.35rem 0.5rem;
+    border: 1px solid var(--anatomy-mid);
+    border-radius: 0.35rem;
+    background: var(--anatomy-face);
+    color: var(--anatomy-strong);
+    font: inherit;
+    font-size: 0.8125rem;
+    line-height: 1.3;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      background-color 120ms var(--anatomy-ease),
+      border-color 120ms var(--anatomy-ease);
+  }
+
+  .room-chip:hover {
+    border-color: var(--anatomy-strong);
+    background: color-mix(in srgb, var(--room) 16%, var(--anatomy-face));
+  }
+
+  .room-chip:focus-visible {
+    outline: 2px solid var(--anatomy-strong);
+    outline-offset: 2px;
+  }
+
+  .room-chip-dot {
+    flex: none;
+    align-self: center;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--room);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--anatomy-strong) 30%, transparent);
+  }
+
+  .room-chip-number,
+  .room-chip-acronym {
+    font-weight: 600;
+  }
+
+  .room-chip-number {
+    font-family: var(--anatomy-mono);
+    font-feature-settings: 'tnum';
+  }
+
+  .room-chip-name {
+    color: var(--anatomy-text);
+    font-size: 0.75rem;
+  }
+
+  @media (pointer: coarse) {
+    .room-chip {
+      min-height: 2.75rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .room-chip {
+      transition: none;
+    }
+  }
+</style>

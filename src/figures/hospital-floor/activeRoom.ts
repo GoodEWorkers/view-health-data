@@ -1,35 +1,35 @@
-// The channel between live.ts and the other figures: live.ts announces the active room, whether a visitor engaged it and whether they pinned it on purpose (keyboard or click); a figure asks it to pin, release or repeat.
+// The channel between live.ts and the other figures: live.ts announces which room is selected (null when none); a figure or the side panel asks it to select, deselect or repeat the announcement. Hover and the tour never reach this channel.
 
-export const ACTIVE_ROOM_EVENT = 'hospital-floor:active-room';
+export const SELECTION_EVENT = 'hospital-floor:selection';
 export const ROOM_REQUEST_EVENT = 'hospital-floor:room-request';
 
-export type ActiveRoom = { readonly index: number; readonly engaged: boolean; readonly deliberate: boolean };
+export type RoomSelection = { readonly selected: number | null };
 
 export type RoomRequest =
-  | { readonly action: 'pin'; readonly index: number }
-  | { readonly action: 'release' }
+  | { readonly action: 'select'; readonly index: number }
+  | { readonly action: 'deselect' }
   | { readonly action: 'sync' };
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
 
-export const isActiveRoom = (value: unknown): value is ActiveRoom =>
-  isRecord(value) && Number.isInteger(value.index) && typeof value.engaged === 'boolean' && typeof value.deliberate === 'boolean';
+export const isRoomSelection = (value: unknown): value is RoomSelection =>
+  isRecord(value) && (value.selected === null || Number.isInteger(value.selected));
 
 export const isRoomRequest = (value: unknown): value is RoomRequest =>
   isRecord(value) &&
-  (value.action === 'release' || value.action === 'sync' || (value.action === 'pin' && Number.isInteger(value.index)));
+  (value.action === 'deselect' || value.action === 'sync' || (value.action === 'select' && Number.isInteger(value.index)));
 
-export const announceActiveRoom = (detail: ActiveRoom): void => {
-  document.dispatchEvent(new CustomEvent<ActiveRoom>(ACTIVE_ROOM_EVENT, { detail }));
+export const announceSelection = (detail: RoomSelection): void => {
+  document.dispatchEvent(new CustomEvent<RoomSelection>(SELECTION_EVENT, { detail }));
 };
 
 export const requestRoom = (detail: RoomRequest): void => {
   document.dispatchEvent(new CustomEvent<RoomRequest>(ROOM_REQUEST_EVENT, { detail }));
 };
 
-export function onActiveRoom(handler: (room: ActiveRoom) => void): void {
-  document.addEventListener(ACTIVE_ROOM_EVENT, (event) => {
-    if (event instanceof CustomEvent && isActiveRoom(event.detail)) handler(event.detail);
+export function onSelection(handler: (selection: RoomSelection) => void): void {
+  document.addEventListener(SELECTION_EVENT, (event) => {
+    if (event instanceof CustomEvent && isRoomSelection(event.detail)) handler(event.detail);
   });
 }
 

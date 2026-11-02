@@ -20,10 +20,10 @@ const groupChanges = (rows: readonly { group?: string }[], position: number): bo
     {
       INSPECTIONS.map((inspection, index) => {
         const { id, file, summary, travel, initial, cards, lines } = inspection;
-        const { acronym, roomName, colour } = DEPARTMENTS[index]!;
+        const { acronym, roomName, colour, textColour } = DEPARTMENTS[index]!;
         const [previous, next] = [INSPECTIONS[neighbourIndex(index, -1, count)]!, INSPECTIONS[neighbourIndex(index, 1, count)]!];
         return (
-          <article class="in-file" data-file={id} data-initial={initial.join(' ')} style={`--room: ${colour}`} hidden>
+          <article class="in-file" data-file={id} data-initial={initial.join(' ')} style={`--room: ${colour}; --room-text: ${textColour}`} hidden>
             <header class="in-head">
               <div class="in-title">
                 <h2 class="in-name">{file.name}</h2>

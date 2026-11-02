@@ -1,14 +1,15 @@
-// Lights one room at a time from hover, focus, arrows or an idle tour, in one eased frame loop; shows the room's panel block, titles the plate after the layer, and sends packets down the active room's cables. A cable lights its source room.
+// Lights one room at a time from the highlight (hover, a focused legend key, the idle tour) in one eased frame loop and marks the selected room. Clicks and keys select; the side panel follows the selection. Hover never selects.
 
 import { DEPARTMENTS } from '../../content/departments.ts';
-import { DEFAULT_LAYER, layerById, panelVisibility } from '../../content/layers.ts';
+import { DEFAULT_LAYER, layerById } from '../../content/layers.ts';
 import type { LayerId } from '../../content/layers.ts';
-import { announceActiveRoom, onRoomRequest } from './activeRoom.ts';
-import type { ActiveRoom } from './activeRoom.ts';
+import { announceSelection, onRoomRequest } from './activeRoom.ts';
 import { mountLayerSwitch } from './layerSwitch.ts';
 import { NO_ACTIVE_ROOM, createPackets } from './packets.ts';
-import { advanceTour, follow, wrapIndex } from './tour.ts';
-import type { TourState } from './tour.ts';
+import { FIRST_ROOM, escape, focusIn, focusOut, highlightedOf, hover, leave, select, setTourEnabled, startInteraction, stepSelection, tourRunning, tourTick } from './selection.ts';
+import type { Interaction } from './selection.ts';
+import { createTooltip } from './tooltip.ts';
+import { follow, wrapIndex } from './tour.ts';
 
 const DWELL_SECONDS = 2.8;
 const FOLLOW_SECONDS = 0.3;
@@ -16,12 +17,14 @@ const MAX_FRAME_SECONDS = 1 / 30;
 const FIRST_FRAME_SECONDS = 1 / 60;
 const SETTLE_EPSILON = 0.002;
 const HALF_LEVEL = 0.5;
-const TOUCH_HOLD_MILLISECONDS = 3600;
 const VIEWPORT_MARGIN = '120px 0px';
 const ARROW_STEPS: Readonly<Record<string, number>> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
 const ROOM_KEYS = '[data-keys="rooms"] .iso-key';
+const OVERLAYS = '[data-inspector], [data-network-views]';
 const ROOM_COUNT = DEPARTMENTS.length;
-const FIRST_ROOM = 0;
+const LAST_ROOM = ROOM_COUNT - 1;
+const TOOLTIP_HINT = 'Cliquer pour les détails';
+const SELECTED_NONE = 'Aucune salle sélectionnée';
 
 type GroupView = { readonly element: SVGElement; readonly owners: readonly number[] };
 type RoomView = { readonly groups: readonly GroupView[]; readonly key: HTMLElement | undefined; level: number };
@@ -46,32 +49,21 @@ function mount(figure: HTMLElement): void {
     key: keyElements[index],
     level: 0,
   }));
-  const panels = DEPARTMENTS.map(({ id }) => document.querySelector<HTMLElement>(`[data-panel="${id}"]`));
   const announcer = Object.assign(document.createElement('span'), { className: 'hospital-floor-announcer' });
   announcer.setAttribute('aria-live', 'polite');
   figure.append(announcer);
 
   const still = matchMedia('(prefers-reduced-motion: reduce)');
   const packets = createPackets(stage, still);
-  const interaction: { tour: TourState; pinned: number | null; deliberate: boolean; hovering: boolean; focused: boolean } = {
-    tour: { index: 0, elapsed: 0 },
-    pinned: null,
-    deliberate: false,
-    hovering: false,
-    focused: false,
-  };
+  const tooltip = createTooltip(still);
+  const idleReadout = readout.textContent ?? '';
+  let state: Interaction = startInteraction();
   let visible = false;
   let frame = 0;
   let lastTime = 0;
-  let shownIndex = -1;
-  let touchTimer = 0;
+  let shownIndex = NO_ACTIVE_ROOM;
   let activeLayer: LayerId = DEFAULT_LAYER;
-  let published: ActiveRoom | null = null;
   let flowing = false;
-
-  const activeIndex = () => interaction.pinned ?? interaction.tour.index;
-  const isEngaged = () => interaction.pinned !== null || interaction.hovering || interaction.focused;
-  const isTouring = () => !still.matches && visible && !interaction.hovering && !interaction.focused && interaction.pinned === null;
 
   function write(room: RoomView): void {
     room.groups.forEach(({ element, owners }) => {
@@ -81,14 +73,10 @@ function mount(figure: HTMLElement): void {
     if (room.key) room.key.toggleAttribute('data-active', room.level > HALF_LEVEL);
   }
 
-  function showPanel(roomIndex: number, layer: LayerId): void {
-    panelVisibility(roomIndex, layer, ROOM_COUNT).forEach((shownLayer, index) => {
-      const panel = panels[index];
-      if (!panel) return;
-      panel.hidden = shownLayer === null;
-      panel.querySelectorAll<HTMLElement>('[data-layer]').forEach((block) => {
-        block.hidden = block.dataset.layer !== shownLayer;
-      });
+  function markSelected(): void {
+    rooms.forEach((room, index) => {
+      room.groups.forEach(({ element, owners }) => element.toggleAttribute('data-selected', state.selected !== null && owners.includes(state.selected)));
+      room.key?.setAttribute('aria-pressed', String(index === state.selected));
     });
   }
 
@@ -100,13 +88,12 @@ function mount(figure: HTMLElement): void {
   const say = (index: number): void => {
     if (index === shownIndex) return;
     shownIndex = index;
-    readout.textContent = readoutOf(index);
-    showPanel(index, activeLayer);
+    readout.textContent = index === NO_ACTIVE_ROOM ? idleReadout : readoutOf(index);
     sendPackets();
   };
 
   function step(seconds: number): boolean {
-    const active = activeIndex();
+    const active = highlightedOf(state);
     let moving = false;
     rooms.forEach((room, index) => {
       const target = index === active ? 1 : 0;
@@ -119,29 +106,20 @@ function mount(figure: HTMLElement): void {
       moving ||= level !== target;
     });
     const brightest = rooms.reduce((best, room, index) => (room.level > rooms[best]!.level ? index : best), 0);
-    if (rooms[brightest]!.level >= HALF_LEVEL) say(brightest);
+    say(rooms[brightest]!.level >= HALF_LEVEL ? brightest : NO_ACTIVE_ROOM);
     return moving;
-  }
-
-  function publish(force = false): void {
-    const room = { index: activeIndex(), engaged: isEngaged(), deliberate: interaction.pinned !== null && interaction.deliberate };
-    if (!force && published?.index === room.index && published.engaged === room.engaged && published.deliberate === room.deliberate) return;
-    published = room;
-    announceActiveRoom(room);
   }
 
   function tick(now: number): void {
     const seconds = lastTime ? Math.min((now - lastTime) / 1000, MAX_FRAME_SECONDS) : FIRST_FRAME_SECONDS;
     lastTime = now;
-    if (isTouring()) interaction.tour = advanceTour(interaction.tour, seconds, DWELL_SECONDS, ROOM_COUNT);
-    publish();
+    state = tourTick(state, seconds, DWELL_SECONDS, ROOM_COUNT);
     const moving = step(seconds);
     if (packets) flowing = packets.advance(seconds);
-    frame = visible && (moving || isTouring() || flowing) ? requestAnimationFrame(tick) : 0;
+    frame = visible && (moving || tourRunning(state) || flowing) ? requestAnimationFrame(tick) : 0;
   }
 
   function kick(): void {
-    publish();
     if (still.matches) {
       step(0);
       return;
@@ -151,23 +129,21 @@ function mount(figure: HTMLElement): void {
     frame = requestAnimationFrame(tick);
   }
 
-  function pin(index: number, announce: boolean, deliberate = announce): void {
-    const room = wrapIndex(index, ROOM_COUNT);
-    interaction.deliberate = deliberate || (interaction.pinned === room && interaction.deliberate);
-    interaction.pinned = room;
-    if (announce) announcer.textContent = readoutOf(interaction.pinned);
-    kick();
-  }
-
-  function release(): void {
-    interaction.pinned = null;
-    interaction.tour = { ...interaction.tour, elapsed: 0 };
+  function apply(next: Interaction): void {
+    const changed = next.selected !== state.selected;
+    state = next;
+    if (changed) {
+      markSelected();
+      announceSelection({ selected: state.selected });
+      announcer.textContent = state.selected === null ? SELECTED_NONE : `Salle sélectionnée : ${readoutOf(state.selected)}`;
+    }
     kick();
   }
 
   const roomIndexOf = (target: EventTarget | null): number => {
     const element = target instanceof Element ? target : null;
-    const token = element?.closest('[data-cable]')?.getAttribute('data-from') ?? element?.closest('[data-room]')?.getAttribute('data-room')?.split(' ')[0];
+    if (!element || element.closest(OVERLAYS)) return -1;
+    const token = element.closest('[data-cable], [data-wire]')?.getAttribute('data-from') ?? element.closest('[data-room]')?.getAttribute('data-room')?.split(' ')[0];
     return DEPARTMENTS.findIndex(({ id }) => id === token);
   };
 
@@ -176,69 +152,79 @@ function mount(figure: HTMLElement): void {
     return key instanceof HTMLElement ? keyElements.indexOf(key) : -1;
   };
 
+  const targetRoomOf = (target: EventTarget | null): number => {
+    const fromKey = keyIndexOf(target);
+    return fromKey >= 0 ? fromKey : roomIndexOf(target);
+  };
+
   const onFigure = <Name extends keyof HTMLElementEventMap>(name: Name, handler: (event: HTMLElementEventMap[Name]) => void): void =>
     figure.addEventListener(name, handler);
 
   onFigure('pointerover', (event) => {
-    interaction.hovering = true;
-    const fromKey = keyIndexOf(event.target);
-    const index = fromKey >= 0 ? fromKey : roomIndexOf(event.target);
-    if (index >= 0) pin(index, false);
-    else publish();
-    if (event.pointerType === 'touch') {
-      window.clearTimeout(touchTimer);
-      touchTimer = window.setTimeout(release, TOUCH_HOLD_MILLISECONDS);
-    }
+    const index = targetRoomOf(event.target);
+    apply(hover(state, index >= 0 ? index : null));
+    if (index < 0 || event.pointerType === 'touch') tooltip.hide();
+    else tooltip.show(`${index + 1} · ${readoutOf(index)}`, TOOLTIP_HINT, { x: event.clientX, y: event.clientY });
   });
-  onFigure('pointerleave', (event) => {
-    interaction.hovering = false;
-    if (event.pointerType !== 'touch' && !interaction.focused) release();
-    kick();
+  onFigure('pointermove', (event) => event.pointerType !== 'touch' && tooltip.move({ x: event.clientX, y: event.clientY }));
+  onFigure('pointerleave', () => {
+    tooltip.hide();
+    apply(leave(state));
+  });
+  onFigure('click', (event) => {
+    const index = targetRoomOf(event.target);
+    if (index >= 0) apply(select(state, index));
   });
   onFigure('focusin', (event) => {
-    interaction.focused = true;
+    if (!(event.target instanceof Element) || !event.target.matches(':focus-visible')) return;
     const index = keyIndexOf(event.target);
-    if (index >= 0) pin(index, true);
-    else kick();
+    apply(focusIn(state, index >= 0 ? index : null));
   });
   onFigure('focusout', (event) => {
     if (event.relatedTarget instanceof Node && figure.contains(event.relatedTarget)) return;
-    interaction.focused = false;
-    if (!interaction.hovering) release();
+    apply(focusOut(state));
   });
   onFigure('keydown', (event) => {
+    const keyed = keyIndexOf(event.target);
+    if ((event.key === 'Enter' || event.key === ' ') && keyed >= 0) {
+      event.preventDefault();
+      apply(select(state, keyed));
+      return;
+    }
     const stepBy = ARROW_STEPS[event.key];
-    const jump = event.key === 'Home' ? 0 : event.key === 'End' ? ROOM_COUNT - 1 : undefined;
+    const jump = event.key === 'Home' ? FIRST_ROOM : event.key === 'End' ? LAST_ROOM : undefined;
     if (stepBy === undefined && jump === undefined) return;
     event.preventDefault();
-    pin(jump ?? activeIndex() + (stepBy ?? 0), true);
+    apply(jump === undefined ? stepSelection(state, stepBy ?? 0, ROOM_COUNT) : select(state, jump));
+  });
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !event.defaultPrevented) apply(escape(state));
   });
 
   onRoomRequest((request) => {
-    if (request.action === 'pin') pin(request.index, false, true);
-    else if (request.action === 'release') release();
-    else publish(true);
+    if (request.action === 'select') apply(select(state, wrapIndex(request.index, ROOM_COUNT)));
+    else if (request.action === 'deselect') apply(escape(state));
+    else announceSelection({ selected: state.selected });
   });
 
   keyElements.forEach((key) => {
     key.tabIndex = 0;
     key.setAttribute('role', 'button');
+    key.setAttribute('aria-pressed', 'false');
   });
   new IntersectionObserver(
     (entries) => {
       visible = entries[entries.length - 1]?.isIntersecting ?? false;
+      state = setTourEnabled(state, visible && !still.matches);
       if (visible) kick();
     },
     { rootMargin: VIEWPORT_MARGIN },
   ).observe(figure);
   mountLayerSwitch((layer) => {
     activeLayer = layer;
-    interaction.hovering = figure.matches(':hover');
-    interaction.focused = figure.contains(document.activeElement);
     const { title: plateTitle, hint: plateHint } = layerById(layer);
     if (title) title.textContent = plateTitle;
     if (hint) hint.textContent = plateHint;
-    showPanel(Math.max(shownIndex, FIRST_ROOM), layer);
     sendPackets();
     kick();
   });

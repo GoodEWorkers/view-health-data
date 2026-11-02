@@ -71,6 +71,8 @@ describe('the zone colours of the floor', () => {
     };
     const MIN_HUE_GAP = 30;
     for (const { colour } of DEPARTMENTS) {
+      // A grey has no hue to be mistaken for.
+      if (Number.isNaN(hueOf(colour))) continue;
       const gap = Math.abs(hueOf(zoneColour('biomedical-modalities')) - hueOf(colour));
       assert.ok(Math.min(gap, 360 - gap) >= MIN_HUE_GAP, colour);
     }

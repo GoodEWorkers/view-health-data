@@ -1,7 +1,7 @@
-// Wire labels carry no text until asked: a cable or jack wire shows its label while hovered, and a room pinned on purpose (keyboard or click) shows the labels of all its wires, so keyboard visitors can read them.
+// Wire labels carry no text until asked: a cable or jack wire shows its label while hovered, and the selected room shows the labels of all its wires, so keyboard visitors can read them.
 
 import { DEPARTMENTS } from '../../content/departments.ts';
-import { onActiveRoom } from './activeRoom.ts';
+import { onSelection } from './activeRoom.ts';
 
 const LABELS = '[data-pill], [data-wire-label]';
 const WIRES = '[data-cable], [data-wire]';
@@ -22,7 +22,7 @@ document.querySelectorAll<HTMLElement>('.hospital-floor').forEach((figure) => {
   figure.addEventListener('pointerleave', () => mark(HOVERED, () => false));
 });
 
-onActiveRoom(({ index, deliberate }) => {
-  const room = DEPARTMENTS[index]?.id;
-  mark(SHOWN, (label) => deliberate && label.dataset.from === room);
+onSelection(({ selected }) => {
+  const room = selected === null ? undefined : DEPARTMENTS[selected]?.id;
+  mark(SHOWN, (label) => room !== undefined && label.dataset.from === room);
 });

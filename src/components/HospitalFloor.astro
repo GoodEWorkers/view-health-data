@@ -1,5 +1,6 @@
 ---
 import './floorLayers.css';
+import './floorSelection.css';
 import './networkLayer.css';
 import { DEPARTMENTS } from '../content/departments.ts';
 import { SCREENS_MARKER, hospitalFloorCard } from '../figures/hospital-floor/build.ts';
@@ -133,7 +134,7 @@ const keyColours = DEPARTMENTS.map(({ colour }, index) => `.hospital-floor [data
 
   .hospital-floor [data-room] .room-numeral .iso-face-text {
     font-weight: 700;
-    fill: var(--room);
+    fill: var(--room-text);
     mix-blend-mode: multiply;
     opacity: calc(var(--numeral-opacity-rest) + var(--glow) * var(--numeral-opacity-gain));
   }

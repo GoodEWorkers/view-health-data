@@ -1,4 +1,4 @@
-// Assembles Figure 1: baseboard, floors, numerals, zone patches and ground marks, trunking, cables with their packet layer, walls, standing furniture back to front, door leaves, then the labels of cables and devices on top.
+// Assembles Figure 1: baseboard, floors, numerals, zone patches and ground marks, trunking, cables with their packet layer, walls, selection outlines, standing furniture back to front, door leaves, then the labels on top.
 
 import { figureSvg, plateHtml } from '../../iso/iso-kit.ts';
 import { DEPARTMENTS } from '../../content/departments.ts';
@@ -21,7 +21,7 @@ import { pharmacyParts } from './rooms/pharmacy.ts';
 import { serverRoomParts } from './rooms/serverRoom.ts';
 import { theatreParts } from './rooms/theatre.ts';
 import { baseboardSvg } from './shell.ts';
-import { floorsSvg, leavesSvg, numeralsSvg, roomGroup, trunkingSvg, wallsSvg } from './structure.ts';
+import { floorsSvg, leavesSvg, numeralsSvg, roomGroup, selectionsSvg, trunkingSvg, wallsSvg } from './structure.ts';
 import { zonePatchesSvg, zonePatternsSvg } from './zonePatches.ts';
 
 const FIGURE_NUMBER = 'Fig. 1';
@@ -63,6 +63,7 @@ export function hospitalFloorCard(): string {
       trunkingSvg(),
       cablesSvg(),
       wallsSvg(),
+      selectionsSvg(),
       roomPartsSvg(isStanding),
       leavesSvg(),
       labelsSvg(),

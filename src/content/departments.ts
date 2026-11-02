@@ -1,3 +1,5 @@
+import { textColourOf } from './roomText.ts';
+
 export type DepartmentId = 'gam' | 'rdv' | 'dpi' | 'sgl' | 'pacs-ris' | 'pharmacie' | 'bloc' | 'eai';
 
 export type Protocol = 'HL7 v2' | 'DICOM';
@@ -54,6 +56,8 @@ export type Department = {
   readonly name: string;
   readonly roomName: string;
   readonly colour: string;
+  // The colour darkened until it reads as text on paper, on the room tints and as the floor numeral (roomText.ts).
+  readonly textColour: string;
   readonly functions: readonly string[];
   readonly flows: readonly Flow[];
   readonly summary: string;
@@ -63,13 +67,13 @@ export type Department = {
   readonly network: NetworkLayer;
 };
 
-export const DEPARTMENTS: readonly Department[] = [
+const DRAFTS: readonly Omit<Department, 'textColour'>[] = [
   {
     id: 'gam',
     acronym: 'GAM',
     name: 'Gestion Administrative des Malades',
     roomName: 'Accueil / Admissions',
-    colour: '#0284c7',
+    colour: '#096ead',
     functions: ['Identité patient', 'Admissions/Sorties', 'Mouvements'],
     flows: [
       { to: 'dpi', payload: 'Identité patient', messageType: 'ADT^A01', transport: 'MLLP' },
@@ -117,7 +121,7 @@ export const DEPARTMENTS: readonly Department[] = [
     acronym: 'RDV',
     name: 'Gestion des rendez-vous',
     roomName: 'Rendez-vous',
-    colour: '#ea7f12',
+    colour: '#e69f00',
     functions: ['Planification', 'Consultations', 'Ressources'],
     flows: [
       { to: 'dpi', payload: 'Consultations programmées', messageType: 'SIU^S12', transport: 'MLLP' },
@@ -155,7 +159,7 @@ export const DEPARTMENTS: readonly Department[] = [
     acronym: 'DPI',
     name: 'Dossier Patient Informatisé',
     roomName: 'Dossier patient / Poste de soins',
-    colour: '#a21caf',
+    colour: '#ca7aac',
     functions: ['Données cliniques', 'Observations', 'Séjours'],
     flows: [
       { to: 'sgl', payload: 'Prescriptions', messageType: 'OML^O21', transport: 'MLLP' },
@@ -209,7 +213,7 @@ export const DEPARTMENTS: readonly Department[] = [
     acronym: 'SGL',
     name: 'Système de Gestion de Laboratoire',
     roomName: 'Laboratoire',
-    colour: '#ca9a04',
+    colour: '#f4e846',
     functions: ['Analyses', 'Résultats', 'Prescriptions bio'],
     flows: [
       { to: 'dpi', payload: 'Résultats d\'analyses', messageType: 'ORU^R01', transport: 'MLLP' },
@@ -245,7 +249,7 @@ export const DEPARTMENTS: readonly Department[] = [
     acronym: 'PACS/RIS',
     name: 'Picture Archiving and Communication System / Système d\'information radiologie',
     roomName: 'Imagerie',
-    colour: '#4f46e5',
+    colour: '#5bbbf1',
     functions: ['Images médicales', 'Radiologie', 'Comptes-rendus', 'Prise de rendez-vous', 'Facturation'],
     flows: [
       { to: 'dpi', payload: 'Images', protocol: 'DICOM', messageType: 'WADO-RS', transport: 'HTTPS' },
@@ -290,7 +294,7 @@ export const DEPARTMENTS: readonly Department[] = [
     acronym: 'Pharmacie',
     name: 'Pharmacie',
     roomName: 'Pharmacie',
-    colour: '#16a34a',
+    colour: '#009e73',
     functions: ['Prescriptions', 'Ordonnances', 'Stocks'],
     flows: [
       { to: 'dpi', payload: 'Prescriptions', messageType: 'RDE^O11', transport: 'MLLP' },
@@ -329,7 +333,7 @@ export const DEPARTMENTS: readonly Department[] = [
     acronym: 'Bloc',
     name: 'Gestion Bloc Opératoire',
     roomName: 'Bloc opératoire',
-    colour: '#0d9488',
+    colour: '#d55e00',
     functions: ['Programmation', 'Interventions', 'Comptes-rendus'],
     flows: [
       { to: 'dpi', payload: 'Comptes-rendus opératoires', messageType: 'MDM^T02', transport: 'MLLP' },
@@ -365,7 +369,7 @@ export const DEPARTMENTS: readonly Department[] = [
     acronym: 'EAI',
     name: 'Enterprise Application Integration',
     roomName: 'Salle serveurs',
-    colour: '#64748b',
+    colour: '#4a4a4a',
     functions: ['Orchestration', 'Transformation', 'Routage'],
     flows: [],
     summary:
@@ -394,3 +398,5 @@ export const DEPARTMENTS: readonly Department[] = [
     },
   },
 ];
+
+export const DEPARTMENTS: readonly Department[] = DRAFTS.map((draft) => ({ ...draft, textColour: textColourOf(draft.colour) }));

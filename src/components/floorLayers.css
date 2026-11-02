@@ -22,7 +22,6 @@
   --device-light: 0;
   --cable-show: 1;
   --net-light: 0;
-  --pill-ink-share: 65%;
   transition:
     --device-light 320ms var(--anatomy-ease),
     --cable-show 320ms var(--anatomy-ease),
@@ -128,7 +127,7 @@
 }
 
 .hospital-floor :is([data-pill], [data-device-label]) text {
-  fill: color-mix(in srgb, var(--room) var(--pill-ink-share), var(--anatomy-strong));
+  fill: var(--room-text);
   font-weight: 600;
   font-feature-settings: 'tnum';
   user-select: none;

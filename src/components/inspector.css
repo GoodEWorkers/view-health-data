@@ -45,12 +45,12 @@
 }
 
 .in-file {
-  --room-ink: color-mix(in srgb, var(--room) 65%, var(--anatomy-strong));
+  --room-ink: var(--room-text, color-mix(in srgb, var(--room) 65%, var(--anatomy-strong)));
   --tint: color-mix(in srgb, var(--room) 14%, var(--anatomy-face));
-  --token-structure: color-mix(in srgb, var(--room) 58%, var(--anatomy-strong));
-  --token-string: color-mix(in srgb, var(--line-pharmacie) 62%, var(--anatomy-strong));
-  --token-number: color-mix(in srgb, var(--line-rdv) 62%, var(--anatomy-strong));
-  --token-name: color-mix(in srgb, var(--line-dpi) 62%, var(--anatomy-strong));
+  --token-structure: var(--room-text);
+  --token-string: var(--text-pharmacie);
+  --token-number: var(--text-rdv);
+  --token-name: var(--text-dpi);
   --token-quiet: var(--anatomy-text);
   flex: 1 1 0;
   display: flex;

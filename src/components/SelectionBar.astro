@@ -1,0 +1,75 @@
+<div class="selection-bar" data-selection-bar hidden>
+  <span class="selection-label">Salle sélectionnée</span>
+  <button type="button" class="selection-clear" data-deselect>
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" /></svg>
+    Désélectionner
+  </button>
+</div>
+
+<style>
+  .selection-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin: -0.25rem 0 1rem;
+    font-size: 0.75rem;
+    line-height: 1.3;
+  }
+
+  .selection-bar[hidden] {
+    display: none;
+  }
+
+  .selection-label {
+    color: var(--anatomy-text);
+  }
+
+  .selection-clear {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.5rem 0.3rem 0.4rem;
+    border: 1px solid var(--anatomy-mid);
+    border-radius: 0.35rem;
+    background: var(--anatomy-face);
+    color: var(--anatomy-strong);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background-color 120ms var(--anatomy-ease),
+      border-color 120ms var(--anatomy-ease);
+  }
+
+  .selection-clear:hover {
+    border-color: var(--anatomy-strong);
+    background: color-mix(in srgb, var(--anatomy-strong) 6%, var(--anatomy-face));
+  }
+
+  .selection-clear:focus-visible {
+    outline: 2px solid var(--anatomy-strong);
+    outline-offset: 2px;
+  }
+
+  svg {
+    width: 0.8rem;
+    height: 0.8rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+
+  @media (pointer: coarse) {
+    .selection-clear {
+      min-height: 2.75rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .selection-clear {
+      transition: none;
+    }
+  }
+</style>

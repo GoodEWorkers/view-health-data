@@ -20,7 +20,7 @@ import Rdv from './screens/rdv.astro';
 import Sgl from './screens/sgl.astro';
 
 const wires = wiresIn(VIEW_BOX);
-const lineColours = DEPARTMENTS.map(({ id, colour }) => `--line-${id}:${colour}`).join(';');
+const lineColours = DEPARTMENTS.map(({ id, colour, textColour }) => `--line-${id}:${colour};--text-${id}:${textColour}`).join(';');
 const contents = { gam: Gam, rdv: Rdv, dpi: Dpi, sgl: Sgl, 'pacs-ris': PacsRis, pharmacie: Pharmacie, bloc: Bloc, eai: Eai };
 const cornersOf = (quad: readonly (readonly [number, number])[]): string => quad.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' ');
 const countOf = (id: string, side: 'source' | 'target'): number => wires.filter((wire) => wire[side] === id).length;

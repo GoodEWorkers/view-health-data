@@ -1,6 +1,7 @@
 // The build-time markup of the wire layer: per wire a glow and core (pathLength 1, drawn by dash offset), a hit stroke, two plugs and the editor ranges its hover lights; per wire a label pill with a text for each layer.
 
 import { DEPARTMENTS } from '../../../content/departments.ts';
+import type { Department } from '../../../content/departments.ts';
 import { rangesOfFlow } from '../../../content/messages/ranges.ts';
 import { groupSvg } from '../../../iso/iso-kit.ts';
 import { SHEET_LAYERS } from '../../../content/layers.ts';
@@ -12,7 +13,7 @@ const LABEL_CHARACTER_WIDTH = 0.58 * LABEL_FONT_SIZE;
 const LABEL_PADDING = { across: 5 };
 const LABEL_RADIUS = 2;
 
-const colourOf = (id: string): string => DEPARTMENTS.find((department) => department.id === id)!.colour;
+const departmentOf = (id: string): Department => DEPARTMENTS.find((department) => department.id === id)!;
 
 const escapeText = (text: string): string => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -37,7 +38,7 @@ export const wiresSvg = (wires: readonly Wire[]): string =>
         'data-route': routeAttribute(wire.route),
         'data-source-range': source,
         'data-target-range': target,
-        style: `--room: ${colourOf(wire.source)}`,
+        style: `--room: ${departmentOf(wire.source).colour}`,
       });
     })
     .join('');
@@ -45,6 +46,7 @@ export const wiresSvg = (wires: readonly Wire[]): string =>
 export const wireLabelsSvg = (wires: readonly Wire[]): string =>
   wires
     .map(({ source, target, index, labels }) => {
+      const { colour, textColour } = departmentOf(source);
       const widths = SHEET_LAYERS.map((layer) => labelWidthOf(labels[layer]));
       const variants = SHEET_LAYERS.map((layer, position) => {
         const width = widths[position]!;
@@ -58,7 +60,7 @@ export const wireLabelsSvg = (wires: readonly Wire[]): string =>
         'data-to': target,
         'data-flow': index,
         'data-width': Math.max(...widths).toFixed(1),
-        style: `--room: ${colourOf(source)}`,
+        style: `--room: ${colour}; --room-text: ${textColour}`,
       });
     })
     .join('');

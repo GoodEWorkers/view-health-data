@@ -2,14 +2,16 @@
 import HospitalFloor from '../components/HospitalFloor.astro';
 import LayerTabs from '../components/LayerTabs.astro';
 import NetworkPanel from '../components/network/Panel.astro';
+import TraceDock from '../components/network/TraceDock.astro';
+import PanelOverview from '../components/PanelOverview.astro';
+import SelectionBar from '../components/SelectionBar.astro';
 import { DEPARTMENTS } from '../content/departments.ts';
 import type { Department, DepartmentId } from '../content/departments.ts';
 import { flowInterface, flowRowLabel, TRANSPORT_DETAILS, uniqueTransports, ZONE_LABELS } from '../content/layerLabels.ts';
 import { DEFAULT_LAYER } from '../content/layers.ts';
 import { listInFrench } from '../content/listInFrench.ts';
+import '../components/panelShell.css';
 import Base from '../layouts/Base.astro';
-
-const firstDepartmentId = DEPARTMENTS[0]?.id;
 
 const acronymOf = (id: DepartmentId) => DEPARTMENTS.find((department) => department.id === id)?.acronym ?? id;
 
@@ -38,18 +40,23 @@ const interfacesOf = ({ id, flows }: Department) => {
     <div class="stage">
       <HospitalFloor />
     </div>
-    <aside class="panel" aria-label="Détails du service">
-      <h1>Comment les données circulent dans un hôpital</h1>
-      <LayerTabs />
+    <aside class="panel" aria-label="Détails du service" data-side-panel>
+      <div class="panel-head">
+        <h1>Comment les données circulent dans un hôpital</h1>
+        <LayerTabs />
+        <SelectionBar />
+      </div>
+      <div class="panel-scroll" data-panel-scroll>
+          <PanelOverview />
       {
         DEPARTMENTS.map((department, index) => (
           <section
             class="department"
             data-panel={department.id}
-            hidden={department.id !== firstDepartmentId}
-            style={`--room: ${department.colour}`}
+            hidden
+            style={`--room: ${department.colour}; --room-text: ${department.textColour}`}
           >
-            <h2>
+            <h2 tabindex="-1">
               <span class="number">{index + 1}</span>
               <span class="acronym">{department.acronym}</span>
               {department.acronym !== department.roomName && ` · ${department.roomName}`}
@@ -162,9 +169,15 @@ const interfacesOf = ({ id, flows }: Department) => {
           </section>
         ))
       }
+      </div>
+      <TraceDock />
     </aside>
   </div>
 </Base>
+
+<script>
+  import '../figures/hospital-floor/panelLive.ts';
+</script>
 
 <style>
   .stage {
@@ -182,21 +195,22 @@ const interfacesOf = ({ id, flows }: Department) => {
     }
 
     .panel {
-      overflow-y: auto;
+      min-height: 0;
+      overflow: hidden;
     }
   }
 
   .panel {
+    display: flex;
+    flex-direction: column;
     margin: 1rem;
-    padding: 1.25rem 1.5rem 1.5rem;
     background: var(--anatomy-paper);
     border: 1px solid var(--anatomy-faint);
     border-radius: 0.75rem;
   }
 
   .department {
-    --room-ink-share: 65%;
-    --room-ink: color-mix(in srgb, var(--room) var(--room-ink-share), var(--anatomy-strong));
+    --room-ink: var(--room-text);
     padding-left: 1rem;
     border-left: 3px solid var(--room);
   }

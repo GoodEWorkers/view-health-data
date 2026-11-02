@@ -95,14 +95,14 @@ function textMarkup(layer: SheetLayerId, lines: readonly string[], [x, y]: Flat)
 const layersOf = ({ external }: Cable): readonly SheetLayerId[] => (external ? [NETWORK_LAYER] : SHEET_LAYERS);
 
 function pillSvg(cable: Cable, index: number, texts: Readonly<Record<SheetLayerId, string>>, [x, y]: Flat): string {
-  const { source, target, colour } = cable;
+  const { source, target, colour, textColour } = cable;
   const variants = layersOf(cable).map((layer) => {
     const width = textWidth(texts[layer]) + PILL_PADDING.across * 2;
     const height = FONT_SIZE + PILL_PADDING.along * 2;
     const box = `<rect data-layer="${layer}" x="${(x - width / 2).toFixed(1)}" y="${(y - height / 2).toFixed(1)}" width="${width.toFixed(1)}" height="${height.toFixed(1)}" rx="${PILL_RADIUS}"/>`;
     return box + textMarkup(layer, [texts[layer]], [x, y]);
   });
-  return groupSvg(variants, { 'data-pill': '', 'data-from': source, 'data-to': target, 'data-flow': index, style: `--room: ${colour}` });
+  return groupSvg(variants, { 'data-pill': '', 'data-from': source, 'data-to': target, 'data-flow': index, style: `--room: ${colour}; --room-text: ${textColour}` });
 }
 
 const SHORT_PARTNER_SEPARATOR = ' / ';
@@ -168,7 +168,7 @@ const deviceLabelsSvg = (): string =>
   DEVICE_LABELS.map(({ department, foot, lines }) =>
     groupSvg(
       SHEET_LAYERS.map((layer) => textMarkup(layer, lines[layer], foot)),
-      { 'data-device-label': '', 'data-room-label': department.id, style: `--room: ${department.colour}` },
+      { 'data-device-label': '', 'data-room-label': department.id, style: `--room: ${department.colour}; --room-text: ${department.textColour}` },
     ),
   ).join('');
 

@@ -1,29 +1,30 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { isActiveRoom, isRoomRequest } from './activeRoom.ts';
+import { isRoomRequest, isRoomSelection } from './activeRoom.ts';
 
-describe('isActiveRoom', () => {
-  it('accepts a room index with its engaged and deliberate flags', () => {
-    assert.ok(isActiveRoom({ index: 3, engaged: false, deliberate: false }));
+describe('isRoomSelection', () => {
+  it('accepts a room index or no room at all', () => {
+    assert.ok(isRoomSelection({ selected: 3 }));
+    assert.ok(isRoomSelection({ selected: null }));
   });
 
   it('refuses anything else a page script could dispatch', () => {
-    for (const value of [null, 'gam', { index: '3', engaged: true, deliberate: true }, { index: 1.5, engaged: true, deliberate: true }, { index: 2, engaged: true }, { engaged: true, deliberate: false }]) {
-      assert.equal(isActiveRoom(value), false, JSON.stringify(value));
+    for (const value of [null, 'gam', { selected: '3' }, { selected: 1.5 }, { index: 2 }, {}, undefined]) {
+      assert.equal(isRoomSelection(value), false, JSON.stringify(value));
     }
   });
 });
 
 describe('isRoomRequest', () => {
-  it('accepts a pin with an index, a release and a sync', () => {
-    assert.ok(isRoomRequest({ action: 'pin', index: 2 }));
-    assert.ok(isRoomRequest({ action: 'release' }));
+  it('accepts a select with an index, a deselect and a sync', () => {
+    assert.ok(isRoomRequest({ action: 'select', index: 2 }));
+    assert.ok(isRoomRequest({ action: 'deselect' }));
     assert.ok(isRoomRequest({ action: 'sync' }));
   });
 
-  it('refuses a pin without an integer index and unknown actions', () => {
-    for (const value of [{ action: 'pin' }, { action: 'pin', index: 'a' }, { action: 'hover', index: 1 }, undefined, 4]) {
+  it('refuses a select without an integer index, the old pin and release, and unknown actions', () => {
+    for (const value of [{ action: 'select' }, { action: 'select', index: 'a' }, { action: 'pin', index: 1 }, { action: 'release' }, { action: 'hover', index: 1 }, undefined, 4]) {
       assert.equal(isRoomRequest(value), false, JSON.stringify(value));
     }
   });

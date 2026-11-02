@@ -1,0 +1,29 @@
+/* The side panel as a column: a fixed head, the one scrolling area that fades between rooms, and on Réseau the trace strip below it. Phones let the page scroll instead. */
+
+.panel-head {
+  flex: none;
+  padding: 1.25rem 1.5rem 0;
+}
+
+.panel-scroll {
+  padding: 0 1.5rem 1.5rem;
+  transition: opacity 100ms var(--anatomy-ease);
+}
+
+.panel-scroll[data-fade='out'] {
+  opacity: 0;
+}
+
+@media (min-width: 721px) {
+  .panel-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-scroll {
+    transition: none;
+  }
+}

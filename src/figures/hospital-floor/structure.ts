@@ -25,6 +25,7 @@ import { roomZoneColour, roomZoneTint } from './zoneColours.ts';
 const TINTED_FLOOR = 'room-floor';
 export const FLOOR_HEIGHT = 0.1;
 const FLOOR_OUTLINE_INSET = 1;
+const SELECTION_OUTLINE_INSET = 0.4;
 const NUMERAL_SHORT_SIDE_SHARE = 0.75;
 // Digit height and width as shares of the font size; the width is a generous bound for a bold digit.
 const DIGIT_HEIGHT_SHARE = 0.7;
@@ -39,9 +40,12 @@ const WALL_BEVEL = 0.4;
 const flat = (plan: Plan, tone: 'lo' | 'faint', className?: string) =>
   solid(slabOf(plan, 0, FLOOR_HEIGHT, PROJECTION, 3), { tone, flat: true, crease: 'none', className });
 
-const roomColour = (id: DepartmentId) => DEPARTMENTS.find((department) => department.id === id)!.colour;
+const roomOf = (id: DepartmentId) => DEPARTMENTS.find((department) => department.id === id)!;
 
-export const roomGroup = (children: string, id: DepartmentId) => groupSvg(children, { 'data-room': id, style: `--room: ${roomColour(id)}; --zone: ${roomZoneColour(id)}; --zone-tint: ${roomZoneTint(id)}` });
+export const roomGroup = (children: string, id: DepartmentId) => {
+  const { colour, textColour } = roomOf(id);
+  return groupSvg(children, { 'data-room': id, style: `--room: ${colour}; --room-text: ${textColour}; --zone: ${roomZoneColour(id)}; --zone-tint: ${roomZoneTint(id)}` });
+};
 
 export function floorsSvg(): string {
   const corridor = flat(SPUR, 'lo') + flat(RING_FLOOR, 'lo');
@@ -52,6 +56,13 @@ function roomFloor(room: Room): string {
   const outline = line(planOutline(insetPlan(room.plan, FLOOR_OUTLINE_INSET), FLOOR_HEIGHT, PROJECTION, 4), { tone: 'faint' });
   return flat(room.plan, 'lo', TINTED_FLOOR) + outline;
 }
+
+// Painted after the walls and before the standing furniture, so furniture stands in front of the selected room's footprint: a paper halo under a room-coloured line, hidden until live.ts marks the room selected.
+export const selectionsSvg = (): string =>
+  ROOMS.map(({ id, plan }) => {
+    const outline = planOutline(insetPlan(plan, SELECTION_OUTLINE_INSET), FLOOR_HEIGHT, PROJECTION, 4);
+    return roomGroup(line(outline, { tone: 'hi', className: 'room-selection-halo' }) + line(outline, { tone: 'hi', className: 'room-selection' }), id);
+  }).join('');
 
 export function numeralsSvg(): string {
   return ROOMS.map((room) => roomGroup(numeralSvg(room), room.id)).join('');
