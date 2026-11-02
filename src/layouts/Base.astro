@@ -1,6 +1,7 @@
 ---
 import '@fontsource-variable/atkinson-hyperlegible-next/wght.css';
 import '../iso/iso.css';
+import MobileNotice from '../components/MobileNotice.astro';
 
 type Props = {
   title: string;
@@ -21,6 +22,7 @@ const { title, fullscreen = false } = Astro.props;
     <main data-fullscreen={fullscreen}>
       <slot />
     </main>
+    <MobileNotice />
   </body>
 </html>
 

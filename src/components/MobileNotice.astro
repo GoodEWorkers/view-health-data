@@ -1,0 +1,92 @@
+<div class="mobile-notice" data-mobile-notice role="dialog" aria-labelledby="mobile-notice-text" hidden>
+  <p class="notice-text" id="mobile-notice-text">Ce site est conçu pour un écran d'ordinateur. L'expérience mobile est encore en cours d'amélioration.</p>
+  <button type="button" class="notice-button" data-dismiss-notice>Compris</button>
+</div>
+
+<script>
+  import { mountMobileNotice } from '../figures/hospital-floor/mobileNotice.ts';
+
+  document.querySelectorAll<HTMLElement>('[data-mobile-notice]').forEach(mountMobileNotice);
+</script>
+
+<style>
+  /* z-index 10: over the inspector's stacking level (8), under the touch tooltip (20); the script hides it while a sheet is open anyway. */
+  .mobile-notice {
+    position: fixed;
+    inset-inline: 0.75rem;
+    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    z-index: 10;
+    display: grid;
+    gap: 0.75rem;
+    box-sizing: border-box;
+    max-width: 26rem;
+    margin-inline: auto;
+    padding: 1rem;
+    background: var(--anatomy-paper);
+    border: 1px solid var(--anatomy-faint);
+    border-radius: 0.75rem;
+    box-shadow:
+      0 2px 4px -1px color-mix(in srgb, var(--anatomy-strong) 14%, transparent),
+      0 10px 22px -8px color-mix(in srgb, var(--anatomy-strong) 34%, transparent);
+    animation: notice-rise 240ms var(--anatomy-ease);
+  }
+
+  .mobile-notice[hidden] {
+    display: none;
+  }
+
+  .notice-text {
+    margin: 0;
+    color: var(--anatomy-strong);
+    font-size: 0.875rem;
+    line-height: 1.45;
+    text-wrap: pretty;
+  }
+
+  .notice-button {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--anatomy-mid);
+    border-radius: 0.35rem;
+    background: var(--anatomy-face);
+    color: var(--anatomy-strong);
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.3;
+    cursor: pointer;
+    transition:
+      background-color 120ms var(--anatomy-ease),
+      border-color 120ms var(--anatomy-ease);
+  }
+
+  .notice-button:hover {
+    border-color: var(--anatomy-strong);
+    background: color-mix(in srgb, var(--anatomy-strong) 6%, var(--anatomy-face));
+  }
+
+  .notice-button:focus-visible {
+    outline: 2px solid var(--anatomy-strong);
+    outline-offset: 1px;
+  }
+
+  @keyframes notice-rise {
+    from {
+      transform: translateY(calc(100% + 1.5rem));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-notice {
+      animation: none;
+    }
+
+    .notice-button {
+      transition: none;
+    }
+  }
+</style>

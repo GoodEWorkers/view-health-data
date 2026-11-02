@@ -204,6 +204,7 @@ A phone is a viewport of 720 px or less (`phone.ts` holds the query for the live
 - **Panel.** The panel stacks under the figure. Its selection bar sticks to the top of the viewport with the room's number and acronym (« Salle sélectionnée 3 · DPI », « Désélectionner »). A selection by touch brings that bar into view, so the result of a tap is never below the fold.
 - **Legend.** The room keys become one strip that scrolls sideways under the stage and centres the selected key, so eight 44 px keys cost one row. The Réseau legend wraps under it as before.
 - **Targets.** Every control is 44 px tall (2.75 rem): layer tabs, glossary, legend keys, room chips, the deselect button, the inspector buttons and tabs, the flow buttons and the glossary's source links. On a coarse pointer the same applies above 720 px.
+- **Notice.** On a first visit at 720 px or less, a small non-modal sheet (paper card, 1 px rule, offset shadow, a 44 px « Compris » chip) rises 240 ms above the page's bottom edge to say the site is made for a computer screen; « Compris » or Escape stores `vhd.mobileNoticeDismissed` and it never returns, it waits while a sheet is open and never shows above 720 px (`mobileNotice.ts`).
 - **Not adapted.** Portrait tablets between 721 and 1019 px keep the two columns, so the drawing is 460 px wide in a tall plate; a phone in landscape (wider than 720 px) takes the desktop layout.
 
 ## Elevation & Depth
