@@ -16,7 +16,8 @@ const { title, fullscreen = false } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
   </head>
-  <body class="iso" data-theme="light">
+  <body class="iso" data-theme="light" data-fullscreen={fullscreen}>
+    <slot name="header" />
     <main data-fullscreen={fullscreen}>
       <slot />
     </main>
@@ -42,6 +43,19 @@ const { title, fullscreen = false } = Astro.props;
     max-width: none;
     margin: 0;
     padding: 0;
+  }
+
+  @media (min-width: 721px) {
+    body[data-fullscreen] {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+    }
+
+    main[data-fullscreen] {
+      flex: 1 1 0;
+      min-height: 0;
+    }
   }
 
   h1 {

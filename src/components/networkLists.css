@@ -1,4 +1,4 @@
-/* The rule table, the partner cards and the glossary of the Réseau views. */
+/* The rule table, the partner cards and the glossary views. */
 
 .nv-body-wide {
   gap: 1rem;
@@ -230,6 +230,13 @@
 .nv-term dt {
   font-size: var(--in-md);
   font-weight: 700;
+}
+
+.nv-expansion {
+  margin-left: 0.25rem;
+  color: var(--anatomy-text);
+  font-size: var(--in-sm);
+  font-weight: 400;
 }
 
 .nv-term dd {

@@ -1,0 +1,258 @@
+/* The slim top bar: title and the layer's sentence, layer control, glossary, credit. One 4 rem row from 1020 px, the sentence from 1280 px (PanelOverview shows it below that), two rows under 1020 px. */
+
+.site-header {
+  --keys-show: 0;
+  display: grid;
+  grid-template-columns: minmax(min-content, 1fr) auto minmax(min-content, 1fr);
+  align-items: center;
+  gap: 1rem;
+  box-sizing: border-box;
+  height: 4rem;
+  padding: 0 1rem;
+  background: var(--anatomy-paper);
+  border-bottom: 1px solid var(--anatomy-faint);
+}
+
+.header-title {
+  min-width: 0;
+}
+
+.header-title h1 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.header-overview {
+  display: none;
+  margin: 0.125rem 0 0;
+  min-height: 2.5em;
+  color: var(--anatomy-text);
+  font-size: 0.8rem;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+@media (min-width: 1280px) {
+  .site-header {
+    grid-template-columns: minmax(26.25rem, 1fr) auto minmax(min-content, 1fr);
+  }
+
+  .header-overview {
+    display: block;
+  }
+}
+
+.layers {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--anatomy-faint);
+  border-radius: 0.5rem;
+}
+
+.layer-tab {
+  display: inline-flex;
+  flex: 1 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 1.875rem;
+  padding: 0 0.625rem;
+  border: 0;
+  border-radius: 0.35rem;
+  background: transparent;
+  color: var(--anatomy-text);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 120ms var(--anatomy-ease),
+    color 120ms var(--anatomy-ease);
+}
+
+.layer-tab:hover {
+  background: color-mix(in srgb, var(--anatomy-strong) 6%, transparent);
+  color: var(--anatomy-strong);
+}
+
+.layer-tab[aria-selected='true'] {
+  background: var(--anatomy-strong);
+  color: var(--anatomy-paper);
+}
+
+.layer-tab:focus-visible,
+.glossary-button:focus-visible {
+  outline: 2px solid var(--anatomy-strong);
+  outline-offset: 1px;
+}
+
+.layer-icon {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+}
+
+.layer-icon > * {
+  grid-area: 1 / 1;
+}
+
+.layer-icon svg,
+.glossary-button svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.layer-icon svg {
+  opacity: calc(1 - var(--keys-show));
+  transition: opacity 120ms var(--anatomy-ease);
+}
+
+.layer-icon kbd {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border: 1px solid color-mix(in srgb, currentColor 55%, transparent);
+  border-radius: 0.25rem;
+  font: 600 0.6875rem / 1 var(--anatomy-mono);
+  opacity: var(--keys-show);
+  transition: opacity 120ms var(--anatomy-ease);
+}
+
+.layers:has(:focus-visible) {
+  --keys-show: 1;
+}
+
+@media (hover: hover) {
+  .layers:hover {
+    --keys-show: 1;
+  }
+}
+
+.header-end {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: 0.75rem;
+}
+
+.glossary-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.375rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--anatomy-mid);
+  border-radius: 0.35rem;
+  background: var(--anatomy-face);
+  color: var(--anatomy-strong);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.3;
+  cursor: pointer;
+  transition:
+    background-color 120ms var(--anatomy-ease),
+    border-color 120ms var(--anatomy-ease);
+}
+
+.glossary-button:hover {
+  border-color: var(--anatomy-strong);
+  background: color-mix(in srgb, var(--anatomy-strong) 6%, var(--anatomy-face));
+}
+
+@media (max-width: 1199px) {
+  .glossary-label {
+    display: none;
+  }
+
+  .glossary-button {
+    justify-content: center;
+    width: 2.375rem;
+    padding: 0;
+  }
+}
+
+@media (max-width: 1019px) {
+  .site-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'title end'
+      'control control';
+    gap: 0.5rem 1rem;
+    height: auto;
+    padding: 0.5rem 1rem 0.625rem;
+  }
+
+  .header-title {
+    grid-area: title;
+  }
+
+  .header-title h1 {
+    white-space: normal;
+    text-wrap: balance;
+  }
+
+  .layers {
+    grid-area: control;
+    justify-self: start;
+  }
+
+  .header-end {
+    grid-area: end;
+  }
+}
+
+@media (max-width: 720px) {
+  .header-title h1 {
+    font-size: 0.875rem;
+  }
+
+  .layer-tab {
+    padding: 0 0.5rem;
+  }
+
+  .layers {
+    justify-self: stretch;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .layers::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (pointer: coarse) {
+  .layer-tab,
+  .glossary-button {
+    min-height: 2.75rem;
+  }
+
+  .glossary-button {
+    min-width: 2.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer-tab,
+  .layer-icon svg,
+  .layer-icon kbd,
+  .glossary-button {
+    transition: none;
+  }
+}

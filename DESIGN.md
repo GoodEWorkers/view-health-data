@@ -64,6 +64,21 @@ typography:
     fontSize: "10px (CSS)"
     fontWeight: 600
     fontFeature: "tnum"
+  header-title:
+    fontFamily: "Atkinson Hyperlegible Next Variable, system-ui, sans-serif"
+    fontSize: "1rem (0.875rem on phones)"
+    fontWeight: 600
+    lineHeight: 1.2
+  header-sentence:
+    fontFamily: "Atkinson Hyperlegible Next Variable, system-ui, sans-serif"
+    fontSize: "0.8rem"
+    fontWeight: 400
+    lineHeight: 1.25
+  layer-tab:
+    fontFamily: "Atkinson Hyperlegible Next Variable, system-ui, sans-serif"
+    fontSize: "0.8125rem"
+    fontWeight: 500
+    lineHeight: 1.3
   inspector-code:
     fontFamily: "ui-monospace, SF Mono, Menlo, Consolas, monospace"
     fontSize: "0.8125rem"
@@ -80,6 +95,7 @@ rounded:
   control: "0.35rem"
   control-group: "0.5rem"
 spacing:
+  header: "4rem (two rows below 1020 px)"
   control: "0.5rem"
   legend: "0.75rem 1.5rem 1rem"
 components:
@@ -137,6 +153,20 @@ One face for the whole site, self-hosted through `@fontsource-variable/atkinson-
 - **Pills.** One per cable, on the middle of its longest straight leg, slid along the cable out of rooms and away from other labels. Each pill holds three texts, one per layer, and the stylesheet shows the active one. A pill has no text at rest on any layer: it fades in over 160 ms for the hovered cable, and for every cable of the selected room (a click, Enter on a room key, an arrow key), so keyboard visitors can read them. Below about 620 px of stage width, on a phone, pills stay hidden and the panel under the plate carries every interface.
 - The legend row under the plate keeps the room keys on every layer: the room colour is the cable colour.
 
+## Navigation
+
+The layers, the glossary and the credit live in one slim bar across the whole page, above the two columns; the side panel keeps only the room content. Choices inferred, not interviewed.
+
+- **Bar.** Paper ground, a 1 px `--anatomy-faint` rule under it, no shadow, 4 rem (64 px) high from 1020 px, padded 1 rem so the credit's right edge lines up with the panel's. Three cells: the title on the left, the layer control in the centre, the glossary button and the credit on the right. The page is a column (`Base.astro`, header slot then `main`): the two-column layout takes what the header leaves, so nothing hard-codes its height, and the stage is measured by its own box, which the header never enters.
+- **Title.** The page `<h1>`, one line, 1 rem semibold (0.875 rem on phones). Under it, from 1280 px, the active layer's one-sentence overview from `layers.ts` in `--anatomy-text` at 0.8 rem, balanced on at most two lines, a two-line height reserved so switching never moves the bar. It is `aria-live="polite"`, swaps text with a 160 ms fade (none under reduced motion) and below 1280 px stays in the panel's empty state instead (it needs 420 px to fit in two lines). The centre column never leaves the page centre until the left cell would drop under that width.
+- **Layer control.** `role="tablist"`: a 1 px hairline track with 3 px padding and 0.5 rem radius around four tabs of 30 px (0.35 rem radius, 0.8125 rem, 500). Each tab holds a drawn 16 px icon in the same 1.5 px round stroke and its label: a floor plan for Salles, a window for Logiciels, a document for Données, three linked nodes for Réseau. Resting tabs read in `--anatomy-text` (7:1, the old tabs used the 3.2:1 muted grey), hover tints 6 percent of ink, the selected tab is filled ink with paper text, focus is the 2 px ink ring one pixel off the tab. Keys 1 to 4, Left and Right, the URL hash and the ids are unchanged (`layerSwitch.ts` owns the state).
+- **Key hint.** While the pointer is on the control, or a tab has keyboard focus, the four icons crossfade (120 ms) to `<kbd>` chips 1 to 4 in the same 16 px slot, so the hint shows which key goes with which tab without a second row or any layout shift. It never shows on touch.
+- **Glossary button.** A chip in the chip vocabulary (1 px `--anatomy-mid` border, 0.35 rem radius, paper face) with a drawn open-book icon; the label « Glossaire » shows from 1200 px and the button is icon-only below, always with an `aria-label`, `aria-haspopup="dialog"` and `aria-keyshortcuts="g"`. It opens the Glossaire view over the stage on any layer, like the key `g` (ignored while typing); the Réseau panel's « Glossaire » button opens the same view. Changing layer closes it.
+- **Glossary view.** The existing fullscreen frame and motion (the stage centre, 450 ms, a 200 ms fade under reduced motion), closed by Escape, ×, the scrim or a layer change; opening it closes an open inspector, and Escape or × returns focus to the button. One search field, focused and emptied on every open; « 99 termes » under it becomes « 12 termes sur 99 » while filtering. A query matches when every word appears in the term, its expansion or the definition, without case or accents. Entries are alphabetical (French collation), the acronym's expansion beside the term in `--anatomy-text`, then one plain-French sentence from the hospital's side and a Source link when a standard or an agency page backs it. On phones the stage grows to 34 rem (the viewport minus 8 rem at most) while a Réseau view or the glossary is open so a list has room, and the summary is dropped under 32 rem of panel width.
+- **Credit.** `Credit.astro` in the right cell: the Good eWorkers logo at 96 px on `#111111` (the brand's dark-ground pattern, never recoloured; 96 px is below the brand's 110 px minimum, by request) with « Créé par Richard Raduly » over « pour Good eWorkers » at 0.72 rem in `#e0e0e0` (14.3:1) from 1100 px, the logo alone below, the link's `aria-label` always carrying the full sentence; a 0.5 rem radius, no shadow, 2 px ink focus ring.
+- **Narrow.** From 1020 px down the bar is two rows: the title beside the glossary and the credit, then the control. Phones (720 px and below) keep that, with the control full width, scrolling sideways without a scrollbar and centring the selected tab, the title on at most three balanced lines, and a 44 px touch size. The bar scrolls away with the page; the stacked layout below it is unchanged.
+- **Fullscreen views.** The inspector, the flow sheet, the rule table, the partners and the glossary stay absolutely positioned inside the stage: they cover the stage and never the bar.
+
 ## Interaction
 
 Hover shows, a click decides. Two states, owned by `live.ts` through the pure transitions of `selection.ts` (tested, including that hover never changes the selection):
@@ -144,7 +174,7 @@ Hover shows, a click decides. Two states, owned by `live.ts` through the pure tr
 - **Highlight**: the room lit on the map with the existing glow, named in the plate's readout and, with a mouse, in a tooltip. It comes from the pointer over a room floor, device, gear, window, cable, wire or legend key; from keyboard focus on a legend key; or from the idle tour. It never touches the side panel. The tooltip is a paper card with an offset and blurred shadow, the room (« 3 · DPI · Dossier patient / Poste de soins ») over « Cliquer pour les détails », set 16 px right of and below the pointer (flipped at the viewport edges) and following it with a 70 ms exponential lag; it is never shown for touch, below 720 px or for keyboard focus, and under reduced motion it sits on the pointer with no lag. The cursor is `pointer` over everything selectable.
 - **Selection**: set by a click on a room floor, device, gear, window, wire, cable or legend key, by Enter or Space on a focused key, by the arrow keys (the selection moves, from nothing: Right selects the first room, Left the last) and by Home and End. It loads the side panel through a 200 ms fade (100 ms out, 100 ms in, none under reduced motion) and scrolls it to the top. The selected room keeps a 2.4 px outline in its text colour over a 5 px paper halo, laid on the floor footprint after the walls and before the standing furniture; its window keeps the full ring; its legend key is `aria-pressed` and inked; the panel head shows « Salle sélectionnée » with a « × Désélectionner » button. Escape does the same when nothing else is open (an overlay or a focused window takes the key first); clicking a room again keeps it selected; closing an overlay keeps it.
 - **Idle tour**: highlights the eight rooms in turn (2.8 s each) only while nothing is selected, the pointer is off the figure, no keyboard focus is inside it, the figure is on screen and motion is not reduced. The first selection stops it; deselecting restarts it from a fresh dwell once the pointer is away.
-- **Empty state**: with nothing selected the panel shows the page purpose in two short paragraphs, the one-sentence overview of the active layer (`layers.ts`), « Cliquez une salle pour la découvrir » and the eight rooms as buttons (colour dot, number, acronym, room name) that select. Layer tabs keep working and keep the selection.
+- **Empty state**: with nothing selected the panel shows the page purpose in two short paragraphs, the one-sentence overview of the active layer (`layers.ts`, shown here only below 1280 px; the header carries it above), « Cliquez une salle pour la découvrir » and the eight rooms as buttons (colour dot, number, acronym, room name) that select. The layer control in the header keeps working and keeps the selection.
 - **Flow focus**: on every layer a highlighted room fades every cable, jack wire, packet and gate glyph that is neither from nor to it to 15 percent over 200 ms (the EAI counts as the destination of every flow into it, an external cable belongs to its source room), and a selection hides the unrelated ones completely over 240 ms with pointer events off while the room pointed at meanwhile brings its own flows back at 50 percent; the idle tour never filters, nothing fades under reduced motion, and windows, devices, gear, floors and numerals are never filtered. `live.ts` writes `data-focus-room` and `data-selected-room` on `.layout`, and `flowFocusCss.ts` generates the per-room selectors that `flowFocus.css` turns into opacity.
 
 | Event | Highlighted | Selected | Tour running |
@@ -159,7 +189,7 @@ Hover shows, a click decides. Two states, owned by `live.ts` through the pure tr
 | Escape or × with nothing open | the hovered room, else the tour room | none | if the pointer is away |
 | Tour tick | next room | unchanged | unchanged (only while running) |
 
-The side panel is a column: a fixed head (title, layer tabs, selection bar), the one scrolling area (overview or room), and on Réseau the trace strip. Chips, keys and buttons share one vocabulary: 1 px `--anatomy-mid` border, 0.35 rem radius, paper face, ink border and a 14 to 16 percent room tint on hover, ink fill when selected, a 2 px ink focus ring.
+The side panel is a column: the selection bar while a room is selected, the one scrolling area (overview or room), and on Réseau the trace strip. Chips, keys and buttons share one vocabulary: 1 px `--anatomy-mid` border, 0.35 rem radius, paper face, ink border and a 14 to 16 percent room tint on hover, ink fill when selected, a 2 px ink focus ring.
 
 ## Elevation & Depth
 
@@ -181,7 +211,7 @@ Round everything a cable touches: round caps and joins, circular arcs at every c
 - **Pill**: paper rectangle with a hairline in the room colour and one row of text: Logiciels writes the message type then the transport; Données the payload then its format family (HL7 v2, DICOM, CDA, FHIR); Réseau the name of the protocol family then its port, and for an external flow the way out and the partner (« HTTPS · 443 · proxy → DMP »).
 - **Device label**: beside the anchor monitor; Logiciels shows the first software product (a market example, vendor dropped), Données the first two data entities, Réseau the first network zone. All come from `departments.ts` through `layerLabels.ts`.
 - **Packet**: a bead of the service colour with a paper ring, riding the cables of the active room on the shared packet timing; absent under reduced motion, at most 48 at once.
-- **Credit badge**: `Credit.astro`, the last child of the side panel, outside the scrolling area (below the Réseau trace strip), so it shows on every layer and state, and at the end of the page on phones. A `#111111` pill (0.75 rem radius, offset and blurred shadow) holding the Good eWorkers logo vendored unaltered at 120 px (the brand's own dark-ground pattern, never recoloured) and « Créé par Richard Raduly pour Good eWorkers » at 0.8 rem in `#e0e0e0` (14.3:1), the whole badge a link to goodeworkers.org with the 2 px ink focus ring; no heading, no accent.
+- **Credit badge**: `Credit.astro`, the right end of the header (see Navigation), so it shows on every layer and state. A `#111111` pill (0.5 rem radius, no shadow) holding the Good eWorkers logo vendored unaltered at 96 px (the brand's own dark-ground pattern, never recoloured) and « Créé par Richard Raduly / pour Good eWorkers » on two lines at 0.72 rem in `#e0e0e0` (14.3:1), the whole badge a link to goodeworkers.org with the 2 px ink focus ring; logo only below 1100 px; no heading, no accent.
 - **Legend key**: a button with a dot in the room colour and the room name; hovering it highlights its room, a click or Enter selects it (`aria-pressed`, drawn in ink like the selected layer tab).
 - **Window sequence**: one timeline of 2.0 s, all constants in `sequence.ts` and tested. Entering Logiciels or Données from another layer plays it forward, leaving both runs the same clock back in 600 ms (windows down, wires undrawn, glow off), and returning replays it. Going between Logiciels and Données keeps the windows open and changes only what they show. Under reduced motion the clock is compressed to a 200 ms fade, with no draw, no lift and no glow wave.
   1. **0 to 0.5 s, glow wave.** The eight anchor computers rise to full glow (`--wave`, which feeds the same `--emphasis` as the active room's glow plus a 7 px bloom), 40 ms apart by distance from the DPI. Nothing else in the floor changes.
@@ -216,13 +246,14 @@ The network engineer's reading of the same floor. Entering the layer plays one 2
 - **Bus.** In the server room the trunking continues as one straight line, `BUS_Y`: door, core rack, gate, firewall, EAI branch (north to the foot of the EAI rack), DMZ rack, router, wall, tray, telecom box. A flow's hops map to its drawn path in `cableRoutes.ts`: device (the anchor, or the scanner for the biomedical flow), its room switch when the hops have one (the scanner route runs along the wall under it), the trunking to the hub, the bus to the end station; a message for another room returns on a second leg from that station. An external flow runs straight on to the telecom box.
 - **Cables by family.** Colour from `PROTOCOL_FAMILIES` with a dash pattern of its own: HL7 v2 solid, DICOM dashed (6 3), HTTPS dotted (1.5 3), SMTP dash-dot (6 3 1.5 3), in the cable, the legend swatch and the hover label, which always starts with the family name. The glow stays solid. A small gate straddles each cable at the firewall.
 - **Trace.** Hovering a cable raises its strokes, walks one packet along it in 1.6 s hop by hop (it dwells 100 ms at each station, then rests 350 ms and repeats) and lights the hop in the strip at the bottom of the side panel, only while the pointer is on the map (or a flow button has keyboard focus). The strip is outside the scrolling area and has a fixed height (15 rem on wide screens, in flow at the end of the panel on phones), so hovering never scrolls or reflows the panel; with no cable hovered it holds a one-line hint.
-- **Views.** Click a cable, the firewall or the telecom box, or use the panel buttons: fullscreen over the stage on the inspector's frame and motion (450 ms from the clicked thing, 200 ms fade under reduced motion). Fiche de flux in two columns (stack table, rule card, stepper with zone dots; capture with the MLLP bytes, DICOM PDU header, TLS ClientHello or ESP packets highlighted), Table de règles (deny rows tinted at 8 percent and marked by a « Refus » chip with a filled square, the last hovered flow's rule outlined), Partenaires (one card each, flows per room), Glossaire (accent- and case-insensitive filter). Left and Right step through the flows of a room.
+- **Views.** Click a cable, the firewall or the telecom box, or use the panel buttons: fullscreen over the stage on the inspector's frame and motion (450 ms from the clicked thing, 200 ms fade under reduced motion). Fiche de flux in two columns (stack table, rule card, stepper with zone dots; capture with the MLLP bytes, DICOM PDU header, TLS ClientHello or ESP packets highlighted), Table de règles (deny rows tinted at 8 percent and marked by a « Refus » chip with a filled square, the last hovered flow's rule outlined), Partenaires (one card each, flows per room). The Glossaire is global and opens from the header on any layer (see Navigation). Left and Right step through the flows of a room.
 - **Colour-blind safe.** Family colours start from the Okabe and Ito set and were adjusted until every pair stays at ΔE76 20 or more under deuteranopia, protanopia and tritanopia (`content/network/cvd.ts`, tested); zone fills pass the same test. No distinction rests on colour alone: dash patterns, hatch and dots, lightness order, the family name in every label, zone names next to every dot, the « Refus » chip.
 - **Choices inferred.** The biomedical hex moved from teal to a muted wine so a patch never reads as the Bloc colour; the Okabe and Ito blue, green and purple were darkened or lightened by up to ΔE 12 to pass the pair test; hovering a cable in a dense bundle picks the topmost strand, so the panel buttons reach every flow.
 
 ## Do's and Don'ts
 
 - Do keep one colour per service across the floor, the cables and the panel.
+- Do give every acronym a visitor can read a glossary entry: `content/glossaryCoverage.test.ts` fails on visitor-facing text with an acronym the glossary does not define.
 - Do keep wire and cable text hidden until a wire is hovered or its room is selected; a keyboard visitor must be able to select a room and read its labels.
 - Do keep hover to the map: it highlights and never changes the side panel, which only a click, a key or the room chips change.
 - Do give every clickable thing a pointer cursor and a visible button look or a tooltip: legend keys and room chips are bordered buttons, rooms, devices, gear, windows, wires and cables show the pointer and the tooltip « Cliquer pour les détails ».

@@ -1,13 +1,12 @@
-/* The side panel as a column: a fixed head, the one scrolling area that fades between rooms, and on Réseau the trace strip below it. Phones let the page scroll instead. */
-
-.panel-head {
-  flex: none;
-  padding: 1.25rem 1.5rem 0;
-}
+/* The side panel as a column: the selection bar when a room is selected, the one scrolling area that fades between rooms, and on Réseau the trace strip below it. Phones let the page scroll instead. */
 
 .panel-scroll {
-  padding: 0 1.5rem 1.5rem;
+  padding: 1.25rem 1.5rem 1.5rem;
   transition: opacity 100ms var(--anatomy-ease);
+}
+
+.selection-bar:not([hidden]) + .panel-scroll {
+  padding-top: 0.75rem;
 }
 
 .panel-scroll[data-fade='out'] {

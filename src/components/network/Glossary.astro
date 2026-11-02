@@ -3,7 +3,7 @@ import { GLOSSARY } from '../../content/network/glossary.ts';
 import { searchTextOf } from '../../figures/hospital-floor/network/glossaryFilter.ts';
 import ViewHead from './ViewHead.astro';
 
-const SUMMARY = 'Les mots du réseau, vus du côté de l\'hôpital. Tapez un mot pour filtrer : la recherche ignore les accents et les majuscules et cherche dans les définitions.';
+const SUMMARY = 'Les sigles et les mots du site, expliqués du côté de l\'hôpital. Tapez un mot pour filtrer : la recherche ignore les accents et les majuscules et cherche dans les termes et les définitions.';
 ---
 
 <article class="in-file nv-glossary" data-view="glossary" style="--room: var(--anatomy-strong)" hidden>
@@ -16,12 +16,15 @@ const SUMMARY = 'Les mots du réseau, vus du côté de l\'hôpital. Tapez un mot
     </div>
     <dl class="nv-terms" data-glossary-list>
       {
-        GLOSSARY.map(({ term, definition, source }) => (
-          <div class="nv-term" data-search={searchTextOf(term, definition)}>
-            <dt>{term}</dt>
+        GLOSSARY.map((entry) => (
+          <div class="nv-term" data-search={searchTextOf(entry)}>
+            <dt>
+              {entry.term}
+              {entry.expansion && <span class="nv-expansion">{' '}{entry.expansion}</span>}
+            </dt>
             <dd>
-              <p>{definition}</p>
-              {source && <a href={source} target="_blank" rel="noopener noreferrer">Source</a>}
+              <p>{entry.definition}</p>
+              {entry.source && <a href={entry.source} target="_blank" rel="noopener noreferrer">Source</a>}
             </dd>
           </div>
         ))

@@ -6,7 +6,7 @@ import { DEFAULT_LAYER, LAYERS } from '../content/layers.ts';
 <section class="overview" data-overview aria-labelledby="overview-prompt">
   <p>Huit services d'un hôpital échangent des données sans arrêt : une admission, un résultat de laboratoire, une prescription. Ce plan montre qui envoie quoi, à qui.</p>
   <p>
-    Quatre couches décrivent le même plan : les salles, les logiciels, les données et le réseau, du plus simple au plus technique. Passez de l'une à l'autre avec les onglets ou les
+    Quatre couches décrivent le même plan : les salles, les logiciels, les données et le réseau, du plus simple au plus technique. Passez de l'une à l'autre avec la barre du haut ou les
     touches 1 à 4.
   </p>
   {LAYERS.map(({ id, overview }) => <p class="overview-layer" data-overview-layer={id} hidden={id !== DEFAULT_LAYER}>{overview}</p>)}
@@ -43,6 +43,13 @@ import { DEFAULT_LAYER, LAYERS } from '../content/layers.ts';
 
   .overview-layer[hidden] {
     display: none;
+  }
+
+  /* The header carries this sentence from 1280 px (header.css). */
+  @media (min-width: 1280px) {
+    .overview-layer {
+      display: none;
+    }
   }
 
   h2 {

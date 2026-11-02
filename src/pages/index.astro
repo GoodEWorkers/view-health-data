@@ -1,7 +1,6 @@
 ---
-import Credit from '../components/Credit.astro';
+import Header from '../components/Header.astro';
 import HospitalFloor from '../components/HospitalFloor.astro';
-import LayerTabs from '../components/LayerTabs.astro';
 import NetworkPanel from '../components/network/Panel.astro';
 import TraceDock from '../components/network/TraceDock.astro';
 import PanelOverview from '../components/PanelOverview.astro';
@@ -13,6 +12,8 @@ import { DEFAULT_LAYER } from '../content/layers.ts';
 import { listInFrench } from '../content/listInFrench.ts';
 import '../components/panelShell.css';
 import Base from '../layouts/Base.astro';
+
+const SITE_TITLE = 'Comment les données circulent dans un hôpital';
 
 const acronymOf = (id: DepartmentId) => DEPARTMENTS.find((department) => department.id === id)?.acronym ?? id;
 
@@ -36,17 +37,14 @@ const interfacesOf = ({ id, flows }: Department) => {
 };
 ---
 
-<Base title="Comment les données circulent dans un hôpital" fullscreen>
+<Base title={SITE_TITLE} fullscreen>
+  <Header slot="header" title={SITE_TITLE} />
   <div class="layout" data-layer={DEFAULT_LAYER}>
     <div class="stage">
       <HospitalFloor />
     </div>
     <aside class="panel" aria-label="Détails du service" data-side-panel>
-      <div class="panel-head">
-        <h1>Comment les données circulent dans un hôpital</h1>
-        <LayerTabs />
-        <SelectionBar />
-      </div>
+      <SelectionBar />
       <div class="panel-scroll" data-panel-scroll>
           <PanelOverview />
       {
@@ -172,7 +170,6 @@ const interfacesOf = ({ id, flows }: Department) => {
       }
       </div>
       <TraceDock />
-      <Credit />
     </aside>
   </div>
 </Base>
@@ -193,7 +190,7 @@ const interfacesOf = ({ id, flows }: Department) => {
       --panel-width: clamp(18rem, 22vw, 24rem);
       display: grid;
       grid-template-columns: minmax(0, 1fr) var(--panel-width);
-      height: 100dvh;
+      height: 100%;
     }
 
     .panel {
@@ -215,14 +212,6 @@ const interfacesOf = ({ id, flows }: Department) => {
     --room-ink: var(--room-text);
     padding-left: 1rem;
     border-left: 1px solid var(--room);
-  }
-
-  h1 {
-    margin: 0 0 1.25rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--anatomy-faint);
-    font-size: 1rem;
-    line-height: 1.35;
   }
 
   h2 {

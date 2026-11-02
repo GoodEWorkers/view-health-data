@@ -1,15 +1,19 @@
-// Drives the fullscreen views of the Réseau layer over the stage: flow sheet, rule table, partners, glossary. The panel grows from what was clicked on the inspector's motion; Escape, × or the scrim closes it; Left and Right step through a room's flows.
+// Drives the fullscreen views over the stage: flow sheet, rules and partners on Réseau, the glossary on every layer (header button, key g). They grow on the inspector's motion; Escape, × or the scrim closes; Left and Right step through a room's flows.
 
+import { requestInspector } from '../inspector/inspectorChannel.ts';
 import { neighbourIndex, stepOfKey } from '../inspector/navigation.ts';
 import { matrix3dOf } from '../screens/homography.ts';
 import type { Bounds } from '../screens/focus.ts';
 import { inspectBounds, inspectFades, inspectQuad, rectQuad, stepInspect } from '../screens/inspect.ts';
 import { easeOut } from '../screens/motion.ts';
+import { isTyping } from '../typing.ts';
 import { matchesQuery } from './glossaryFilter.ts';
 import { announceNetworkView, isNetworkView, onNetworkTrace, onNetworkViewRequest, requestNetworkView } from './networkChannel.ts';
 import type { NetworkViewRequest } from './networkChannel.ts';
 
 const NETWORK_LAYER = 'reseau';
+const GLOSSARY_VIEW = 'glossary';
+const GLOSSARY_KEY = 'g';
 const MAX_FRAME_SECONDS = 0.05;
 const CENTRE_PROXY = { width: 48, height: 28 };
 const ARROWS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
@@ -35,6 +39,7 @@ function mount(root: HTMLElement): void {
   let area: Bounds = { x: 0, y: 0, width: 0, height: 0 };
   let current: HTMLElement | null = null;
   let opener: Element | null = null;
+  let openedOnLayer = '';
   let lastKey: string | null = null;
   let from = rectQuad(area);
   let level = 0;
@@ -105,28 +110,32 @@ function mount(root: HTMLElement): void {
   }
 
   function open(request: Extract<NetworkViewRequest, { action: 'open' }>): void {
-    if (layout!.dataset.layer !== NETWORK_LAYER) return;
+    if (request.view !== GLOSSARY_VIEW && layout!.dataset.layer !== NETWORK_LAYER) return;
     const article = request.view === 'flow' ? flows.find((flow) => flow.dataset.flowKey === request.key) : articles.find((candidate) => candidate.dataset.view === request.view);
     if (!article) return;
     const wasClosed = current === null;
+    const wasShown = current === article;
     articles.forEach((candidate) => (candidate.hidden = candidate !== article));
     current = article;
     article.querySelectorAll<HTMLElement>('.nv-body, .nv-scroll').forEach((body) => (body.scrollTop = 0));
     if (request.view === 'rules') highlightRule();
-    if (request.view === 'glossary' && field) {
+    if (request.view === GLOSSARY_VIEW) requestInspector({ action: 'close' });
+    if (request.view === GLOSSARY_VIEW && field && !wasShown) {
       field.value = '';
       filterGlossary();
     }
     if (wasClosed) {
       opener = document.activeElement;
+      openedOnLayer = layout!.dataset.layer ?? '';
       measure();
       from = openerQuad(request.opener ?? null);
       root.hidden = false;
+      stage!.scrollIntoView({ block: 'nearest' });
       target = 1;
       kick();
     }
     place();
-    (request.view === 'glossary' ? field : panel)?.focus({ preventScroll: true });
+    (request.view === GLOSSARY_VIEW ? field : panel)?.focus({ preventScroll: true });
     announceNetworkView({ view: request.view });
   }
 
@@ -174,10 +183,16 @@ function mount(root: HTMLElement): void {
     event.preventDefault();
     close();
   });
+  document.addEventListener('keydown', (event) => {
+    const isShortcut = event.key.toLowerCase() === GLOSSARY_KEY && !event.ctrlKey && !event.metaKey && !event.altKey;
+    if (!isShortcut || isTyping(event.target)) return;
+    event.preventDefault();
+    requestNetworkView({ action: 'open', view: GLOSSARY_VIEW });
+  });
   field?.addEventListener('input', filterGlossary);
   onNetworkViewRequest((request) => (request.action === 'close' ? close() : open(request)));
   onNetworkTrace(({ key }) => (lastKey = key));
-  new MutationObserver(() => layout.dataset.layer !== NETWORK_LAYER && close()).observe(layout, { attributes: true, attributeFilter: ['data-layer'] });
+  new MutationObserver(() => layout.dataset.layer !== openedOnLayer && close()).observe(layout, { attributes: true, attributeFilter: ['data-layer'] });
   new ResizeObserver(() => {
     measure();
     place();

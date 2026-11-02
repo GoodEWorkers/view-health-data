@@ -1,0 +1,53 @@
+---
+import { DEFAULT_LAYER, LAYERS, layerById } from '../content/layers.ts';
+import type { LayerId } from '../content/layers.ts';
+import Credit from './Credit.astro';
+import './header.css';
+
+type Props = { title: string };
+
+const { title } = Astro.props;
+
+const LAYER_ICONS: Readonly<Record<LayerId, string>> = {
+  salles: '<rect x="2" y="2" width="12" height="12" rx="1" /><path d="M2 8h5.5M10.5 8H14M8 8v6" />',
+  logiciels: '<rect x="2" y="3" width="12" height="10" rx="1.5" /><path d="M2 6.5h12M4.5 4.75h.01M6.5 4.75h.01" />',
+  donnees: '<path d="M4 2h5l3 3v9H4z" /><path d="M9 2v3h3M6 8.25h4M6 10.75h4" />',
+  reseau: '<circle cx="8" cy="3.75" r="1.75" /><circle cx="3.75" cy="12.25" r="1.75" /><circle cx="12.25" cy="12.25" r="1.75" /><path d="M7.22 5.31 4.53 10.69M8.78 5.31l2.69 5.38M5.5 12.25h5" />',
+};
+const GLOSSARY_ICON = '<path d="M8 4.5C6.8 3.5 5 3.25 2.5 3.25v8.5c2.5 0 4.3.25 5.5 1.25 1.2-1 3-1.25 5.5-1.25v-8.5C11 3.25 9.2 3.5 8 4.5zM8 4.5V13" />';
+---
+
+<header class="site-header">
+  <div class="header-title">
+    <h1>{title}</h1>
+    <p class="header-overview" data-layer-overview aria-live="polite">{layerById(DEFAULT_LAYER).overview}</p>
+  </div>
+  <div class="layers" role="tablist" aria-label="Couches d'information">
+    {
+      LAYERS.map(({ id, label }, index) => (
+        <button
+          type="button"
+          role="tab"
+          class="layer-tab"
+          id={`layer-tab-${id}`}
+          aria-selected={id === DEFAULT_LAYER ? 'true' : 'false'}
+          aria-keyshortcuts={String(index + 1)}
+          tabindex={id === DEFAULT_LAYER ? 0 : -1}
+        >
+          <span class="layer-icon">
+            <svg viewBox="0 0 16 16" aria-hidden="true" set:html={LAYER_ICONS[id]} />
+            <kbd aria-hidden="true">{index + 1}</kbd>
+          </span>
+          {label}
+        </button>
+      ))
+    }
+  </div>
+  <div class="header-end">
+    <button type="button" class="glossary-button" data-open-view="glossary" aria-label="Glossaire" aria-haspopup="dialog" aria-keyshortcuts="g" title="Glossaire (g)">
+      <svg viewBox="0 0 16 16" aria-hidden="true" set:html={GLOSSARY_ICON} />
+      <span class="glossary-label">Glossaire</span>
+    </button>
+    <Credit />
+  </div>
+</header>

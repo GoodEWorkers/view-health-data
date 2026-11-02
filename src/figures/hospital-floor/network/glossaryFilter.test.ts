@@ -4,7 +4,9 @@ import { describe, it } from 'node:test';
 import { GLOSSARY } from '../../../content/network/glossary.ts';
 import { matchesQuery, normalised, searchTextOf } from './glossaryFilter.ts';
 
-const matching = (query: string): string[] => GLOSSARY.filter(({ term, definition }) => matchesQuery(searchTextOf(term, definition), query)).map(({ term }) => term);
+const matching = (query: string): string[] => GLOSSARY.filter((entry) => matchesQuery(searchTextOf(entry), query)).map(({ term }) => term);
+
+const entry = (term: string, definition: string, expansion?: string) => ({ term, definition, expansion });
 
 describe('matchesQuery', () => {
   it('matches everything for an empty or blank query', () => {
@@ -14,13 +16,20 @@ describe('matchesQuery', () => {
 
   it('ignores the case and the accents on both sides', () => {
     assert.equal(normalised('Réseau Étanche'), 'reseau etanche');
-    assert.ok(matchesQuery(searchTextOf('VLAN', 'Réseau local virtuel'), 'RESEAU'));
-    assert.ok(matchesQuery(searchTextOf('VLAN', 'Reseau local virtuel'), 'réseau'));
+    assert.ok(matchesQuery(searchTextOf(entry('VLAN', 'Réseau local virtuel')), 'RESEAU'));
+    assert.ok(matchesQuery(searchTextOf(entry('VLAN', 'Reseau local virtuel')), 'réseau'));
   });
 
   it('wants every word of the query', () => {
-    assert.ok(matchesQuery(searchTextOf('MLLP', 'enveloppe TCP'), 'mllp tcp'));
-    assert.ok(!matchesQuery(searchTextOf('MLLP', 'enveloppe TCP'), 'mllp dicom'));
+    assert.ok(matchesQuery(searchTextOf(entry('MLLP', 'enveloppe TCP')), 'mllp tcp'));
+    assert.ok(!matchesQuery(searchTextOf(entry('MLLP', 'enveloppe TCP')), 'mllp dicom'));
+  });
+
+  it('searches the expansion of an acronym too', () => {
+    const insi = entry('INSi', 'Le téléservice de l\'Assurance maladie.', 'Identité nationale de santé informatisée');
+    assert.ok(matchesQuery(searchTextOf(insi), 'IDENTITE nationale'));
+    assert.ok(matchesQuery(searchTextOf(insi), 'inSi'));
+    assert.ok(!matchesQuery(searchTextOf(entry('INSi', 'Le téléservice.')), 'identite'));
   });
 
   it('finds the MLLP entry first among those that mention it, and none for a word nobody uses', () => {
