@@ -1,6 +1,8 @@
 # hospitals-data
 A static Astro site explaining how data flows through a hospital information system, with layered isometric SVG figures.
 
+Source: https://github.com/GoodEWorkers/view-health-data
+
 | Command | Does |
 |---|---|
 | `pnpm install` | pinned lockfile |

@@ -1,4 +1,4 @@
-/* The slim top bar: title and the layer's sentence, layer control, glossary, credit. One 4 rem row from 63.7 em (1020 px by default), the sentence from 80 em (1280 px), two rows below. Breakpoints in em follow the reader's text size. */
+/* The slim top bar: title and the layer's sentence, layer control, code link, glossary, credit. One 4 rem row from 63.7 em (1020 px by default), the sentence from 80 em (1280 px), two rows below. Breakpoints in em follow the reader's text size. */
 
 .site-header {
   --keys-show: 0;
@@ -88,7 +88,8 @@
 }
 
 .layer-tab:focus-visible,
-.glossary-button:focus-visible {
+.glossary-button:focus-visible,
+.code-link:focus-visible {
   outline: 2px solid var(--anatomy-strong);
   outline-offset: 1px;
 }
@@ -150,7 +151,10 @@
   gap: 0.75rem;
 }
 
-.glossary-button {
+.glossary-button,
+.code-link {
+  box-sizing: border-box;
+  text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -170,7 +174,14 @@
     border-color 120ms var(--anatomy-ease);
 }
 
-.glossary-button:hover {
+.code-link svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.glossary-button:hover,
+.code-link:hover {
   border-color: var(--anatomy-strong);
   background: color-mix(in srgb, var(--anatomy-strong) 6%, var(--anatomy-face));
 }
@@ -181,6 +192,19 @@
   }
 
   .glossary-button {
+    justify-content: center;
+    width: 2.375rem;
+    padding: 0;
+  }
+}
+
+/* The code link yields first: with its label the bar needs 1306 px beside the overview and the labelled glossary button. */
+@media (max-width: 81.9375em) {
+  .code-label {
+    display: none;
+  }
+
+  .code-link {
     justify-content: center;
     width: 2.375rem;
     padding: 0;
@@ -239,11 +263,13 @@
 
 @media (pointer: coarse), (max-width: 720px) {
   .layer-tab,
-  .glossary-button {
+  .glossary-button,
+  .code-link {
     min-height: 2.75rem;
   }
 
-  .glossary-button {
+  .glossary-button,
+  .code-link {
     min-width: 2.75rem;
   }
 }
@@ -252,7 +278,8 @@
   .layer-tab,
   .layer-icon svg,
   .layer-icon kbd,
-  .glossary-button {
+  .glossary-button,
+  .code-link {
     transition: none;
   }
 }

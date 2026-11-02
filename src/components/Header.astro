@@ -14,6 +14,7 @@ const LAYER_ICONS: Readonly<Record<LayerId, string>> = {
   donnees: '<path d="M4 2h5l3 3v9H4z" /><path d="M9 2v3h3M6 8.25h4M6 10.75h4" />',
   reseau: '<circle cx="8" cy="3.75" r="1.75" /><circle cx="3.75" cy="12.25" r="1.75" /><circle cx="12.25" cy="12.25" r="1.75" /><path d="M7.22 5.31 4.53 10.69M8.78 5.31l2.69 5.38M5.5 12.25h5" />',
 };
+const GITHUB_MARK = '<path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z" />';
 const GLOSSARY_ICON = '<path d="M8 4.5C6.8 3.5 5 3.25 2.5 3.25v8.5c2.5 0 4.3.25 5.5 1.25 1.2-1 3-1.25 5.5-1.25v-8.5C11 3.25 9.2 3.5 8 4.5zM8 4.5V13" />';
 ---
 
@@ -44,6 +45,10 @@ const GLOSSARY_ICON = '<path d="M8 4.5C6.8 3.5 5 3.25 2.5 3.25v8.5c2.5 0 4.3.25 
     }
   </div>
   <div class="header-end">
+    <a class="code-link" href="https://github.com/GoodEWorkers/view-health-data" target="_blank" rel="noopener" aria-label="Code source sur GitHub" title="Code source sur GitHub">
+      <svg viewBox="0 0 16 16" aria-hidden="true" set:html={GITHUB_MARK} />
+      <span class="code-label">Code</span>
+    </a>
     <button type="button" class="glossary-button" data-open-view="glossary" aria-label="Glossaire" aria-haspopup="dialog" aria-keyshortcuts="g" title="Glossaire (g)">
       <svg viewBox="0 0 16 16" aria-hidden="true" set:html={GLOSSARY_ICON} />
       <span class="glossary-label">Glossaire</span>
