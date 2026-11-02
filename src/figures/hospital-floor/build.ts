@@ -23,6 +23,7 @@ import { floorsSvg, leavesSvg, numeralsSvg, roomGroup, trunkingSvg, wallsSvg } f
 
 const FIGURE_NUMBER = 'Fig. 1';
 const READOUT = 'Huit salles, un étage';
+export const SCREENS_MARKER = '<!--screens-->';
 const FIGURE_LABEL =
   'Maquette d\'architecte d\'un étage d\'hôpital posée sur un socle et coupée bas, de sorte que chaque salle se voit d\'en haut. ' +
   'Huit salles reconnaissables à leur mobilier entourent un couloir en anneau, ' +
@@ -71,7 +72,7 @@ export function hospitalFloorCard(): string {
       mark: 'raised',
       label: `${index + 1} ${acronym === roomName ? roomName : `${acronym} · ${roomName}`}`,
     })),
-    body: `<div class="iso-stage" tabindex="0" role="group" aria-label="${STAGE_LABEL}">${figure}</div>`,
+    body: `<div class="iso-stage" tabindex="0" role="group" aria-label="${STAGE_LABEL}">${figure}${SCREENS_MARKER}</div>`,
   });
   return plate.replace('<span class="iso-keys">', ROOM_KEYS);
 }

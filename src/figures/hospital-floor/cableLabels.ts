@@ -91,14 +91,14 @@ function textMarkup(layer: SheetLayerId, lines: readonly string[], [x, y]: Flat)
   return `<text data-layer="${layer}" font-size="${FONT_SIZE}" text-anchor="middle" dominant-baseline="central">${spans.join('')}</text>`;
 }
 
-function pillSvg({ source, target, colour }: Cable, texts: Readonly<Record<SheetLayerId, string>>, [x, y]: Flat): string {
+function pillSvg({ source, target, colour }: Cable, index: number, texts: Readonly<Record<SheetLayerId, string>>, [x, y]: Flat): string {
   const variants = SHEET_LAYERS.map((layer) => {
     const width = textWidth(texts[layer]) + PILL_PADDING.across * 2;
     const height = FONT_SIZE + PILL_PADDING.along * 2;
     const box = `<rect data-layer="${layer}" x="${(x - width / 2).toFixed(1)}" y="${(y - height / 2).toFixed(1)}" width="${width.toFixed(1)}" height="${height.toFixed(1)}" rx="${PILL_RADIUS}"/>`;
     return box + textMarkup(layer, [texts[layer]], [x, y]);
   });
-  return groupSvg(variants, { 'data-pill': '', 'data-from': source, 'data-to': target, style: `--room: ${colour}` });
+  return groupSvg(variants, { 'data-pill': '', 'data-from': source, 'data-to': target, 'data-flow': index, style: `--room: ${colour}` });
 }
 
 function pillsSvg(): string {
@@ -112,7 +112,7 @@ function pillsSvg(): string {
     return { options, width: widest + PILL_PADDING.across * 2, height: FONT_SIZE + PILL_PADDING.along * 2 };
   });
   const centres = placeBoxes(candidates, deviceLabelBoxes());
-  return CABLES.map((cable, index) => pillSvg(cable, texts[index]!, centres[index]!)).join('');
+  return CABLES.map((cable, index) => pillSvg(cable, index, texts[index]!, centres[index]!)).join('');
 }
 
 const DEVICE_LABEL_SHIFTS: Readonly<Record<DepartmentId, Flat>> = {

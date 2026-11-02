@@ -1,0 +1,18 @@
+---
+import { THEATRE_BLOCKS, THEATRE_HOURS, THEATRE_ROOMS } from '../../content/screenMocks.ts';
+---
+
+<div class="sk-planning">
+  <span></span>
+  {THEATRE_HOURS.map((hour) => <span class="sk-agenda-day">{hour}</span>)}
+  {THEATRE_ROOMS.map((room, row) => (
+    <>
+      <span class="sk-agenda-hour" style={`grid-row: ${row + 2}`}>{room}</span>
+      {THEATRE_HOURS.map((_, column) => <span class="sk-agenda-cell" style={`grid-row: ${row + 2}; grid-column: ${column + 2}`}></span>)}
+    </>
+  ))}
+  {THEATRE_BLOCKS.map(({ room, from, span, label }) => (
+    <span class="sk-agenda-slot" style={`grid-row: ${room + 2}; grid-column: ${from + 2} / span ${span}`}>{label}</span>
+  ))}
+</div>
+<p class="sk-footnote">Lundi 02/11/2026 · 4 salles · 6 interventions</p>

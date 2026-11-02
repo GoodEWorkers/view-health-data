@@ -1,9 +1,9 @@
-// The channel between the active-room state in live.ts and the other figures of the stage column: live.ts announces the active room and whether a visitor engaged it; a figure asks live.ts to pin a room, release it, or repeat the last announcement.
+// The channel between live.ts and the other figures: live.ts announces the active room, whether a visitor engaged it and whether they pinned it on purpose (keyboard or click); a figure asks it to pin, release or repeat.
 
 export const ACTIVE_ROOM_EVENT = 'hospital-floor:active-room';
 export const ROOM_REQUEST_EVENT = 'hospital-floor:room-request';
 
-export type ActiveRoom = { readonly index: number; readonly engaged: boolean };
+export type ActiveRoom = { readonly index: number; readonly engaged: boolean; readonly deliberate: boolean };
 
 export type RoomRequest =
   | { readonly action: 'pin'; readonly index: number }
@@ -13,7 +13,7 @@ export type RoomRequest =
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
 
 export const isActiveRoom = (value: unknown): value is ActiveRoom =>
-  isRecord(value) && Number.isInteger(value.index) && typeof value.engaged === 'boolean';
+  isRecord(value) && Number.isInteger(value.index) && typeof value.engaged === 'boolean' && typeof value.deliberate === 'boolean';
 
 export const isRoomRequest = (value: unknown): value is RoomRequest =>
   isRecord(value) &&

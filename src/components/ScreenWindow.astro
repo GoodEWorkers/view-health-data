@@ -1,0 +1,45 @@
+---
+import { DEPARTMENTS } from '../content/departments.ts';
+import type { DepartmentId } from '../content/departments.ts';
+import { plainName } from '../content/layerLabels.ts';
+import { LOGICAL, socketCentre } from '../figures/hospital-floor/screens/jackWires.ts';
+
+type Props = {
+  id: DepartmentId;
+  outgoing: number;
+  incoming: number;
+  start: string;
+  end: string;
+};
+
+const { id, outgoing, incoming, start, end } = Astro.props;
+const { acronym, colour, softwareExamples } = DEPARTMENTS.find((department) => department.id === id)!;
+const product = plainName(softwareExamples[0]!);
+const sockets = [
+  ...Array.from({ length: outgoing }, (_, slot) => socketCentre(slot, outgoing, 'bottom')),
+  ...Array.from({ length: incoming }, (_, slot) => socketCentre(slot, incoming, 'top')),
+];
+---
+
+<section
+  class="screen"
+  data-window={id}
+  data-room={id}
+  data-start={start}
+  data-end={end}
+  role="group"
+  aria-label={`Écran de ${acronym} : ${product}`}
+  style={`--room: ${colour}; width: ${LOGICAL.width}px; height: ${LOGICAL.height}px`}
+  hidden
+>
+  <div class="screen-frame">
+    <div class="screen-glass" aria-hidden="true">
+      <header class="screen-title">
+        <span class="screen-product">{product}</span>
+        <span class="screen-system">{acronym}</span>
+      </header>
+      <div class="screen-body"><slot /></div>
+    </div>
+    {sockets.map(([x, y]) => <i class="socket" style={`left: ${x}px; top: ${y}px`} />)}
+  </div>
+</section>

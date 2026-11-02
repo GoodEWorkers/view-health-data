@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { DEPARTMENTS } from '../../content/departments.ts';
-import { hospitalFloorCard } from './build.ts';
+import { SCREENS_MARKER, hospitalFloorCard } from './build.ts';
 
 const card = hospitalFloorCard();
 const TOTAL_FLOWS = DEPARTMENTS.reduce((total, { flows }) => total + flows.length, 0);
@@ -27,13 +27,19 @@ describe('hospitalFloorCard', () => {
     assert.equal(card.match(/<g data-pill=""/g)?.length, TOTAL_FLOWS);
     assert.equal(card.match(/<path class="cable-core"/g)?.length, TOTAL_FLOWS);
     assert.equal(card.match(/<path class="cable-glow"/g)?.length, TOTAL_FLOWS);
-    assert.match(card, /<g data-cable="" data-from="gam" data-to="dpi" style="--room: #0284c7">/);
+    assert.match(card, /<g data-cable="" data-from="gam" data-to="dpi" data-flow="0" style="--room: #0284c7">/);
   });
 
   it('gives every pill and device label one text per sheet layer', () => {
     for (const layer of ['logiciels', 'donnees', 'reseau']) {
       assert.equal(card.match(new RegExp(`<text data-layer="${layer}"`, 'g'))?.length, TOTAL_FLOWS + DEPARTMENTS.length, layer);
     }
+  });
+
+  it('leaves one slot for the floating screens, at the end of the stage and before the legend', () => {
+    assert.equal(card.split(SCREENS_MARKER).length, 2);
+    assert.ok(card.indexOf(SCREENS_MARKER) > card.indexOf('</svg>'));
+    assert.ok(card.indexOf(SCREENS_MARKER) < card.indexOf('<figcaption'));
   });
 
   it('keeps the room keys alone in the legend and opens on the rooms layer', () => {

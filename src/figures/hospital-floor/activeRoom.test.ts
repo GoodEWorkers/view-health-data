@@ -4,12 +4,12 @@ import { describe, it } from 'node:test';
 import { isActiveRoom, isRoomRequest } from './activeRoom.ts';
 
 describe('isActiveRoom', () => {
-  it('accepts a room index with its engaged flag', () => {
-    assert.ok(isActiveRoom({ index: 3, engaged: false }));
+  it('accepts a room index with its engaged and deliberate flags', () => {
+    assert.ok(isActiveRoom({ index: 3, engaged: false, deliberate: false }));
   });
 
   it('refuses anything else a page script could dispatch', () => {
-    for (const value of [null, 'gam', { index: '3', engaged: true }, { index: 1.5, engaged: true }, { index: 2 }, { engaged: true }]) {
+    for (const value of [null, 'gam', { index: '3', engaged: true, deliberate: true }, { index: 1.5, engaged: true, deliberate: true }, { index: 2, engaged: true }, { engaged: true, deliberate: false }]) {
       assert.equal(isActiveRoom(value), false, JSON.stringify(value));
     }
   });

@@ -1,0 +1,17 @@
+---
+import { AGENDA_DAYS, AGENDA_HOURS, AGENDA_SLOTS } from '../../content/screenMocks.ts';
+---
+
+<div class="sk-agenda">
+  <span></span>
+  {AGENDA_DAYS.map((day) => <span class="sk-agenda-day">{day}</span>)}
+  {AGENDA_HOURS.map((hour, row) => (
+    <>
+      <span class="sk-agenda-hour" style={`grid-row: ${row + 2}`}>{hour}</span>
+      {AGENDA_DAYS.map((_, day) => <span class="sk-agenda-cell" style={`grid-row: ${row + 2}; grid-column: ${day + 2}`}></span>)}
+    </>
+  ))}
+  {AGENDA_SLOTS.map(({ day, row, span, label }) => (
+    <span class="sk-agenda-slot" style={`grid-column: ${day + 2}; grid-row: ${row + 2} / span ${span}`}>{label}</span>
+  ))}
+</div>

@@ -50,8 +50,11 @@ standard or to `doc/sources.md`.
   assumptions to confirm.
 - Figure 1 (the floor) stays an anatomy-kit SVG. The software, data and network
   layers are drawn into that same drawing: each room's IT equipment is lit and
-  coloured cables link it; a label on each cable states what it carries and is
-  always visible, except on phones, where it is too small and the panel carries it.
+  coloured cables link it; a label on each cable states what it carries and
+  appears only for the hovered cable or a room pinned on purpose, never on
+  phones, where it is too small and the panel carries it. On the software layer
+  opening the layer lights the computers, draws the jack wires between them
+  and lifts the eight screens, skeleton interfaces with synthetic data.
 - Static output (Astro), pinned dependencies, no backend.
 
 ## Open decisions

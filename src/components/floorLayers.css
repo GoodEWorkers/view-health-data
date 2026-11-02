@@ -1,4 +1,4 @@
-/* The software, data and network layers drawn into the floor: lit devices, cables, pills and device labels. --device-light is 0 on Salles and 1 on the other layers and carries the one 320 ms fade; nothing in the drawing loses opacity. */
+/* The software, data and network layers in the floor: lit devices, cables, pills, labels. --device-light (0 on Salles, 1 elsewhere) fades in 320 ms. On Logiciels cables and labels stay hidden (--cable-show 0) and anchors take the --wave glow. */
 
 @property --device-light {
   syntax: '<number>';
@@ -6,9 +6,23 @@
   initial-value: 0;
 }
 
+@property --cable-show {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+
 .layout {
   --device-light: 0;
+  --cable-show: 1;
   --pill-ink-share: 65%;
+  transition:
+    --device-light 320ms var(--anatomy-ease),
+    --cable-show 320ms var(--anatomy-ease);
+}
+
+.layout[data-layer='logiciels'] {
+  --cable-show: 0;
   transition: --device-light 320ms var(--anatomy-ease);
 }
 
@@ -17,20 +31,32 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .layout {
+  .layout,
+  .layout[data-layer='logiciels'] {
     transition: none;
   }
 }
 
 .hospital-floor [data-device] {
-  --lit-share: calc(max(var(--glow), var(--device-light)) * 100%);
-  filter: drop-shadow(0 0 1.5px color-mix(in srgb, var(--room) calc(var(--device-light) * (70% + var(--glow) * 30%)), transparent))
-    drop-shadow(0 0 4px color-mix(in srgb, var(--room) calc(var(--device-light) * (35% + var(--glow) * 30%)), transparent));
+  --emphasis: var(--glow);
+  --lit-share: calc(max(var(--emphasis), var(--device-light)) * 100%);
+  --halo: drop-shadow(0 0 1.5px color-mix(in srgb, var(--room) calc(var(--device-light) * (70% + var(--emphasis) * 30%)), transparent))
+    drop-shadow(0 0 4px color-mix(in srgb, var(--room) calc(var(--device-light) * (35% + var(--emphasis) * 30%)), transparent));
+  filter: var(--halo);
 }
 
-.hospital-floor :is([data-cables], [data-cable-labels], [data-device-labels]) {
-  opacity: var(--device-light);
+.hospital-floor [data-anchor] {
+  --emphasis: max(var(--glow), var(--wave, 0));
+  filter: var(--halo) drop-shadow(0 0 7px color-mix(in srgb, var(--room) calc(var(--wave, 0) * 60%), transparent));
+}
+
+.hospital-floor :is([data-cables], [data-packets], [data-cable-labels], [data-device-labels]) {
+  opacity: calc(var(--device-light) * var(--cable-show));
   pointer-events: none;
+}
+
+.layout[data-layer='logiciels'] .hospital-floor [data-anchor] {
+  cursor: pointer;
 }
 
 .hospital-floor [data-cable] {
@@ -58,6 +84,10 @@
   pointer-events: stroke;
 }
 
+.layout[data-layer='logiciels'] .hospital-floor .cable-glow {
+  pointer-events: none;
+}
+
 .hospital-floor :is([data-cable-labels], [data-device-labels]) [data-layer] {
   display: none;
 }
@@ -66,6 +96,22 @@
 .layout[data-layer='donnees'] .hospital-floor :is([data-cable-labels], [data-device-labels]) [data-layer='donnees'],
 .layout[data-layer='reseau'] .hospital-floor :is([data-cable-labels], [data-device-labels]) [data-layer='reseau'] {
   display: inline;
+}
+
+.hospital-floor [data-pill] {
+  opacity: 0;
+  transition: opacity 160ms var(--anatomy-ease);
+}
+
+.hospital-floor [data-pill][data-hover],
+.hospital-floor [data-pill][data-shown] {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hospital-floor [data-pill] {
+    transition: none;
+  }
 }
 
 .hospital-floor [data-pill] rect {

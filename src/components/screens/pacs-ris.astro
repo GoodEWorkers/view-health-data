@@ -1,0 +1,25 @@
+---
+import { IMAGING_CAPTION, IMAGING_WORKLIST } from '../../content/screenMocks.ts';
+---
+
+<div class="sk-columns" style="grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr)">
+  <section class="sk-panel">
+    <h3 class="sk-heading">Liste de travail</h3>
+    <ul class="sk-worklist">
+      {IMAGING_WORKLIST.map(({ patient, exam, time, status }, index) => (
+        <li data-active={index === 0 ? '' : undefined}>
+          <strong>{patient}</strong>
+          <span class="sk-mono sk-muted">{time}</span>
+          <span>{exam}</span>
+          <span class="sk-chip">{status}</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+  <figure class="sk-viewer">
+    <svg viewBox="0 0 120 120" class="sk-crosshair" focusable="false">
+      <circle cx="60" cy="60" r="22" /><path d="M60 8v34M60 78v34M8 60h34M78 60h34" />
+    </svg>
+    <figcaption>{IMAGING_CAPTION.map((line) => <span>{line}</span>)}</figcaption>
+  </figure>
+</div>

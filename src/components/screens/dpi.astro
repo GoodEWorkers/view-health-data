@@ -1,0 +1,23 @@
+---
+import { MOCK_PATIENT, RECORD_ACTIVE_TAB, RECORD_NOTES, RECORD_TABS, RECORD_VITALS } from '../../content/screenMocks.ts';
+---
+
+<div class="sk-banner">
+  <strong>{MOCK_PATIENT.lastName} {MOCK_PATIENT.firstName}</strong>
+  <span>{MOCK_PATIENT.age} · lit {MOCK_PATIENT.bed} · {MOCK_PATIENT.physician}</span>
+</div>
+<nav class="sk-tabs">
+  {RECORD_TABS.map((tab) => <span class="sk-tab" data-active={tab === RECORD_ACTIVE_TAB ? '' : undefined}>{tab}</span>)}
+</nav>
+<div class="sk-vitals">
+  {RECORD_VITALS.map(([label, value]) => <span class="sk-vital"><small>{label}</small> {value}</span>)}
+</div>
+<ul class="sk-notes">
+  {RECORD_NOTES.map(({ time, author, text }) => (
+    <li>
+      <span class="sk-mono">{time}</span>
+      <span><strong>{author}</strong> {text}</span>
+    </li>
+  ))}
+</ul>
+<div class="sk-input sk-compose"><span class="sk-bar" style="width: 58%"></span></div>

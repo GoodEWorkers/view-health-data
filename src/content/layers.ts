@@ -2,7 +2,7 @@ const SHEET_HINT = 'Survolez un équipement ou un câble';
 
 export const LAYERS = [
   { id: 'salles', label: 'Salles', title: 'Plan de l\'hôpital', hint: 'Survolez une salle ou utilisez les flèches' },
-  { id: 'logiciels', label: 'Logiciels', title: 'Logiciels', hint: SHEET_HINT },
+  { id: 'logiciels', label: 'Logiciels', title: 'Logiciels', hint: 'Survolez un fil ou cliquez une fenêtre' },
   { id: 'donnees', label: 'Données', title: 'Données', hint: SHEET_HINT },
   { id: 'reseau', label: 'Réseau', title: 'Réseau', hint: SHEET_HINT },
 ] as const;

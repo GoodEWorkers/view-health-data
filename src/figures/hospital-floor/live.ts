@@ -53,9 +53,10 @@ function mount(figure: HTMLElement): void {
 
   const still = matchMedia('(prefers-reduced-motion: reduce)');
   const packets = createPackets(stage, still);
-  const interaction: { tour: TourState; pinned: number | null; hovering: boolean; focused: boolean } = {
+  const interaction: { tour: TourState; pinned: number | null; deliberate: boolean; hovering: boolean; focused: boolean } = {
     tour: { index: 0, elapsed: 0 },
     pinned: null,
+    deliberate: false,
     hovering: false,
     focused: false,
   };
@@ -123,8 +124,8 @@ function mount(figure: HTMLElement): void {
   }
 
   function publish(force = false): void {
-    const room = { index: activeIndex(), engaged: isEngaged() };
-    if (!force && published?.index === room.index && published.engaged === room.engaged) return;
+    const room = { index: activeIndex(), engaged: isEngaged(), deliberate: interaction.pinned !== null && interaction.deliberate };
+    if (!force && published?.index === room.index && published.engaged === room.engaged && published.deliberate === room.deliberate) return;
     published = room;
     announceActiveRoom(room);
   }
@@ -150,8 +151,10 @@ function mount(figure: HTMLElement): void {
     frame = requestAnimationFrame(tick);
   }
 
-  function pin(index: number, announce: boolean): void {
-    interaction.pinned = wrapIndex(index, ROOM_COUNT);
+  function pin(index: number, announce: boolean, deliberate = announce): void {
+    const room = wrapIndex(index, ROOM_COUNT);
+    interaction.deliberate = deliberate || (interaction.pinned === room && interaction.deliberate);
+    interaction.pinned = room;
     if (announce) announcer.textContent = readoutOf(interaction.pinned);
     kick();
   }
@@ -212,7 +215,7 @@ function mount(figure: HTMLElement): void {
   });
 
   onRoomRequest((request) => {
-    if (request.action === 'pin') pin(request.index, false);
+    if (request.action === 'pin') pin(request.index, false, true);
     else if (request.action === 'release') release();
     else publish(true);
   });

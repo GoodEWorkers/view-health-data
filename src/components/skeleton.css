@@ -1,0 +1,188 @@
+/* Skeleton atoms shared by the eight screens: fields, inputs, buttons, chips, banners, tabs, vitals and notes, in logical pixels. */
+
+.sk-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sk-heading {
+  margin: 0 0 5px;
+  color: var(--anatomy-text);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.sk-fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 4px 8px;
+  margin: 0 0 6px;
+}
+
+.sk-fields dt {
+  color: var(--anatomy-text);
+  font-size: 12px;
+}
+
+.sk-fields dd {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sk-input {
+  padding: 2px 6px;
+  border: 1px solid var(--anatomy-faint);
+  border-radius: 3px;
+  background: var(--anatomy-face);
+  white-space: nowrap;
+}
+
+.sk-bar {
+  display: block;
+  height: 7px;
+  border-radius: 4px;
+  background: var(--anatomy-faint);
+}
+
+.sk-compose {
+  display: grid;
+  gap: 5px;
+  margin-top: 7px;
+  padding: 6px 8px;
+}
+
+.sk-mono {
+  font-family: var(--anatomy-mono);
+  font-size: 12px;
+}
+
+.sk-input.sk-mono {
+  font-size: 11px;
+}
+
+.sk-muted {
+  color: var(--anatomy-text);
+}
+
+.sk-strong {
+  font-weight: 700;
+}
+
+.sk-end {
+  text-align: right;
+}
+
+.sk-footnote {
+  margin: 6px 0 0;
+  color: var(--anatomy-text);
+  font-size: 12px;
+}
+
+.sk-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.sk-button {
+  padding: 3px 10px;
+  border: 1px solid var(--anatomy-lo);
+  border-radius: 4px;
+  background: var(--anatomy-face);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.sk-button[data-primary] {
+  border-color: var(--screen-ink);
+  background: var(--screen-ink);
+  color: var(--anatomy-paper);
+}
+
+.sk-chip {
+  display: inline-block;
+  padding: 1px 7px;
+  border: 1px solid color-mix(in srgb, var(--room) 50%, var(--anatomy-paper));
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--room) 14%, var(--anatomy-paper));
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sk-chip[data-status='Erreur'] {
+  border-color: var(--anatomy-strong);
+  background: var(--anatomy-strong);
+  color: var(--anatomy-paper);
+}
+
+.sk-banner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 10px;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.sk-banner span {
+  color: var(--anatomy-text);
+}
+
+.sk-tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--anatomy-faint);
+}
+
+.sk-tab {
+  padding: 3px 9px;
+  color: var(--anatomy-text);
+  font-size: 12.5px;
+}
+
+.sk-tab[data-active] {
+  border-bottom: 2px solid var(--screen-ink);
+  color: var(--anatomy-strong);
+  font-weight: 700;
+}
+
+.sk-vitals {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 7px;
+}
+
+.sk-vital {
+  padding: 2px 7px;
+  border: 1px solid var(--anatomy-faint);
+  border-radius: 4px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.sk-vital small {
+  color: var(--anatomy-text);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.sk-notes {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sk-notes li {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 8px;
+  font-size: 12.5px;
+}

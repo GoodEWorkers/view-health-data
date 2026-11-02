@@ -1,0 +1,18 @@
+---
+import { MESSAGES, MESSAGE_TOTALS } from '../../content/screenMocks.ts';
+---
+
+<div class="sk-vitals">
+  {MESSAGE_TOTALS.map(([label, value]) => <span class="sk-vital"><small>{label}</small> {value}</span>)}
+</div>
+<div class="sk-table" style="--columns: 0.9fr 0.9fr 1.5fr 1fr">
+  <span class="sk-head">Heure</span><span class="sk-head">Message</span><span class="sk-head">Trajet</span><span class="sk-head">Statut</span>
+  {MESSAGES.map(({ time, type, route, status }) => (
+    <>
+      <span class="sk-cell sk-mono sk-muted">{time}</span>
+      <span class="sk-cell sk-mono sk-strong">{type}</span>
+      <span class="sk-cell">{route}</span>
+      <span class="sk-cell"><span class="sk-chip" data-status={status}>{status}</span></span>
+    </>
+  ))}
+</div>

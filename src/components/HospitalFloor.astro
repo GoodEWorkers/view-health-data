@@ -1,20 +1,22 @@
 ---
 import './floorLayers.css';
 import { DEPARTMENTS } from '../content/departments.ts';
-import { hospitalFloorCard } from '../figures/hospital-floor/build.ts';
+import { SCREENS_MARKER, hospitalFloorCard } from '../figures/hospital-floor/build.ts';
+import Screens from './Screens.astro';
 
-const card = hospitalFloorCard();
+const [cardBeforeScreens = '', cardAfterScreens = ''] = hospitalFloorCard().split(SCREENS_MARKER);
 const keyColours = DEPARTMENTS.map(({ colour }, index) => `.hospital-floor [data-keys='rooms'] .iso-key:nth-child(${index + 1}){--room:${colour}}`).join('');
 ---
 
 <style is:inline set:html={keyColours}></style>
 
 <div class="hospital-floor">
-  <Fragment set:html={card} />
+  <Fragment set:html={cardBeforeScreens} /><Screens /><Fragment set:html={cardAfterScreens} />
 </div>
 
 <script>
   import '../figures/hospital-floor/live.ts';
+  import '../figures/hospital-floor/labelReveal.ts';
 </script>
 
 <style is:global>

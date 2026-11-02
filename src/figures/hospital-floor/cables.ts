@@ -44,14 +44,15 @@ function bundled(lines: readonly CableLine[]): Cable[] {
 
 export const CABLES: readonly Cable[] = bundled(CABLE_LINES);
 
-const cableSvg = ({ source, target, colour, path }: Cable): string => {
+const cableSvg = ({ source, target, colour, path }: Cable, index: number): string => {
   const d = polyline(path.map(([x, y]) => [x, y, CABLE_HEIGHT]));
   return groupSvg([`<path class="cable-glow" d="${d}"/>`, `<path class="cable-core" d="${d}"/>`], {
     'data-cable': '',
     'data-from': source,
     'data-to': target,
+    'data-flow': index,
     style: `--room: ${colour}`,
   });
 };
 
-export const cablesSvg = (): string => groupSvg(CABLES.map(cableSvg), { 'data-cables': '' }) + groupSvg('', { 'data-packets': '' });
+export const cablesSvg = (): string => groupSvg(CABLES.map((cable, index) => cableSvg(cable, index)), { 'data-cables': '' }) + groupSvg('', { 'data-packets': '' });

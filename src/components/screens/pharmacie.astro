@@ -1,0 +1,22 @@
+---
+import { MOCK_PATIENT, PRESCRIPTION_ALERT, PRESCRIPTION_LINES } from '../../content/screenMocks.ts';
+---
+
+<div class="sk-banner">
+  <strong>Ordonnance du 02/11/2026</strong>
+  <span>{MOCK_PATIENT.lastName} {MOCK_PATIENT.firstName} · {MOCK_PATIENT.physician}</span>
+</div>
+<div class="sk-table" style="--columns: 1.3fr 1.3fr 1fr">
+  <span class="sk-head">Médicament</span><span class="sk-head">Posologie</span><span class="sk-head">Durée</span>
+  {PRESCRIPTION_LINES.map(({ drug, dose, duration }) => (
+    <><span class="sk-cell sk-strong">{drug}</span><span class="sk-cell">{dose}</span><span class="sk-cell sk-muted">{duration}</span></>
+  ))}
+</div>
+<div class="sk-alert">
+  <span class="sk-alert-mark">!</span>
+  <span><strong>{PRESCRIPTION_ALERT[0]}</strong> {PRESCRIPTION_ALERT[1]}</span>
+</div>
+<div class="sk-actions">
+  <span class="sk-button" data-primary>Valider</span>
+  <span class="sk-button">Appeler le prescripteur</span>
+</div>

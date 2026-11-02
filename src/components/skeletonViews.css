@@ -1,0 +1,160 @@
+/* Skeleton tables and views of the eight screens: result and message tables, the worklist and image viewer, the interaction alert, the agenda and the theatre planning, in logical pixels. */
+
+.sk-table {
+  display: grid;
+  grid-template-columns: var(--columns);
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.sk-head {
+  padding: 2px 5px;
+  border-bottom: 1px solid var(--anatomy-lo);
+  color: var(--anatomy-text);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.sk-cell {
+  padding: 3px 5px;
+  border-bottom: 1px solid var(--anatomy-faint);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.sk-flag {
+  display: inline-block;
+  min-width: 15px;
+  border: 1.5px solid var(--screen-ink);
+  border-radius: 50%;
+  color: var(--screen-ink);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 12px;
+  text-align: center;
+}
+
+.sk-worklist {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sk-worklist li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1px 6px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.sk-worklist li[data-active] {
+  background: color-mix(in srgb, var(--room) 16%, var(--anatomy-paper));
+}
+
+.sk-viewer {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  margin: 0;
+  border-radius: 4px;
+  background: var(--anatomy-shade-1);
+  min-height: 150px;
+  position: relative;
+}
+
+.sk-crosshair {
+  position: absolute;
+  inset: 8px 0 22px;
+  width: 100%;
+  height: calc(100% - 30px);
+  fill: none;
+  stroke: var(--anatomy-mid);
+  stroke-width: 1.4;
+}
+
+.sk-viewer figcaption {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 7px;
+  color: var(--anatomy-text);
+  font-family: var(--anatomy-mono);
+  font-size: 10.5px;
+}
+
+.sk-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+  padding: 5px 8px;
+  border: 1.5px solid var(--screen-ink);
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--room) 12%, var(--anatomy-paper));
+  font-size: 12.5px;
+}
+
+.sk-alert-mark {
+  display: grid;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--screen-ink);
+  color: var(--anatomy-paper);
+  font-weight: 700;
+}
+
+.sk-agenda,
+.sk-planning {
+  display: grid;
+  grid-template-columns: 38px repeat(5, 1fr);
+  grid-auto-rows: 27px;
+  gap: 2px;
+  font-size: 12px;
+}
+
+.sk-agenda {
+  grid-template-rows: 20px repeat(5, 27px);
+}
+
+.sk-planning {
+  grid-template-rows: 20px repeat(4, 30px);
+}
+
+.sk-agenda-day,
+.sk-agenda-hour {
+  display: flex;
+  align-items: center;
+  color: var(--anatomy-text);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.sk-agenda-day {
+  justify-content: center;
+}
+
+.sk-agenda-cell {
+  border: 1px solid var(--anatomy-faint);
+  border-radius: 3px;
+}
+
+.sk-agenda-slot {
+  display: flex;
+  align-items: center;
+  padding: 0 5px;
+  border: 1px solid color-mix(in srgb, var(--room) 55%, var(--anatomy-paper));
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--room) 22%, var(--anatomy-paper));
+  font-size: 11.5px;
+  font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
+}
