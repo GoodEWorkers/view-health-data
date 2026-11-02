@@ -10,3 +10,8 @@ A static Astro site explaining how data flows through a hospital information sys
 | `pnpm test` | `node --test` over `src/**/*.test.ts` |
 
 Built by Richard Raduly for [Good eWorkers](https://goodeworkers.org).
+
+## Third-party
+
+- `src/iso/` is the anatomy kit by Ryan (https://github.com/wheresryan22/anatomy), MIT, licence in `src/iso/LICENSE`.
+- Logo and name Good eWorkers belong to the association.
