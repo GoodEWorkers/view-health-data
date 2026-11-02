@@ -1,6 +1,7 @@
 // Data packets: small dots that ride the cables of the active room, from its anchor device to each flow's destination. One cached circle per packet, positioned by the live loop along the cable's core path.
 
 import { DEPARTMENTS } from '../../content/departments.ts';
+import { isHiddenByFocus } from './flowRelation.ts';
 import { VANISH_SECONDS, scaleAt, streamsFor } from './packetMotion.ts';
 import type { Stream } from './packetMotion.ts';
 
@@ -36,6 +37,7 @@ export function createPackets(stage: Element, still: MediaQueryList): Packets | 
   const complete = cables.every((own, index) => own.length === DEPARTMENTS[index]!.flows.length);
   if (!layer || !complete) return null;
 
+  const layout = stage.closest<HTMLElement>('.layout');
   const pool: SVGCircleElement[] = [];
   let live: Packet[] = [];
   let running: Running[] = [];
@@ -57,10 +59,14 @@ export function createPackets(stage: Element, still: MediaQueryList): Packets | 
   }
 
   const launch = ({ source, flow }: Stream): void => {
-    if (live.length >= MAX_LIVE_PACKETS) return;
+    const { id, colour, flows } = DEPARTMENTS[source]!;
+    const ends = { from: id, to: flows[flow]!.to };
+    if (live.length >= MAX_LIVE_PACKETS || isHiddenByFocus(ends, { focused: layout?.dataset.focusRoom, selected: layout?.dataset.selectedRoom })) return;
     const cable = cables[source]![flow]!;
     const circle = pool.pop() ?? document.createElementNS(SVG_NAMESPACE, 'circle');
-    circle.style.setProperty('--room', DEPARTMENTS[source]!.colour);
+    circle.style.setProperty('--room', colour);
+    circle.dataset.from = ends.from;
+    circle.dataset.to = ends.to;
     const packet: Packet = { circle, cable, duration: cable.length / SPEED_PLATE_UNITS_PER_SECOND, age: 0, scale: -1 };
     live.push(packet);
     place(packet);

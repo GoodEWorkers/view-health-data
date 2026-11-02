@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { escape, focusIn, focusOut, hover, leave, select, setTourEnabled, startInteraction, stepSelection, tourTick, viewOf } from './selection.ts';
+import { escape, focusIn, focusedOf, focusOut, hover, leave, select, setTourEnabled, startInteraction, stepSelection, tourTick, viewOf } from './selection.ts';
 import type { Interaction } from './selection.ts';
 
 const ROOM_COUNT = 8;
@@ -132,5 +132,20 @@ describe('tour tick', () => {
   it('does nothing while the tour is disabled, offscreen or under reduced motion', () => {
     const idle = startInteraction();
     assert.equal(tourTick(idle, 10, DWELL, ROOM_COUNT), idle);
+  });
+});
+
+describe('focused room', () => {
+  it('ignores the idle tour that highlights a room', () => {
+    assert.deepEqual([viewOf(TOURING).highlighted, focusedOf(TOURING)], [0, null]);
+  });
+
+  it('follows the pointer, then a focused key, then the selection', () => {
+    const selected = select(TOURING, 2);
+    assert.deepEqual([focusedOf(selected), focusedOf(focusIn(selected, 4)), focusedOf(hover(focusIn(selected, 4), 6))], [2, 4, 6]);
+  });
+
+  it('falls back to the selection when the pointer leaves, and to nothing without one', () => {
+    assert.deepEqual([focusedOf(leave(hover(select(TOURING, 3), 6))), focusedOf(leave(hover(TOURING, 6)))], [3, null]);
   });
 });

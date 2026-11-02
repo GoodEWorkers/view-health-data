@@ -1,17 +1,20 @@
 ---
 import './floorLayers.css';
 import './floorSelection.css';
+import './flowFocus.css';
 import './networkLayer.css';
 import { DEPARTMENTS } from '../content/departments.ts';
 import { SCREENS_MARKER, hospitalFloorCard } from '../figures/hospital-floor/build.ts';
+import { flowFocusRules } from '../figures/hospital-floor/flowFocusCss.ts';
 import NetworkViews from './NetworkViews.astro';
 import Screens from './Screens.astro';
 
 const [cardBeforeScreens = '', cardAfterScreens = ''] = hospitalFloorCard().split(SCREENS_MARKER);
 const keyColours = DEPARTMENTS.map(({ colour }, index) => `.hospital-floor [data-keys='rooms'] .iso-key:nth-child(${index + 1}){--room:${colour}}`).join('');
+const flowFocus = flowFocusRules(DEPARTMENTS.map(({ id }) => id));
 ---
 
-<style is:inline set:html={keyColours}></style>
+<style is:inline set:html={keyColours + flowFocus}></style>
 
 <div class="hospital-floor">
   <Fragment set:html={cardBeforeScreens} /><Screens /><NetworkViews /><Fragment set:html={cardAfterScreens} />

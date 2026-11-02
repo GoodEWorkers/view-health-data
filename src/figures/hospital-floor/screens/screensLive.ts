@@ -121,7 +121,7 @@ function mount(layer: HTMLElement): void {
     const visible = draw > 0;
     const drawing = visible && draw < 1 && !still.matches;
     wire.group.style.visibility = visible ? 'visible' : 'hidden';
-    wire.group.setAttribute('opacity', ((still.matches ? draw : 1) * fades.backdrop).toFixed(3));
+    wire.group.style.setProperty('--wire-fade', ((still.matches ? draw : 1) * fades.backdrop).toFixed(3));
     wire.strokes.forEach((element) => {
       element.style.strokeDasharray = drawing ? DASH_PATTERN : 'none';
       element.style.strokeDashoffset = drawing ? String(1 - draw) : '0';

@@ -36,8 +36,10 @@ const restartedTour = (state: Interaction): Interaction => ({ ...state, tour: { 
 export const tourRunning = ({ tourEnabled, selected, pointerInside, focusInside }: Interaction): boolean =>
   tourEnabled && selected === null && !pointerInside && !focusInside;
 
-export const highlightedOf = (state: Interaction): number | null =>
-  state.hovered ?? state.focusedKey ?? state.selected ?? (tourRunning(state) ? state.tour.index : null);
+// The room the reader points at, without the idle tour: it is what the flows follow.
+export const focusedOf = (state: Interaction): number | null => state.hovered ?? state.focusedKey ?? state.selected;
+
+export const highlightedOf = (state: Interaction): number | null => focusedOf(state) ?? (tourRunning(state) ? state.tour.index : null);
 
 export const viewOf = (state: Interaction): InteractionView => ({
   highlighted: highlightedOf(state),

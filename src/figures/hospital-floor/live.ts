@@ -1,4 +1,4 @@
-// Lights one room at a time from the highlight (hover, a focused legend key, the idle tour) in one eased frame loop and marks the selected room. Clicks and keys select; the side panel follows the selection. Hover never selects.
+// Lights one room from the highlight (hover, a focused legend key, the idle tour) in one eased frame loop and marks the selected room; clicks and keys select, hover never does. The pointed and selected rooms go on .layout for the flow filter.
 
 import { DEPARTMENTS } from '../../content/departments.ts';
 import { DEFAULT_LAYER, layerById } from '../../content/layers.ts';
@@ -6,7 +6,7 @@ import type { LayerId } from '../../content/layers.ts';
 import { announceSelection, onRoomRequest } from './activeRoom.ts';
 import { mountLayerSwitch } from './layerSwitch.ts';
 import { NO_ACTIVE_ROOM, createPackets } from './packets.ts';
-import { FIRST_ROOM, escape, focusIn, focusOut, highlightedOf, hover, leave, select, setTourEnabled, startInteraction, stepSelection, tourRunning, tourTick } from './selection.ts';
+import { FIRST_ROOM, escape, focusIn, focusOut, focusedOf, highlightedOf, hover, leave, select, setTourEnabled, startInteraction, stepSelection, tourRunning, tourTick } from './selection.ts';
 import type { Interaction } from './selection.ts';
 import { createTooltip } from './tooltip.ts';
 import { follow, wrapIndex } from './tour.ts';
@@ -26,6 +26,13 @@ const LAST_ROOM = ROOM_COUNT - 1;
 const TOOLTIP_HINT = 'Cliquer pour les détails';
 const SELECTED_NONE = 'Aucune salle sélectionnée';
 
+const roomIdOf = (index: number | null): string | undefined => (index === null ? undefined : DEPARTMENTS[index]?.id);
+
+const setData = (element: HTMLElement, name: 'focusRoom' | 'selectedRoom', value: string | undefined): void => {
+  if (value === undefined) delete element.dataset[name];
+  else if (element.dataset[name] !== value) element.dataset[name] = value;
+};
+
 type GroupView = { readonly element: SVGElement; readonly owners: readonly number[] };
 type RoomView = { readonly groups: readonly GroupView[]; readonly key: HTMLElement | undefined; level: number };
 
@@ -39,6 +46,7 @@ function mount(figure: HTMLElement): void {
   const readout = figure.querySelector<HTMLElement>('[data-readout]');
   if (!stage || !readout) return;
 
+  const layout = figure.closest<HTMLElement>('.layout');
   const title = figure.querySelector<HTMLElement>('[data-corner="title"]');
   const hint = figure.querySelector<HTMLElement>('[data-corner="hint"]');
   const keyElements = [...figure.querySelectorAll<HTMLElement>(ROOM_KEYS)];
@@ -92,6 +100,12 @@ function mount(figure: HTMLElement): void {
     sendPackets();
   };
 
+  function markFocus(): void {
+    if (!layout) return;
+    setData(layout, 'focusRoom', roomIdOf(focusedOf(state)));
+    setData(layout, 'selectedRoom', roomIdOf(state.selected));
+  }
+
   function step(seconds: number): boolean {
     const active = highlightedOf(state);
     let moving = false;
@@ -132,6 +146,7 @@ function mount(figure: HTMLElement): void {
   function apply(next: Interaction): void {
     const changed = next.selected !== state.selected;
     state = next;
+    markFocus();
     if (changed) {
       markSelected();
       announceSelection({ selected: state.selected });

@@ -1,0 +1,38 @@
+/* Focus filtering of cables, jack wires and packets on every layer. live.ts writes data-focus-room and data-selected-room on .layout; flowFocusCss.ts sets --flow-focus per room; here it becomes opacity. */
+
+@property --flow-focus {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+.layout {
+  --flow-dim: 0.15;
+  --flow-peek: 0.5;
+  --flow-fade: 200ms;
+  --flow-settle: 140ms;
+}
+
+.layout[data-selected-room] {
+  --flow-fade: 240ms;
+}
+
+:is([data-cable], [data-packets] circle) {
+  opacity: var(--flow-focus);
+}
+
+/* screensLive.ts writes --wire-fade, the draw and inspector fade, so the focus never overwrites it. */
+[data-wire] {
+  opacity: calc(var(--wire-fade, 1) * var(--flow-focus));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :is([data-cable], [data-wire], [data-packets] circle) {
+    transition: --flow-focus var(--flow-fade) var(--anatomy-ease);
+  }
+
+  /* With no room pointed at the flows wait a beat before coming back, so crossing a gap between two rooms does not flash them. */
+  .layout:not([data-focus-room]) :is([data-cable], [data-wire], [data-packets] circle) {
+    transition-delay: var(--flow-settle);
+  }
+}
