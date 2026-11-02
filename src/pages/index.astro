@@ -1,4 +1,5 @@
 ---
+import Credit from '../components/Credit.astro';
 import HospitalFloor from '../components/HospitalFloor.astro';
 import LayerTabs from '../components/LayerTabs.astro';
 import NetworkPanel from '../components/network/Panel.astro';
@@ -171,6 +172,7 @@ const interfacesOf = ({ id, flows }: Department) => {
       }
       </div>
       <TraceDock />
+      <Credit />
     </aside>
   </div>
 </Base>
