@@ -1,8 +1,9 @@
 import { insetPlan, planOutline, sideRing } from '../../iso/iso-kit.ts';
-import type { Plan, Plane, Tone } from '../../iso/iso-kit.ts';
-import { PROJECTION, at, dots, line } from './camera.ts';
+import type { Plan, Plane, Point3, Tone } from '../../iso/iso-kit.ts';
+import { PROJECTION, at, dots, line, polyline } from './camera.ts';
 import type { Side } from './model.ts';
 import {
+  asDevice,
   box,
   compose,
   dotsOnTop,
@@ -11,6 +12,7 @@ import {
   faceLine,
   post,
   rect,
+  screenCorners,
   screenOutline,
   sorted,
 } from './parts.ts';
@@ -22,6 +24,8 @@ const SEAM_FACE: Face = 'left';
 const CHAIR = { seat: 5.6, seatBottom: 3.2, seatThickness: 1.1, leg: 0.9, backThickness: 0.8, backHeight: 5 };
 const MONITOR = { width: 6.4, thickness: 0.9, height: 4.4, stemHeight: 1.6, footWidth: 2.6, footDepth: 3.4 };
 const WHEEL = { radius: 0.9, height: 2.2 };
+
+export type Screen = { readonly centre: Plane; readonly z: number; readonly face: Face };
 
 function panelSeams(plan: Plan, bottom: number, top: number, pitch = SEAM_PITCH): string {
   const length = faceLength(plan, SEAM_FACE);
@@ -41,16 +45,31 @@ export function counter(plan: Plan, height: number, tone: Tone = 'mid', topTone:
   return compose([body, top]);
 }
 
+const monitorPanel = ([cx, cy]: Plane, face: Face): Plan => {
+  const { width, thickness } = MONITOR;
+  return face === 'front' ? rect(cx - thickness / 2, cy - width / 2, thickness, width, 0.2) : rect(cx - width / 2, cy - thickness / 2, width, thickness, 0.2);
+};
+
+const panelBottomOf = (z: number): number => z + 0.5 + MONITOR.stemHeight;
+
+export const monitorScreen = ({ centre, z, face }: Screen): Point3[] => {
+  const bottom = panelBottomOf(z);
+  return screenCorners(monitorPanel(centre, face), face, bottom, bottom + MONITOR.height);
+};
+
+export const anchorMonitor = (spec: Screen): Part => asDevice(monitor(spec.centre, spec.z, spec.face), 'anchor');
+
 export function monitor(centre: Plane, z: number, face: Face = 'left', screen = true): Part {
   const [cx, cy] = centre;
-  const { width, thickness, height, stemHeight, footWidth, footDepth } = MONITOR;
+  const { width, height, footWidth, footDepth, stemHeight } = MONITOR;
   const facesX = face === 'front';
-  const panel = facesX ? rect(cx - thickness / 2, cy - width / 2, thickness, width, 0.2) : rect(cx - width / 2, cy - thickness / 2, width, thickness, 0.2);
+  const panel = monitorPanel(centre, face);
   const foot = facesX ? rect(cx - footWidth / 2, cy - footDepth / 2, footWidth, footDepth, 0.4) : rect(cx - footDepth / 2, cy - footWidth / 2, footDepth, footWidth, 0.4);
-  const panelBottom = z + 0.5 + stemHeight;
+  const panelBottom = panelBottomOf(z);
   const led = dots([at(faceAt(panel, face, width / 2, panelBottom + 0.35))], { size: 0.4, tone: 'mid' });
   const mount = line(sideRing(faceAt(panel, face, width / 2, panelBottom + height / 2), 1, facesX ? 'x' : 'y', PROJECTION, 14), { tone: 'faint' });
-  const trim = screen ? screenOutline(panel, face, panelBottom, panelBottom + height) + led : mount;
+  const marker = `<path data-screen d="${polyline(monitorScreen({ centre, z, face }), true)}" fill="none" stroke="none" pointer-events="none"/>`;
+  const trim = screen ? screenOutline(panel, face, panelBottom, panelBottom + height) + led + marker : mount;
   return compose([
     box(foot, z, 0.5, { bevel: 0.2 }),
     post(centre, 0.55, z + 0.5, stemHeight, { steps: 8 }),

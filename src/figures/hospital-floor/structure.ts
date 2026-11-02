@@ -10,19 +10,19 @@ import {
   ENTRANCE,
   RING_FLOOR,
   ROOMS,
-  SIDE_NORMALS,
   SPUR,
+  THRESHOLD_DEPTH,
   TILE_PANEL,
   TRUNK_RUNS,
-  WALL_THICKNESS,
   doorFrame,
+  thresholdCentre,
   wallHeightAt,
   wallsOf,
 } from './model.ts';
 import type { Door, DoorFrame, Room } from './model.ts';
 
 const TINTED_FLOOR = 'room-floor';
-const FLOOR_HEIGHT = 0.1;
+export const FLOOR_HEIGHT = 0.1;
 const FLOOR_OUTLINE_INSET = 1;
 const NUMERAL_SIZE_SHARES: Record<DepartmentId, number> = {
   gam: 0.7,
@@ -50,7 +50,6 @@ const LEAF_THICKNESS = 1.1;
 const LEAF_SWING = (55 * Math.PI) / 180;
 const LEAF_CLEARANCE = 0.3;
 const LEAF_HEADROOM = 0.6;
-const THRESHOLD_DEPTH = 2;
 const TILE_PITCH = 6;
 const WALL_BEVEL = 0.4;
 
@@ -59,7 +58,7 @@ const flat = (plan: Plan, tone: 'lo' | 'faint', className?: string) =>
 
 const roomColour = (id: DepartmentId) => DEPARTMENTS.find((department) => department.id === id)!.colour;
 
-const roomGroup = (children: string, id: DepartmentId) => groupSvg(children, { 'data-room': id, style: `--room: ${roomColour(id)}` });
+export const roomGroup = (children: string, id: DepartmentId) => groupSvg(children, { 'data-room': id, style: `--room: ${roomColour(id)}` });
 
 export function floorsSvg(): string {
   const corridor = flat(SPUR, 'lo') + flat(RING_FLOOR, 'lo');
@@ -96,11 +95,8 @@ export function trunkingSvg(): string {
 const isCorridorDoor = (door: Door) => door.leadsTo === 'corridor';
 
 function thresholdOf(room: Room, door: Door): Plan {
-  const { centre, along } = doorFrame(room, door);
-  const [nx, ny] = SIDE_NORMALS[door.side];
-  const reach = WALL_THICKNESS / 2 + THRESHOLD_DEPTH / 2;
-  const middle: Plane = [centre[0] + nx * reach, centre[1] + ny * reach];
-  const alongX = Math.abs(along[0]) > 0;
+  const middle = thresholdCentre(room, door);
+  const alongX = Math.abs(doorFrame(room, door).along[0]) > 0;
   const width = door.width;
   return alongX
     ? { x: middle[0] - width / 2, y: middle[1] - THRESHOLD_DEPTH / 2, w: width, d: THRESHOLD_DEPTH, r: 0.4 }

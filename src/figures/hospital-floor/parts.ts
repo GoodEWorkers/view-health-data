@@ -1,10 +1,12 @@
-// A Part is svg plus a depth key. The painter sorts parts by depth, so what rests on another part is composed with it, and floor marks use GROUND_DEPTH.
+// A Part is svg plus a depth key. The painter sorts parts by depth, so what rests on another part is composed with it, and floor marks use GROUND_DEPTH. A device part is wrapped in <g data-device> where it is flattened.
 
 import { cylinder, dotGrid, extrude, insetPlan, planOutline, slabOf } from '../../iso/iso-kit.ts';
 import type { Plan, Plane, Point3, Tone } from '../../iso/iso-kit.ts';
 import { PROJECTION, at, depth, dots, line, polyline, solid } from './camera.ts';
 
-export type Part = { readonly svg: string; readonly depth: number };
+export type DeviceRole = 'equipment' | 'anchor';
+
+export type Part = { readonly svg: string; readonly depth: number; readonly device?: DeviceRole };
 
 export type Face = 'front' | 'left';
 
@@ -48,9 +50,15 @@ export function prism(ring: readonly Plane[], z: number, height: number, style: 
   return { svg: solid(paths, { tone, crease, inner }) + trim, depth: depth([sumX / ring.length, sumY / ring.length, z + height / 2]) };
 }
 
+const DEVICE_TAGS: Record<DeviceRole, string> = { equipment: '<g data-device>', anchor: '<g data-device data-anchor>' };
+
+const flattened = ({ svg, device }: Part): string => (device ? `${DEVICE_TAGS[device]}${svg}</g>` : svg);
+
+export const asDevice = (part: Part, role: DeviceRole = 'equipment'): Part => ({ ...part, device: role });
+
 export function compose(parts: readonly Part[], anchor?: Point3): Part {
   const total = parts.reduce((sum, part) => sum + part.depth, 0);
-  return { svg: parts.map((part) => part.svg).join(''), depth: anchor ? depth(anchor) : total / Math.max(1, parts.length) };
+  return { svg: parts.map(flattened).join(''), depth: anchor ? depth(anchor) : total / Math.max(1, parts.length) };
 }
 
 export const markup = (svg: string, anchor: Point3): Part => ({ svg, depth: depth(anchor) });
@@ -70,7 +78,7 @@ export const sorted = (parts: readonly Part[]): Part => compose(byDepthAscending
 
 export const stacked = (base: Part, riders: readonly Part[]): Part => compose([base, ...byDepthAscending(riders)]);
 
-export const paint = (parts: readonly Part[]): string => byDepthAscending(parts).map((part) => part.svg).join('');
+export const paint = (parts: readonly Part[]): string => byDepthAscending(parts).map(flattened).join('');
 
 export const faceAt = (plan: Plan, face: Face, along: number, z: number): Point3 =>
   face === 'front' ? [plan.x + plan.w, plan.y + along, z] : [plan.x + along, plan.y + plan.d, z];
@@ -100,7 +108,11 @@ export const faceDots = (plan: Plan, face: Face, fromAlong: number, fromZ: numbe
     { size: 0.4, tone: 'lo' },
   );
 
-export const screenOutline = (plan: Plan, face: Face, bottom: number, top: number) => {
+export const screenCorners = (plan: Plan, face: Face, bottom: number, top: number): Point3[] => {
   const length = faceLength(plan, face);
-  return line(faceRect(plan, face, SCREEN_INSET, length - SCREEN_INSET, bottom + SCREEN_INSET, top - SCREEN_INSET), { tone: 'faint' });
+  const [near, far] = [SCREEN_INSET, length - SCREEN_INSET];
+  return [faceAt(plan, face, near, bottom + SCREEN_INSET), faceAt(plan, face, far, bottom + SCREEN_INSET), faceAt(plan, face, far, top - SCREEN_INSET), faceAt(plan, face, near, top - SCREEN_INSET)];
 };
+
+export const screenOutline = (plan: Plan, face: Face, bottom: number, top: number) =>
+  line(polyline(screenCorners(plan, face, bottom, top), true), { tone: 'faint' });

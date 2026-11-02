@@ -1,7 +1,8 @@
 import { at, dots, line } from '../camera.ts';
 import { bed, bedsideCabinet, shelfUnit } from '../equipment.ts';
-import { counter, keyboard, monitor } from '../furniture.ts';
-import { box, compose, faceAt, faceLine, faceRect, markup, onGround, post, rect, stacked, topOutline } from '../parts.ts';
+import { anchorMonitor, counter, keyboard, monitor } from '../furniture.ts';
+import type { Screen } from '../furniture.ts';
+import { asDevice, box, compose, faceAt, faceLine, faceRect, markup, onGround, post, rect, stacked, topOutline } from '../parts.ts';
 import type { Part } from '../parts.ts';
 
 const BED_X = -13.5;
@@ -11,6 +12,8 @@ const SHELF = { origin: [32, -28.6] as [number, number], length: 20, depth: 6, l
 const BINDER = { count: 8, depth: 4.6, width: 1.9, pitch: 2.28, shortHeight: 6, taller: 1 };
 const DESK = { plan: rect(10.5, -1, 31, 10, 0.8), height: 7.5 };
 const WORKSTATION_COLUMNS: readonly number[] = [16.5, 26, 35.5];
+const ANCHOR_COLUMN = 1;
+export const DPI_SCREEN: Screen = { centre: [WORKSTATION_COLUMNS[ANCHOR_COLUMN]!, DESK.plan.y + 3], z: DESK.height, face: 'left' };
 const MATS = [rect(10.5, -6, 38, 28, 2), rect(-13.5, -29, 24, 31, 2)];
 const SUPPLY = { plan: rect(16, -28.6, 16, 6, 0.6), height: 9 };
 const FOLDER = { count: 3, width: 6.4, depth: 4.6, thickness: 0.7 };
@@ -89,9 +92,9 @@ function floorMat(plan: ReturnType<typeof rect>): Part {
 
 function islandDesk(): Part {
   const { plan, height } = DESK;
-  const stations = WORKSTATION_COLUMNS.flatMap((x) => [
-    monitor([x, plan.y + 3], height, 'left'),
-    keyboard([x - 4, plan.y + 5], height, 3.4, 8),
+  const stations = WORKSTATION_COLUMNS.flatMap((x, column) => [
+    column === ANCHOR_COLUMN ? anchorMonitor(DPI_SCREEN) : asDevice(monitor([x, plan.y + 3], height, 'left')),
+    asDevice(keyboard([x - 4, plan.y + 5], height, 3.4, 8)),
   ]);
   return stacked(counter(plan, height), [markup(topOutline(plan, height, 1.2), [plan.x, plan.y, height]), ...stations]);
 }

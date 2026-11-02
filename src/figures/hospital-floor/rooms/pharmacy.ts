@@ -2,8 +2,9 @@ import { insetPlan, sideRing } from '../../../iso/iso-kit.ts';
 import type { Plan, Plane } from '../../../iso/iso-kit.ts';
 import { PROJECTION, at, dots, line } from '../camera.ts';
 import { fridge } from '../equipment.ts';
-import { counter, keyboard, monitor } from '../furniture.ts';
-import { box, compose, dotsOnTop, faceLine, faceRect, markup, rect, screwDots, sorted, topOutline } from '../parts.ts';
+import { anchorMonitor, counter, keyboard } from '../furniture.ts';
+import type { Screen } from '../furniture.ts';
+import { asDevice, box, compose, dotsOnTop, faceLine, faceRect, markup, rect, screwDots, sorted, topOutline } from '../parts.ts';
 import type { Part } from '../parts.ts';
 import { cart, cartDeckTop } from './carts.ts';
 
@@ -22,6 +23,7 @@ const BOX_GAP = 1.2;
 
 const COUNTER = rect(-8, -72, 40, 9, 0.6);
 const COUNTER_HEIGHT = 10;
+export const PHARMACY_SCREEN: Screen = { centre: [COUNTER.x + 6, COUNTER.y + 4.5], z: COUNTER_HEIGHT, face: 'left' };
 const HATCH_FROM = 13;
 const HATCH_TO = 27;
 const HATCH_BOTTOM = 3;
@@ -71,7 +73,7 @@ function dispensingCounter(): Part {
   const top = topOutline(COUNTER, COUNTER_HEIGHT, 1.2) + screwDots([[COUNTER.x + 1.6, COUNTER.y + 1.6], [COUNTER.x + COUNTER.w - 1.6, COUNTER.y + 1.6]], COUNTER_HEIGHT);
   const trayHoles = dotsOnTop(COUNTER.x + 32, COUNTER.y + 3.2, 3, 2, 1.2, COUNTER_HEIGHT + 0.6);
   const tray = box(rect(COUNTER.x + 31, COUNTER.y + 2.2, 5, 4.4, 0.4), COUNTER_HEIGHT, 0.6, { tone: 'lo', bevel: 0.2, trim: trayHoles });
-  const riders = [monitor([COUNTER.x + 6, COUNTER.y + 4.5], COUNTER_HEIGHT, 'left'), keyboard([COUNTER.x + 10, COUNTER.y + 1.2], COUNTER_HEIGHT, 3.4, 9), tray];
+  const riders = [anchorMonitor(PHARMACY_SCREEN), asDevice(keyboard([COUNTER.x + 10, COUNTER.y + 1.2], COUNTER_HEIGHT, 3.4, 9)), tray];
   const hatch = markup(hatchEdge + line(hatchSlats, { tone: 'faint' }), [anchor[0], anchor[1], COUNTER_HEIGHT]);
   return compose([counter(COUNTER, COUNTER_HEIGHT), hatch, sill, markup(top, [anchor[0], anchor[1], COUNTER_HEIGHT]), ...riders], anchor);
 }

@@ -974,6 +974,7 @@ pnpm test             # node --test over src/**/*.test.ts
 | `src/content/departments.ts` | The truth: the eight departments, their functions, flows and summaries. Every figure and page reads from it. |
 | `src/figures/hospital-floor/` | Figure 1. `model.ts` (plans, walls, doors as pure data) and `model.test.ts`; `camera.ts` (the one projection); `parts.ts`, `furniture.ts`, `equipment.ts` (recipes); `shell.ts`, `structure.ts` (baseboard, floors, walls, trunking); `rooms/<room>.ts`; `build.ts` (card HTML); `tour.ts` + `live.ts` (client motion). |
 | `src/components/` | One Astro component per figure: renders the card with `set:html` and loads its `live.ts`. |
+| `src/figures/hospital-floor/devices.ts`, `cables*.ts`, `cableLabels.ts`, `trunkPaths.ts`, `packets.ts` | The Logiciels / Données / Réseau layers drawn in the floor itself: screen-bearing anchor devices per room (`screenQuadOf`), cables on the trunking bundled by lane, label pills with one text per layer, packets on the active room's cables. `DESIGN.md` records the visual decisions. |
 | `src/pages/`, `src/layouts/` | Astro routing and shell only. |
 | `shots/` | Screenshots from the anatomy capture scripts. Gitignored. |
 

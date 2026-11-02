@@ -1,7 +1,10 @@
 ---
 import HospitalFloor from '../components/HospitalFloor.astro';
+import LayerTabs from '../components/LayerTabs.astro';
 import { DEPARTMENTS } from '../content/departments.ts';
 import type { Department, DepartmentId } from '../content/departments.ts';
+import { flowInterface, flowRowLabel, TRANSPORT_DETAILS, uniqueTransports, ZONE_LABELS } from '../content/layerLabels.ts';
+import { DEFAULT_LAYER } from '../content/layers.ts';
 import { listInFrench } from '../content/listInFrench.ts';
 import Base from '../layouts/Base.astro';
 
@@ -11,18 +14,32 @@ const acronymOf = (id: DepartmentId) => DEPARTMENTS.find((department) => departm
 
 const flowsByTarget = ({ flows }: Department) => {
   const grouped = new Map<DepartmentId, string[]>();
-  for (const { to, payload, protocol } of flows) {
-    grouped.set(to, [...(grouped.get(to) ?? []), protocol ? `${payload} (${protocol})` : payload]);
+  for (const flow of flows) {
+    grouped.set(flow.to, [...(grouped.get(flow.to) ?? []), flowRowLabel(flow)]);
   }
   return [...grouped].map(([to, payloads]) => ({ target: acronymOf(to), payloads: payloads.join(', ') }));
+};
+
+// The EAI sends nothing in the source diagram, so its layers show what it receives.
+const interfacesOf = ({ id, flows }: Department) => {
+  const isSender = flows.length > 0;
+  const rows = isSender
+    ? flows.map((flow) => ({ peer: acronymOf(flow.to), flow }))
+    : DEPARTMENTS.flatMap((sender) =>
+        sender.flows.filter(({ to }) => to === id).map((flow) => ({ peer: sender.acronym, flow })),
+      );
+  return { heading: isSender ? 'Interfaces émises' : 'Interfaces reçues', rows };
 };
 ---
 
 <Base title="Comment les données circulent dans un hôpital" fullscreen>
-  <div class="layout">
-    <HospitalFloor />
+  <div class="layout" data-layer={DEFAULT_LAYER}>
+    <div class="stage">
+      <HospitalFloor />
+    </div>
     <aside class="panel" aria-label="Détails du service">
       <h1>Comment les données circulent dans un hôpital</h1>
+      <LayerTabs />
       {
         DEPARTMENTS.map((department, index) => (
           <section
@@ -37,28 +54,109 @@ const flowsByTarget = ({ flows }: Department) => {
               {department.acronym !== department.roomName && ` · ${department.roomName}`}
             </h2>
             <p class="full-name">{department.name}</p>
-            <p>
-              {department.summary} Des logiciels comme {listInFrench(department.softwareExamples)} remplissent ce rôle.
-            </p>
-            <h3>Fonctions</h3>
-            <ul class="functions">
-              {department.functions.map((name) => (
-                <li>{name}</li>
-              ))}
-            </ul>
-            {department.flows.length > 0 && (
-              <>
-                <h3>Envoie vers</h3>
-                <ul class="flows">
-                  {flowsByTarget(department).map(({ target, payloads }) => (
-                    <li>
-                      <strong>{target}</strong>
-                      {payloads}
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
+            <div data-layer="salles" role="tabpanel" aria-labelledby="layer-tab-salles">
+              <p>
+                {department.summary} Des logiciels comme {listInFrench(department.softwareExamples)} remplissent ce rôle.
+              </p>
+              <h3>Fonctions</h3>
+              <ul class="functions">
+                {department.functions.map((name) => (
+                  <li>{name}</li>
+                ))}
+              </ul>
+              {department.flows.length > 0 && (
+                <>
+                  <h3>Envoie vers</h3>
+                  <ul class="flows">
+                    {flowsByTarget(department).map(({ target, payloads }) => (
+                      <li>
+                        <strong>{target}</strong>
+                        {payloads}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+            <div data-layer="logiciels" role="tabpanel" aria-labelledby="layer-tab-logiciels" hidden>
+              <h3>Logiciels</h3>
+              <p>{department.software.paragraph}</p>
+              <h4>Produits du marché</h4>
+              <ul>
+                {department.softwareExamples.map((example) => (
+                  <li>{example}</li>
+                ))}
+              </ul>
+              <h4>Écrans</h4>
+              <ul class="functions">
+                {department.software.screens.map((screen) => (
+                  <li>{screen}</li>
+                ))}
+              </ul>
+              <h4>{interfacesOf(department).heading}</h4>
+              <ul class="flows">
+                {interfacesOf(department).rows.map(({ peer, flow }) => (
+                  <li>
+                    <strong>{peer}</strong>
+                    {flow.payload} · {flowInterface(flow)}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div data-layer="donnees" role="tabpanel" aria-labelledby="layer-tab-donnees" hidden>
+              <h3>Données</h3>
+              <p>{department.data.paragraph}</p>
+              <h4>Entités</h4>
+              <ul class="functions">
+                {department.data.entities.map((entity) => (
+                  <li>{entity}</li>
+                ))}
+              </ul>
+              <h4>Formats</h4>
+              <ul>
+                {department.data.formats.map((format) => (
+                  <li>{format}</li>
+                ))}
+              </ul>
+              <h4>Stockage</h4>
+              <ul>
+                {department.data.storage.map((place) => (
+                  <li>{place}</li>
+                ))}
+              </ul>
+            </div>
+            <div data-layer="reseau" role="tabpanel" aria-labelledby="layer-tab-reseau" hidden>
+              <h3>Réseau</h3>
+              <p>{department.network.paragraph}</p>
+              <h4>Zones réseau</h4>
+              <ul class="functions">
+                {department.network.zones.map((zone) => (
+                  <li>{ZONE_LABELS[zone]}</li>
+                ))}
+              </ul>
+              <h4>Transport</h4>
+              <ul class="flows">
+                {uniqueTransports(interfacesOf(department).rows.map(({ flow }) => flow)).map((transport) => (
+                  <li>
+                    <strong>{transport}</strong>
+                    {TRANSPORT_DETAILS[transport].description}, {TRANSPORT_DETAILS[transport].ports}
+                  </li>
+                ))}
+              </ul>
+              {department.network.externalFlows.length > 0 && (
+                <>
+                  <h4>Échanges externes</h4>
+                  <ul class="flows">
+                    {department.network.externalFlows.map((flow) => (
+                      <li>
+                        <strong>{flow.partner}</strong>
+                        {flowRowLabel(flow)}, via {ZONE_LABELS[flow.zone]} · {TRANSPORT_DETAILS[flow.transport].ports}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
           </section>
         ))
       }
@@ -67,6 +165,12 @@ const flowsByTarget = ({ flows }: Department) => {
 </Base>
 
 <style>
+  .stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+
   @media (min-width: 721px) {
     .layout {
       --panel-width: clamp(18rem, 22vw, 24rem);
@@ -109,7 +213,8 @@ const flowsByTarget = ({ flows }: Department) => {
     font-size: 1.25rem;
   }
 
-  h3 {
+  h3,
+  h4 {
     margin: 1rem 0 0.25rem;
     color: var(--anatomy-muted);
     font-family: var(--anatomy-mono);

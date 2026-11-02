@@ -1,8 +1,9 @@
 import { knurl, lineOnTop, sideArc, sideRing } from '../../../iso/iso-kit.ts';
 import type { Plane } from '../../../iso/iso-kit.ts';
 import { PROJECTION, dots, line, at } from '../camera.ts';
-import { counter, monitor, sinkOn, trolley } from '../furniture.ts';
-import { box, compose, faceAt, faceRect, floorMark, markup, post, prism, rect, screenOutline, sorted, topOutline } from '../parts.ts';
+import { anchorMonitor, counter, sinkOn, trolley } from '../furniture.ts';
+import type { Screen } from '../furniture.ts';
+import { asDevice, box, compose, faceAt, faceRect, floorMark, markup, post, prism, rect, screenOutline, sorted, topOutline } from '../parts.ts';
 import type { Part } from '../parts.ts';
 
 const TABLE = { plan: rect(-104, -62, 24, 8, 0.8), centre: [-92, -58] as Plane, top: 7.4, thickness: 1.4 };
@@ -11,6 +12,11 @@ const MATTRESS_SEAMS = [-97, -86];
 const LAMP = { stand: [-84, -78] as Plane, elbow: [-92, -70] as Plane, head: [-97, -58] as Plane, armWidth: 1.6 };
 const LAMP_Z = { arm: 17.8, headRim: 14.6 };
 const MACHINE = { plan: rect(-123, -63, 10, 10, 0.8), bottom: 1.6, height: 9.2 };
+export const BLOC_SCREEN: Screen = {
+  centre: [MACHINE.plan.x + MACHINE.plan.w / 2, MACHINE.plan.y + 4.5],
+  z: MACHINE.bottom + MACHINE.height + 0.8,
+  face: 'left',
+};
 const CYLINDER_CENTRES: Plane[] = [[-125.3, -60.4], [-125.3, -55.6]];
 const TROLLEY_ORIGIN: Plane = [-98, -49];
 const SINK_COUNTER = rect(-70, -92.5, 22, 8, 0.6);
@@ -29,7 +35,7 @@ export function theatreParts(): Part[] {
     anaesthesiaMachine(),
     instrumentTrolley(),
     scrubSink(),
-    wallMonitor(),
+    asDevice(wallMonitor()),
     supplyCabinet(),
     stool(),
   ];
@@ -110,8 +116,7 @@ function anaesthesiaMachine(): Part {
   );
   const body = box(plan, bottom, height, { tone: 'mid', bevel: 0.5, trim: drawers.join('') + gauges.join('') + handles });
   const plate = box(rect(plan.x - 0.5, plan.y - 0.5, plan.w + 1, plan.d + 1, 0.8), topZ, 0.8, { tone: 'mid', bevel: 0.3, trim: topOutline(plan, topZ + 0.8, 1) });
-  const screen = monitor([plan.x + plan.w / 2, plan.y + 4.5], topZ + 0.8, 'left');
-  return compose([sorted(cylinders), sorted(wheels), body, plate, screen], [plan.x + plan.w / 2, plan.y + plan.d / 2, 6]);
+  return compose([sorted(cylinders), sorted(wheels), body, plate, anchorMonitor(BLOC_SCREEN)], [plan.x + plan.w / 2, plan.y + plan.d / 2, 6]);
 }
 
 function instrumentTrolley(): Part {

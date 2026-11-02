@@ -2,8 +2,9 @@ import { lineOnTop, sideArc } from '../../../iso/iso-kit.ts';
 import type { Plane } from '../../../iso/iso-kit.ts';
 import { PROJECTION, dots, line, at } from '../camera.ts';
 import { rack } from '../equipment.ts';
-import { chair, counter, keyboard, monitor, trolley } from '../furniture.ts';
-import { box, compose, dotsOnTop, faceDots, faceRect, floorMark, markup, onGround, post, rect, sorted, topOutline } from '../parts.ts';
+import { anchorMonitor, chair, counter, keyboard, trolley } from '../furniture.ts';
+import type { Screen } from '../furniture.ts';
+import { asDevice, box, compose, dotsOnTop, faceDots, faceRect, floorMark, markup, onGround, post, rect, sorted, topOutline } from '../parts.ts';
 import type { Part } from '../parts.ts';
 
 const RACK_HEIGHT = 22;
@@ -19,6 +20,7 @@ const PATCH_FRAME = rect(-146.5, 11, 8, 5.5, 0.5);
 const PATCH_HEIGHT = 7.5;
 const DESK = rect(-92, -25.8, 18, 8, 0.6);
 const DESK_HEIGHT = 7.5;
+export const EAI_SCREEN: Screen = { centre: [DESK.x + 12, DESK.y + 2.6], z: DESK_HEIGHT, face: 'left' };
 const MAINTENANCE_CART_ORIGIN: Plane = [-122, 2];
 const EXTINGUISHER_CENTRE: Plane = [-48, -23.5];
 const COLD_AISLE_TILES = [-131, -119, -107].map((x) => rect(x, -15, 12, 7.5, 0.8));
@@ -28,9 +30,9 @@ export function serverRoomParts(): Part[] {
   return [
     ...COLD_AISLE_TILES.flatMap(perforatedTile),
     serverRacks(),
-    upsCabinet(),
+    asDevice(upsCabinet()),
     airConditioner(),
-    patchFrame(),
+    asDevice(patchFrame()),
     maintenanceDesk(),
     maintenanceCart(),
     fireExtinguisher(),
@@ -44,7 +46,7 @@ function perforatedTile(tile: ReturnType<typeof rect>): Part[] {
 }
 
 function serverRacks(): Part {
-  const racks = RACK_PLANS.map((plan) => rack(plan, 'left'));
+  const racks = RACK_PLANS.map((plan) => asDevice(rack(plan, 'left')));
   const rungs = Array.from({ length: Math.floor(TRAY.w / TRAY_RUNG_PITCH) - 1 }, (_, index) => {
     const x = TRAY.x + (index + 1) * TRAY_RUNG_PITCH;
     return lineOnTop([x, TRAY.y], [x, TRAY.y + TRAY.d], RACK_HEIGHT + 0.8, PROJECTION);
@@ -91,10 +93,9 @@ function patchFrame(): Part {
 
 function maintenanceDesk(): Part {
   const topZ = DESK_HEIGHT;
-  const screen = monitor([DESK.x + 12, DESK.y + 2.6], topZ, 'left');
-  const keys = keyboard([DESK.x + 5, DESK.y + 4], topZ, 3.4, 10);
+  const keys = asDevice(keyboard([DESK.x + 5, DESK.y + 4], topZ, 3.4, 10));
   const stool = chair([DESK.x + 8, DESK.y + 14], 'right');
-  return compose([counter(DESK, DESK_HEIGHT), sorted([screen, keys]), stool], [DESK.x + 9, DESK.y + 4, 4]);
+  return compose([counter(DESK, DESK_HEIGHT), sorted([anchorMonitor(EAI_SCREEN), keys]), stool], [DESK.x + 9, DESK.y + 4, 4]);
 }
 
 function maintenanceCart(): Part {

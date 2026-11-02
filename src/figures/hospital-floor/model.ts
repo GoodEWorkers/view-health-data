@@ -165,6 +165,15 @@ export function doorFrame(room: Room, door: Door): DoorFrame {
   return { centre: [edge[0] + nx * half, edge[1] + ny * half], along: alongVector(door.side), inward: [-nx, -ny] };
 }
 
+export const THRESHOLD_DEPTH = 2;
+
+export function thresholdCentre(room: Room, door: Door): Plane {
+  const { centre } = doorFrame(room, door);
+  const [nx, ny] = SIDE_NORMALS[door.side];
+  const reach = WALL_THICKNESS / 2 + THRESHOLD_DEPTH / 2;
+  return [centre[0] + nx * reach, centre[1] + ny * reach];
+}
+
 const doorGap = (room: Room, door: Door): Gap => ({ centre: doorFrame(room, door).centre, width: door.width });
 
 const gapsOfDoors = () => ROOMS.flatMap((room) => room.doors.map((candidate) => doorGap(room, candidate)));
@@ -234,7 +243,7 @@ export const wallHeightAt = ([px, py]: Plane): number => {
 };
 
 const TRUNK_WIDTH = 3;
-const RING_CENTRE = { front: 61.5, back: -23.5, left: 38.5, right: -38.5 } as const;
+export const RING_CENTRE = { front: 61.5, back: -23.5, left: 38.5, right: -38.5 } as const;
 const SPUR_END_X = 147.5;
 const TILE_PANEL_X = -66;
 

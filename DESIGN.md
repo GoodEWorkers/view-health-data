@@ -1,0 +1,115 @@
+---
+name: Comment les données circulent dans un hôpital
+description: An anatomy-style cutaway of a hospital floor where, on the software, data and network layers, each room's IT equipment lights up and thin coloured cables, one colour per service, run across the floor between the devices.
+colors:
+  paper: "#fbfbfa"
+  face: "#ffffff"
+  ink: "#18181a"
+  ink-soft: "#57575a"
+  ink-faint: "#8c8c90"
+  rule: "#d4d4d6"
+  page: "#f2f2ef"
+  line-gam: "#0284c7"
+  line-rdv: "#ea7f12"
+  line-dpi: "#a21caf"
+  line-sgl: "#ca9a04"
+  line-pacs-ris: "#4f46e5"
+  line-pharmacie: "#16a34a"
+  line-bloc: "#0d9488"
+  line-eai: "#64748b"
+typography:
+  device-label:
+    fontFamily: "Atkinson Hyperlegible Next Variable, system-ui, sans-serif"
+    fontSize: "7.5px (viewBox)"
+    fontWeight: 700
+    lineHeight: 1.15
+  pill:
+    fontFamily: "Atkinson Hyperlegible Next Variable, system-ui, sans-serif"
+    fontSize: "7.5px (viewBox)"
+    fontWeight: 600
+    lineHeight: 1.2
+    fontFeature: "tnum"
+  plate-chrome:
+    fontFamily: "ui-monospace, SF Mono, Menlo, Consolas, monospace"
+    fontSize: "10.5px"
+    letterSpacing: "0.04em"
+rounded:
+  pill: "1.5px (viewBox)"
+  control: "0.35rem"
+  control-group: "0.5rem"
+spacing:
+  control: "0.5rem"
+  legend: "0.75rem 1.5rem 1rem"
+components:
+  pill:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    typography: "{typography.pill}"
+    rounded: "{rounded.pill}"
+    padding: "2.2px 3px (viewBox)"
+  device-label:
+    textColor: "{colors.ink}"
+    typography: "{typography.device-label}"
+---
+
+# Design system
+
+## Overview
+
+The software, data and network layers are not a second picture laid over the floor: they are the floor itself, read for its IT. The architectural model stays exactly as it is. What changes is the light: every device a hospital IT person would call "the system" (workstation screens, printers, the analyser, the CT gantry, the server racks) is lit as the subject of the drawing, and thin coloured cables run across the floor to link them, bundled and rounded like transit lines. A cable carries one flow and takes the colour of the service that sends it; the eight service colours of `departments.ts` are the only chroma. Colour is functional: a hue names a service, never decorates.
+
+Thesis: nothing in the drawing is dimmed, covered or faded. Emphasis comes from lighting the devices and from the cables, and the cables lie on the floor, so furniture stands on them and a cable disappears under a desk and comes out the other side. The same drawing answers three questions with the same geometry and different text: which software (Logiciels), which data and format (Données), which transport and port (Réseau). Hovering a device or a cable is the one signature interaction: its room lights, its packets ride its cables, the side panel follows.
+
+Chosen and inferred, not interviewed (the brief pinned the form): Atkinson Hyperlegible Next as the single site face (public wayfinding legibility, slashed zero for HL7 codes such as `OML^O21` against `ORU^R01`); the plate keeps the kit's monospace chrome.
+
+## Colors
+
+- **Paper, face, ink**: the kit's light variables. Paper `#fbfbfa` is the plate and the pill ground, face `#ffffff` is the lit face of a device, ink `#18181a` is its lit edge (`--anatomy-strong`).
+- **Cable colours**: one per sending service, read from `departments.ts` through `--room` on each cable. No hex lives in the figure code.
+- **Pill and device-label text** is the room colour mixed 65 percent into ink (`--pill-ink-share`), which keeps the text legible on paper.
+- **Glow** is the room colour at 70 percent over 1.5px and 35 percent over 4px behind a device, rising by 30 points each for the active room's devices (`--glow`). It is a small halo, not a wash.
+- Nothing lowers its opacity. The cable's glow stroke sits at 22 percent opacity because it is a halo; the active room's cables raise it, never lower the others.
+
+## Typography
+
+One face for the whole site, self-hosted through `@fontsource-variable/atkinson-hyperlegible-next`. Device labels and pills are SVG text at 7.5 viewBox pixels, so they scale with the drawing: 600 for pills with tabular figures, 700 for device labels, which also carry a paper halo so they stay legible over the floor. Plate corners, hints and readouts stay in the kit monospace; the plate title and hint follow the layer.
+
+## Layout
+
+- **One drawing.** Devices, cables, pills and labels share the floor's viewBox (800 by 458) and its single affine camera. Cables are built in world units (corner rounding, lane offsets) and projected afterwards, so a curve stays smooth. Nothing zooms or pans.
+- **Cables.** One per flow in `departments.ts`, 24 in all, 0.4 world units above the floor. A cable runs from the anchor monitor of its room, through the room door, along the cable trunking, through the door of the receiving room to its anchor. EAI-bound cables follow the room's route to the hub; room-to-room cables take the shortest trunking path, so the ring's two sides share the load. A cable never doubles back.
+- **Bundles.** Cables that overlap on a line share a bundle with a lane pitch of 1.4 world units, centred on the trunking. Within a bundle, strands are ordered by where they first part ways, so a strand keeps its side round corners and the bundle turns concentrically; the pitch shrinks only when a bundle would be wider than a door. Corners are rounded with a radius of 4 world units, wider on the outside of a turn and tighter on the inside.
+- **Anchors.** Each room has one anchor device, a screen-bearing workstation monitor listed in `devices.ts`; cables end under it and a later zoom lands on its screen face, whose four corners are exported.
+- **Pills.** One per cable, on the middle of its longest straight leg, slid along the cable out of rooms and away from other labels. Each pill holds three texts, one per layer, and the stylesheet shows the active one. From laptop width up the pills stay visible; below about 620 px of stage width, on a phone, they are hidden and the panel under the plate carries every interface.
+- The legend row under the plate keeps the room keys on every layer: the room colour is the cable colour.
+
+## Elevation & Depth
+
+Nothing is raised over the model. The only depth is the kit's own: solids with four tones, cables on the floor under the furniture, and the soft glow behind a lit device.
+
+**Switching** is one custom property, `--device-light`, registered as a number and eased for 320 ms with the kit's exponential ease-out: 0 on Salles (devices as drawn, cables and labels at opacity 0, pointer events off), 1 on any other layer, and no transition under reduced motion. The floor is never hidden or faded.
+
+## Shapes
+
+Round everything a cable touches: round caps and joins, circular arcs at every corner, pill labels at 1.5 viewBox pixels. Devices keep the kit's bevels.
+
+## Components
+
+- **Device**: a part flagged `device` in `parts.ts`, wrapped in `<g data-device>`. On a software, data or network layer its edges take the lit ink, its top face lightens as in the kit's `lit` tone, and a colour glow rises behind it.
+- **Anchor device**: the room's workstation monitor, wrapped in `<g data-device data-anchor>` and carrying a `data-screen` path on its screen face.
+- **Cable**: a `<g data-cable data-from data-to>` with two round strokes in the service colour: a glow stroke 2.6 viewBox pixels wide at 22 percent opacity under a core stroke 0.9 wide. Hovering it lights its source room.
+- **Pill**: paper rectangle with a hairline in the room colour and one row of text: Logiciels writes the message type then the transport; Données the payload then its format family (HL7 v2, DICOM, CDA, FHIR); Réseau the transport then its port. External flows are not drawn.
+- **Device label**: beside the anchor monitor; Logiciels shows the first software product (a market example, vendor dropped), Données the first two data entities, Réseau the first network zone. All come from `departments.ts` through `layerLabels.ts`.
+- **Packet**: a bead of the service colour with a paper ring, riding the cables of the active room on the shared packet timing; absent under reduced motion, at most 48 at once.
+- **Legend key**: a dot in the room colour with the room name; hovering a key pins its room.
+
+## Do's and Don'ts
+
+- Do keep one colour per service across the floor, the cables and the panel.
+- Do keep pills visible at rest wherever the stage is wide enough; never hide a pill on hover.
+- Do keep cables on the floor and below the furniture, so they read as laid cables.
+- Do keep bundles on whole lanes and corners concentric.
+- Don't add hex values to the figure code; add a service colour in `departments.ts`.
+- Don't dim anything by opacity: the floor, the numerals and the furniture stay as drawn on every layer.
+- Don't use a second typeface, a gradient, or a coloured side border above 1px.
+- Don't add zoom, pan or wheel handling.

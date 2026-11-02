@@ -2,13 +2,15 @@ import { knurl, ring, sideArc, sideSeam } from '../../../iso/iso-kit.ts';
 import type { Plan, Plane } from '../../../iso/iso-kit.ts';
 import { PROJECTION, at, dots, line } from '../camera.ts';
 import { fridge } from '../equipment.ts';
-import { counter, keyboard, monitor, sinkOn } from '../furniture.ts';
-import { box, compose, dotsOnTop, faceRect, markup, post, rect, screwDots, sorted, topOutline } from '../parts.ts';
+import { anchorMonitor, counter, keyboard, sinkOn } from '../furniture.ts';
+import type { Screen } from '../furniture.ts';
+import { asDevice, box, compose, dotsOnTop, faceRect, markup, post, rect, screwDots, sorted, topOutline } from '../parts.ts';
 import type { Part } from '../parts.ts';
 import { cart, cartDeckTop } from './carts.ts';
 
 const BENCH_HEIGHT = 9;
 const BENCH_DEPTH = 10;
+export const SGL_SCREEN: Screen = { centre: [-14, 70.5], z: BENCH_HEIGHT, face: 'left' };
 const ANALYSER_STEPS = 3;
 const BOTTLE_HEIGHT = 3.6;
 
@@ -28,7 +30,7 @@ const CART_SIZE: Plane = [14, 8];
 
 export function laboratoryParts(): Part[] {
   return [
-    benchWith(BENCH_NEAR, [analyser(), centrifuge(), sampleRack(SAMPLE_RACK), bottle([-9.5, 55.5], BENCH_HEIGHT)]),
+    benchWith(BENCH_NEAR, [asDevice(analyser()), centrifuge(), sampleRack(SAMPLE_RACK), bottle([-9.5, 55.5], BENCH_HEIGHT)]),
     benchWith(BENCH_ISLAND, islandRiders()),
     benchWith(BENCH_EAST, [sampleRack(EAST_RACK), ...[39.5, 42.5, 57].map((x) => bottle([x, 53.5], BENCH_HEIGHT))]),
     wasteBin(),
@@ -51,9 +53,8 @@ function benchWith(plan: Plan, riders: Part[]): Part {
 
 function islandRiders(): Part[] {
   const sink = sinkOn(BASIN, BENCH_HEIGHT);
-  const screen = monitor([-14, 70.5], BENCH_HEIGHT, 'left');
-  const keys = keyboard([-9, 72.5], BENCH_HEIGHT, 3.4, 9);
-  return [sink, screen, keys, bottle([-4, 70], BENCH_HEIGHT), bottle([-1.8, 74], BENCH_HEIGHT), bottle([0.6, 70.4], BENCH_HEIGHT)];
+  const keys = asDevice(keyboard([-9, 72.5], BENCH_HEIGHT, 3.4, 9));
+  return [sink, anchorMonitor(SGL_SCREEN), keys, bottle([-4, 70], BENCH_HEIGHT), bottle([-1.8, 74], BENCH_HEIGHT), bottle([0.6, 70.4], BENCH_HEIGHT)];
 }
 
 function analyser(): Part {

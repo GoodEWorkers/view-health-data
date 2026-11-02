@@ -1,10 +1,12 @@
 import { at, dots, line } from '../camera.ts';
-import { chair, counter, monitor } from '../furniture.ts';
-import { box, compose, dotsOnTop, faceAt, faceLine, onGround, post, rect, sorted, stacked, topOutline } from '../parts.ts';
+import { anchorMonitor, chair, counter } from '../furniture.ts';
+import type { Screen } from '../furniture.ts';
+import { asDevice, box, compose, dotsOnTop, faceAt, faceLine, onGround, post, rect, sorted, stacked, topOutline } from '../parts.ts';
 import type { Part } from '../parts.ts';
 
 const COUNTER_PLAN = rect(84, -72, 42, 8, 0.6);
 const COUNTER_HEIGHT = 9;
+export const RDV_SCREEN: Screen = { centre: [COUNTER_PLAN.x + 16, COUNTER_PLAN.y + 4], z: COUNTER_HEIGHT, face: 'left' };
 const WALL_FACE_Y = -92.5;
 const BOARD = { x: 91, width: 38, bottom: 3.5, height: 9, frameThickness: 0.8, panelThickness: 0.4, columns: 6, rows: 4 };
 const CARD_CELLS: readonly (readonly [number, number])[] = [[0, 3], [1, 1], [3, 2], [4, 0], [5, 2]];
@@ -68,8 +70,8 @@ function plannerBoard(): Part {
 
 function serviceCounter(): Part {
   return stacked(counter(COUNTER_PLAN, COUNTER_HEIGHT), [
-    monitor([COUNTER_PLAN.x + 16, COUNTER_PLAN.y + 4], COUNTER_HEIGHT, 'left'),
-    telephone([COUNTER_PLAN.x + 29, COUNTER_PLAN.y + 1]),
+    anchorMonitor(RDV_SCREEN),
+    asDevice(telephone([COUNTER_PLAN.x + 29, COUNTER_PLAN.y + 1])),
   ]);
 }
 

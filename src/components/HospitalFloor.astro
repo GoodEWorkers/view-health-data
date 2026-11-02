@@ -1,9 +1,10 @@
 ---
+import './floorLayers.css';
 import { DEPARTMENTS } from '../content/departments.ts';
 import { hospitalFloorCard } from '../figures/hospital-floor/build.ts';
 
 const card = hospitalFloorCard();
-const keyColours = DEPARTMENTS.map(({ colour }, index) => `.hospital-floor .iso-key:nth-child(${index + 1}){--room:${colour}}`).join('');
+const keyColours = DEPARTMENTS.map(({ colour }, index) => `.hospital-floor [data-keys='rooms'] .iso-key:nth-child(${index + 1}){--room:${colour}}`).join('');
 ---
 
 <style is:inline set:html={keyColours}></style>
@@ -41,15 +42,15 @@ const keyColours = DEPARTMENTS.map(({ colour }, index) => `.hospital-floor .iso-
       min-height: 0;
     }
 
-    .hospital-floor .iso-stage {
-      position: relative;
-    }
-
     .hospital-floor .iso-svg {
       position: absolute;
       inset: 0;
       height: 100%;
     }
+  }
+
+  .hospital-floor .iso-stage {
+    position: relative;
   }
 
   .hospital-floor .iso-legend {
@@ -124,16 +125,16 @@ const keyColours = DEPARTMENTS.map(({ colour }, index) => `.hospital-floor .iso-
     opacity: calc(var(--numeral-opacity-rest) + var(--glow) * var(--numeral-opacity-gain));
   }
 
-  .hospital-floor .iso-key {
+  .hospital-floor [data-keys='rooms'] .iso-key {
     cursor: default;
     border-radius: 2px;
   }
 
-  .hospital-floor .iso-key .iso-swatch {
+  .hospital-floor [data-keys='rooms'] .iso-key .iso-swatch {
     display: none;
   }
 
-  .hospital-floor .iso-key::before {
+  .hospital-floor [data-keys='rooms'] .iso-key::before {
     content: '';
     flex: none;
     width: 0.6rem;
@@ -142,11 +143,11 @@ const keyColours = DEPARTMENTS.map(({ colour }, index) => `.hospital-floor .iso-
     background: var(--room);
   }
 
-  .hospital-floor .iso-key[data-active] {
+  .hospital-floor [data-keys='rooms'] .iso-key[data-active] {
     color: var(--anatomy-strong);
   }
 
-  .hospital-floor .iso-key:focus-visible,
+  .hospital-floor [data-keys='rooms'] .iso-key:focus-visible,
   .hospital-floor .iso-stage:focus-visible {
     outline: 1px solid var(--anatomy-muted);
     outline-offset: 4px;

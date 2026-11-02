@@ -1,0 +1,110 @@
+/* The software, data and network layers drawn into the floor: lit devices, cables, pills and device labels. --device-light is 0 on Salles and 1 on the other layers and carries the one 320 ms fade; nothing in the drawing loses opacity. */
+
+@property --device-light {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+.layout {
+  --device-light: 0;
+  --pill-ink-share: 65%;
+  transition: --device-light 320ms var(--anatomy-ease);
+}
+
+.layout:not([data-layer='salles']) {
+  --device-light: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layout {
+    transition: none;
+  }
+}
+
+.hospital-floor [data-device] {
+  --lit-share: calc(max(var(--glow), var(--device-light)) * 100%);
+  filter: drop-shadow(0 0 1.5px color-mix(in srgb, var(--room) calc(var(--device-light) * (70% + var(--glow) * 30%)), transparent))
+    drop-shadow(0 0 4px color-mix(in srgb, var(--room) calc(var(--device-light) * (35% + var(--glow) * 30%)), transparent));
+}
+
+.hospital-floor :is([data-cables], [data-cable-labels], [data-device-labels]) {
+  opacity: var(--device-light);
+  pointer-events: none;
+}
+
+.hospital-floor [data-cable] {
+  --glow: 0;
+}
+
+.hospital-floor :is(.cable-glow, .cable-core) {
+  fill: none;
+  stroke: var(--room);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: none;
+}
+
+.hospital-floor .cable-glow {
+  stroke-width: 2.6;
+  opacity: calc(0.22 + var(--glow) * 0.3);
+}
+
+.hospital-floor .cable-core {
+  stroke-width: 0.9;
+}
+
+.layout:not([data-layer='salles']) .hospital-floor .cable-glow {
+  pointer-events: stroke;
+}
+
+.hospital-floor :is([data-cable-labels], [data-device-labels]) [data-layer] {
+  display: none;
+}
+
+.layout[data-layer='logiciels'] .hospital-floor :is([data-cable-labels], [data-device-labels]) [data-layer='logiciels'],
+.layout[data-layer='donnees'] .hospital-floor :is([data-cable-labels], [data-device-labels]) [data-layer='donnees'],
+.layout[data-layer='reseau'] .hospital-floor :is([data-cable-labels], [data-device-labels]) [data-layer='reseau'] {
+  display: inline;
+}
+
+.hospital-floor [data-pill] rect {
+  fill: var(--anatomy-paper);
+  stroke: color-mix(in srgb, var(--room) 40%, var(--anatomy-paper));
+  stroke-width: 0.5;
+  vector-effect: none;
+}
+
+.hospital-floor :is([data-pill], [data-device-label]) text {
+  fill: color-mix(in srgb, var(--room) var(--pill-ink-share), var(--anatomy-strong));
+  font-weight: 600;
+  font-feature-settings: 'tnum';
+  user-select: none;
+}
+
+.hospital-floor [data-device-label] text {
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--anatomy-paper);
+  stroke-width: 2.6px;
+  stroke-linejoin: round;
+  vector-effect: none;
+}
+
+.hospital-floor [data-packets] circle {
+  fill: var(--room);
+  stroke: var(--anatomy-paper);
+  stroke-width: 0.7;
+  vector-effect: none;
+  pointer-events: none;
+}
+
+.hospital-floor .iso-stage {
+  container: floor-stage / inline-size;
+}
+
+@container floor-stage (max-width: 620px) {
+  .hospital-floor :is([data-cable-labels], [data-device-labels]) {
+    display: none;
+  }
+}

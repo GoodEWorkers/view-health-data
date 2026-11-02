@@ -1,9 +1,12 @@
-import { chair, counter, monitor } from '../furniture.ts';
-import { box, compose, faceLine, floorMark, onGround, post, prism, rect, sorted, stacked, topOutline } from '../parts.ts';
-import type { Part } from '../parts.ts';
 import { line } from '../camera.ts';
+import { anchorMonitor, chair, counter, monitor } from '../furniture.ts';
+import type { Screen } from '../furniture.ts';
+import { asDevice, box, compose, faceLine, floorMark, onGround, post, prism, rect, sorted, stacked, topOutline } from '../parts.ts';
+import type { Part } from '../parts.ts';
 
 const COUNTER_HEIGHT = 10;
+export const GAM_SCREEN: Screen = { centre: [92, 22], z: COUNTER_HEIGHT, face: 'left' };
+const STAFF_MONITOR_AT = [104, 22] as const;
 const LIP_HEIGHT = 1.5;
 const LEG_LONG = rect(76, 18, 36, 8, 0.6);
 const LEG_SHORT = rect(76, 26, 8, 26, 0.6);
@@ -26,8 +29,8 @@ function waitingRug(): Part {
 function receptionDesk(): Part {
   const longLeg = counter(LEG_LONG, COUNTER_HEIGHT, 'hi');
   const shortLeg = counter(LEG_SHORT, COUNTER_HEIGHT, 'hi');
-  const monitors = [92, 104].map((x) => monitor([x, 22], COUNTER_HEIGHT, 'left', false));
-  return compose([longLeg, shortLeg, sorted([...monitors, printer()]), frontLip()]);
+  const staffMonitor = asDevice(monitor([...STAFF_MONITOR_AT], COUNTER_HEIGHT, 'left', false));
+  return compose([longLeg, shortLeg, sorted([anchorMonitor(GAM_SCREEN), staffMonitor, asDevice(printer())]), frontLip()]);
 }
 
 function frontLip(): Part {
