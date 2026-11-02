@@ -1,5 +1,5 @@
 <div class="selection-bar" data-selection-bar hidden>
-  <span class="selection-label">Salle sélectionnée</span>
+  <span class="selection-label">Salle sélectionnée<strong class="selection-name" data-selection-name></strong></span>
   <button type="button" class="selection-clear" data-deselect>
     <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" /></svg>
     Désélectionner
@@ -24,6 +24,13 @@
 
   .selection-label {
     color: var(--anatomy-text);
+  }
+
+  .selection-name {
+    display: none;
+    margin-left: 0.375rem;
+    color: var(--anatomy-strong);
+    font-weight: 600;
   }
 
   .selection-clear {
@@ -62,9 +69,25 @@
     stroke-linecap: round;
   }
 
-  @media (pointer: coarse) {
+  @media (pointer: coarse), (max-width: 720px) {
     .selection-clear {
       min-height: 2.75rem;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .selection-bar {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      padding: 0.5rem 1rem;
+      border-bottom: 1px solid var(--anatomy-faint);
+      border-radius: 0.75rem 0.75rem 0 0;
+      background: var(--anatomy-paper);
+    }
+
+    .selection-name {
+      display: inline;
     }
   }
 

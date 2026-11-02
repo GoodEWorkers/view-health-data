@@ -33,6 +33,7 @@ const FIGURE_LABEL =
   'et des goulottes de câbles au sol desservent chaque porte et aboutissent dans la salle serveurs. ' +
   'Sur les couches logiciels, données et réseau, les équipements informatiques de chaque salle s\'allument et des câbles colorés les relient.';
 const STAGE_LABEL = 'Maquette de l\'étage d\'hôpital. Les flèches du clavier permettent de passer d\'une des huit salles à la suivante.';
+const STAGE_HINT = 'Faites défiler ou pincez pour zoomer';
 
 const ROOM_PARTS: Record<DepartmentId, () => readonly Part[]> = {
   gam: admissionsParts,
@@ -78,7 +79,7 @@ export function hospitalFloorCard(): string {
       mark: 'raised',
       label: `${index + 1} ${acronym === roomName ? roomName : `${acronym} · ${roomName}`}`,
     })),
-    body: `<div class="iso-stage" tabindex="0" role="group" aria-label="${STAGE_LABEL}">${figure}${SCREENS_MARKER}</div>`,
+    body: `<p class="stage-hint" data-stage-hint>${STAGE_HINT}</p><div class="iso-scroll" data-stage-scroll><div class="iso-stage" tabindex="0" role="group" aria-label="${STAGE_LABEL}">${figure}${SCREENS_MARKER}</div></div>`,
   });
   return plate.replace('<span class="iso-keys">', ROOM_KEYS).replace('</figcaption>', `${networkLegendHtml()}</figcaption>`);
 }

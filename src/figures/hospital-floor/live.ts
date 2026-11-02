@@ -6,16 +6,18 @@ import type { LayerId } from '../../content/layers.ts';
 import { announceSelection, onRoomRequest } from './activeRoom.ts';
 import { mountLayerSwitch } from './layerSwitch.ts';
 import { NO_ACTIVE_ROOM, createPackets } from './packets.ts';
+import { revealSelectionBar } from './revealPanel.ts';
 import { FIRST_ROOM, escape, focusIn, focusOut, focusedOf, highlightedOf, hover, leave, select, setTourEnabled, startInteraction, stepSelection, tourRunning, tourTick } from './selection.ts';
 import type { Interaction } from './selection.ts';
 import { createTooltip } from './tooltip.ts';
+import { ROOM_ARM_PREFIX, activates, armKeyOf, disarm, isArmed, isTouching, trackPointer } from './touchArm.ts';
 import { follow, wrapIndex } from './tour.ts';
 
 const DWELL_SECONDS = 2.8;
 const FOLLOW_SECONDS = 0.3;
 const MAX_FRAME_SECONDS = 1 / 30;
 const FIRST_FRAME_SECONDS = 1 / 60;
-const SETTLE_EPSILON = 0.002;
+const SETTLE_EPSILON = 0.01;
 const HALF_LEVEL = 0.5;
 const VIEWPORT_MARGIN = '120px 0px';
 const ARROW_STEPS: Readonly<Record<string, number>> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
@@ -24,6 +26,10 @@ const OVERLAYS = '[data-inspector], [data-network-views]';
 const ROOM_COUNT = DEPARTMENTS.length;
 const LAST_ROOM = ROOM_COUNT - 1;
 const TOOLTIP_HINT = 'Cliquer pour les détails';
+const TOUCH_HINT = 'Touchez encore pour les détails';
+const TOUCH_LIFT_PIXELS = 80;
+const PACKET_LAYER: LayerId = 'reseau';
+const MILLISECONDS = 1000;
 const SELECTED_NONE = 'Aucune salle sélectionnée';
 
 const roomIdOf = (index: number | null): string | undefined => (index === null ? undefined : DEPARTMENTS[index]?.id);
@@ -72,6 +78,7 @@ function mount(figure: HTMLElement): void {
   let shownIndex = NO_ACTIVE_ROOM;
   let activeLayer: LayerId = DEFAULT_LAYER;
   let flowing = false;
+  let idleTimer = 0;
 
   function write(room: RoomView): void {
     room.groups.forEach(({ element, owners }) => {
@@ -89,8 +96,8 @@ function mount(figure: HTMLElement): void {
   }
 
   const sendPackets = (): void => {
-    packets?.setActiveRoom(activeLayer === DEFAULT_LAYER ? NO_ACTIVE_ROOM : shownIndex);
-    flowing = packets !== null && activeLayer !== DEFAULT_LAYER;
+    packets?.setActiveRoom(activeLayer === PACKET_LAYER ? shownIndex : NO_ACTIVE_ROOM);
+    flowing = packets !== null && activeLayer === PACKET_LAYER;
   };
 
   const say = (index: number): void => {
@@ -129,11 +136,22 @@ function mount(figure: HTMLElement): void {
     lastTime = now;
     state = tourTick(state, seconds, DWELL_SECONDS, ROOM_COUNT);
     const moving = step(seconds);
-    if (packets) flowing = packets.advance(seconds);
-    frame = visible && (moving || tourRunning(state) || flowing) ? requestAnimationFrame(tick) : 0;
+    if (packets && flowing) flowing = packets.advance(seconds);
+    const animating = visible && (moving || flowing);
+    frame = animating ? requestAnimationFrame(tick) : 0;
+    if (!animating && visible && tourRunning(state)) sleepUntilNextRoom();
+  }
+
+  function sleepUntilNextRoom(): void {
+    const wait = DWELL_SECONDS - state.tour.elapsed;
+    idleTimer = window.setTimeout(() => {
+      state = tourTick(state, wait, DWELL_SECONDS, ROOM_COUNT);
+      kick();
+    }, wait * MILLISECONDS);
   }
 
   function kick(): void {
+    window.clearTimeout(idleTimer);
     if (still.matches) {
       step(0);
       return;
@@ -176,20 +194,48 @@ function mount(figure: HTMLElement): void {
     figure.addEventListener(name, handler);
 
   onFigure('pointerover', (event) => {
+    if (event.pointerType === 'touch') return;
     const index = targetRoomOf(event.target);
     apply(hover(state, index >= 0 ? index : null));
-    if (index < 0 || event.pointerType === 'touch') tooltip.hide();
+    if (index < 0) tooltip.hide();
     else tooltip.show(`${index + 1} · ${readoutOf(index)}`, TOOLTIP_HINT, { x: event.clientX, y: event.clientY });
   });
   onFigure('pointermove', (event) => event.pointerType !== 'touch' && tooltip.move({ x: event.clientX, y: event.clientY }));
-  onFigure('pointerleave', () => {
+  onFigure('pointerleave', (event) => {
+    if (event.pointerType === 'touch') return;
     tooltip.hide();
     apply(leave(state));
   });
+  const clearPreview = (): void => {
+    disarm();
+    tooltip.hide();
+    apply(leave(state));
+  };
   onFigure('click', (event) => {
     const index = targetRoomOf(event.target);
-    if (index >= 0) apply(select(state, index));
+    if (index < 0) {
+      if (isTouching()) clearPreview();
+      return;
+    }
+    if (activates(event)) {
+      tooltip.hide();
+      apply(select(state, index));
+      if (isTouching() && (keyIndexOf(event.target) >= 0 || armKeyOf(event.target)?.startsWith(ROOM_ARM_PREFIX))) revealSelectionBar();
+      return;
+    }
+    apply(hover(state, index));
+    tooltip.show(`${index + 1} · ${readoutOf(index)}`, TOUCH_HINT, { x: event.clientX, y: event.clientY - TOUCH_LIFT_PIXELS });
   });
+  document.addEventListener(
+    'pointerdown',
+    (event) => {
+      trackPointer(event);
+      const outside = !(event.target instanceof Node && figure.contains(event.target));
+      if (event.pointerType === 'touch' && outside && (isArmed() || state.pointerInside)) clearPreview();
+    },
+    true,
+  );
+  window.addEventListener('scroll', () => tooltip.hide(), { capture: true, passive: true });
   onFigure('focusin', (event) => {
     if (!(event.target instanceof Element) || !event.target.matches(':focus-visible')) return;
     const index = keyIndexOf(event.target);

@@ -2,10 +2,12 @@
 
 import { requestInspector } from '../inspector/inspectorChannel.ts';
 import { neighbourIndex, stepOfKey } from '../inspector/navigation.ts';
+import { isPhone, isTouchPhone } from '../phone.ts';
 import { matrix3dOf } from '../screens/homography.ts';
 import type { Bounds } from '../screens/focus.ts';
 import { inspectBounds, inspectFades, inspectQuad, rectQuad, stepInspect } from '../screens/inspect.ts';
 import { easeOut } from '../screens/motion.ts';
+import { holdSheet, sheetTransform } from '../sheet.ts';
 import { isTyping } from '../typing.ts';
 import { matchesQuery } from './glossaryFilter.ts';
 import { announceNetworkView, isNetworkView, onNetworkTrace, onNetworkViewRequest, requestNetworkView } from './networkChannel.ts';
@@ -40,6 +42,7 @@ function mount(root: HTMLElement): void {
   let current: HTMLElement | null = null;
   let opener: Element | null = null;
   let openedOnLayer = '';
+  let releaseSheet: (() => void) | null = null;
   let lastKey: string | null = null;
   let from = rectQuad(area);
   let level = 0;
@@ -50,8 +53,8 @@ function mount(root: HTMLElement): void {
   function measure(): void {
     const box = stage!.getBoundingClientRect();
     area = inspectBounds(box.width, box.height);
-    panel!.style.setProperty('width', `${area.width}px`);
-    panel!.style.setProperty('height', `${area.height}px`);
+    panel!.style.setProperty('width', isPhone() ? '' : `${area.width}px`);
+    panel!.style.setProperty('height', isPhone() ? '' : `${area.height}px`);
   }
 
   function openerQuad(element: Element | null) {
@@ -64,7 +67,7 @@ function mount(root: HTMLElement): void {
   function place(): void {
     const fades = inspectFades(level, still.matches);
     const quad = still.matches ? rectQuad(area) : inspectQuad(from, easeOut(level), area);
-    panel!.style.transform = matrix3dOf(area.width, area.height, quad);
+    panel!.style.transform = isPhone() ? sheetTransform(still.matches ? 1 : easeOut(level)) : matrix3dOf(area.width, area.height, quad);
     panel!.style.opacity = fades.panel.toFixed(3);
     scrim!.style.opacity = (1 - fades.backdrop).toFixed(3);
   }
@@ -130,12 +133,13 @@ function mount(root: HTMLElement): void {
       measure();
       from = openerQuad(request.opener ?? null);
       root.hidden = false;
-      stage!.scrollIntoView({ block: 'nearest' });
+      if (isPhone()) releaseSheet = holdSheet(root, panel!);
+      else stage!.scrollIntoView({ block: 'nearest' });
       target = 1;
       kick();
     }
     place();
-    (request.view === GLOSSARY_VIEW ? field : panel)?.focus({ preventScroll: true });
+    (request.view === GLOSSARY_VIEW && !isTouchPhone() ? field : panel)?.focus({ preventScroll: true });
     announceNetworkView({ view: request.view });
   }
 
@@ -145,6 +149,8 @@ function mount(root: HTMLElement): void {
     target = 0;
     kick();
     announceNetworkView({ view: null });
+    releaseSheet?.();
+    releaseSheet = null;
     if (opener instanceof HTMLElement && opener.isConnected) opener.focus({ preventScroll: true });
   }
 

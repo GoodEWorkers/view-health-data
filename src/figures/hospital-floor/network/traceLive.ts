@@ -1,5 +1,6 @@
-// Hovering a cable of Réseau walks a packet along it and lights its hops in the strip at the bottom of the side panel, only while the pointer is on the map or a flow button has keyboard focus. A click opens the view of a cable or a piece of gear.
+// Hovering a cable of Réseau (or a first touch tap) walks a packet along it and lights its hops in the strip at the bottom of the side panel. A click (or a second tap) opens the view of a cable or a piece of gear.
 
+import { activates } from '../touchArm.ts';
 import { announceNetworkTrace, requestNetworkView } from './networkChannel.ts';
 import { walkAt } from './trace.ts';
 
@@ -92,18 +93,31 @@ function mount(figure: HTMLElement): void {
     return flow === undefined ? (element?.closest<SVGGElement>('[data-cable]') ?? null) : (cables.get(flow) ?? null);
   };
 
-  figure.addEventListener('pointerover', (event) => trace(cableOf(event.target)));
+  figure.addEventListener('pointerover', (event) => event.pointerType !== 'touch' && trace(cableOf(event.target)));
+  document.addEventListener(
+    'pointerdown',
+    (event) => event.pointerType === 'touch' && cableOf(event.target) !== traced && trace(null),
+    true,
+  );
   document.addEventListener('focusin', (event) => trace(event.target instanceof Element && event.target.matches(':focus-visible') ? cableOf(event.target) : null));
   document.addEventListener('focusout', () => trace(null));
-  figure.addEventListener('pointerleave', () => trace(null));
+  figure.addEventListener('pointerleave', (event) => event.pointerType !== 'touch' && trace(null));
   new MutationObserver(() => isNetwork() || trace(null)).observe(layout, { attributes: true, attributeFilter: ['data-layer'] });
 
   figure.addEventListener('click', (event) => {
     if (!isNetwork() || !(event.target instanceof Element)) return;
     const cable = event.target.closest<SVGGElement>('[data-cable]');
-    if (cable?.dataset.trace) requestNetworkView({ action: 'open', view: 'flow', key: cable.dataset.trace, opener: cable });
-    else if (event.target.closest(FIREWALL)) requestNetworkView({ action: 'open', view: 'rules', opener: firewall ?? undefined });
-    else if (event.target.closest(TELECOM)) requestNetworkView({ action: 'open', view: 'partners', opener: event.target.closest(TELECOM) ?? undefined });
+    const telecom = event.target.closest(TELECOM);
+    const opensFlow = cable?.dataset.trace !== undefined;
+    const opensRules = event.target.closest(FIREWALL) !== null;
+    if (!opensFlow && !opensRules && !telecom) return;
+    if (!activates(event)) {
+      trace(cable ?? null);
+      return;
+    }
+    if (opensFlow) requestNetworkView({ action: 'open', view: 'flow', key: cable!.dataset.trace!, opener: cable! });
+    else if (opensRules) requestNetworkView({ action: 'open', view: 'rules', opener: firewall ?? undefined });
+    else requestNetworkView({ action: 'open', view: 'partners', opener: telecom ?? undefined });
   });
 }
 

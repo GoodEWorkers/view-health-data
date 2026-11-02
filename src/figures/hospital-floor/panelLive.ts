@@ -7,12 +7,14 @@ import { onSelection, requestRoom } from './activeRoom.ts';
 
 const FADE_MILLISECONDS = 200;
 const NO_ROOM = -1;
+const roomNameOf = (index: number): string => `${index + 1} · ${DEPARTMENTS[index]?.acronym ?? ''}`;
 
 function mount(panel: HTMLElement): void {
   const layout = document.querySelector<HTMLElement>('.layout');
   const scroll = panel.querySelector<HTMLElement>('[data-panel-scroll]');
   const overview = panel.querySelector<HTMLElement>('[data-overview]');
   const bar = panel.querySelector<HTMLElement>('[data-selection-bar]');
+  const barName = bar?.querySelector<HTMLElement>('[data-selection-name]');
   if (!layout || !scroll || !overview || !bar) return;
 
   const sections = DEPARTMENTS.map(({ id }) => panel.querySelector<HTMLElement>(`[data-panel="${id}"]`));
@@ -74,6 +76,7 @@ function mount(panel: HTMLElement): void {
   });
   onSelection((selection) => {
     selected = selection.selected;
+    if (barName) barName.textContent = selected === null ? '' : roomNameOf(selected);
     refresh();
   });
   new MutationObserver(() => {

@@ -4,14 +4,14 @@ import { GAM_ADMISSION, GAM_IDENTITY } from '../../content/screenMocks.ts';
 
 <div class="sk-columns" style="grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr)">
   <section class="sk-panel">
-    <h3 class="sk-heading">Identité</h3>
+    <p class="sk-heading">Identité</p>
     <dl class="sk-fields">
       {GAM_IDENTITY.map(([label, value]) => (<><dt>{label}</dt><dd class:list={['sk-input', label === 'INS' && 'sk-mono']}>{value}</dd></>))}
     </dl>
     <span class="sk-chip">INS qualifiée</span>
   </section>
   <section class="sk-panel">
-    <h3 class="sk-heading">Admission</h3>
+    <p class="sk-heading">Admission</p>
     <dl class="sk-fields">
       {GAM_ADMISSION.map(([label, value]) => (<><dt>{label}</dt><dd class="sk-input">{value}</dd></>))}
     </dl>

@@ -1,0 +1,91 @@
+/* Phones (720 px and below): the drawing keeps a 720 px width inside a stage that scrolls sideways and zooms by pinch, the room keys become one scrolling strip, and every key is a 44 px target. From 721 px the scroller is transparent to layout. */
+
+.hospital-floor {
+  --stage-min-width: 720px;
+  --touch-size: 2.75rem;
+}
+
+@media (min-width: 721px) {
+  .hospital-floor .stage-hint {
+    display: none;
+  }
+
+  .hospital-floor .iso-scroll {
+    display: contents;
+  }
+}
+
+@media (max-width: 720px) {
+  .hospital-floor .iso-plate {
+    padding: 48px 0 70px;
+    overflow: hidden;
+  }
+
+  .hospital-floor .iso-plate-corner[data-corner='hint'] {
+    bottom: 18px;
+  }
+
+  .hospital-floor .stage-hint {
+    margin: 0 0 0.5rem;
+    padding-inline: 1rem;
+    color: var(--anatomy-text);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  .hospital-floor .stage-hint[hidden] {
+    display: none;
+  }
+
+  .hospital-floor .iso-scroll {
+    padding-block: 0.75rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    touch-action: pan-x pan-y pinch-zoom;
+  }
+
+  .hospital-floor .iso-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hospital-floor .iso-scroll .iso-stage {
+    container: none;
+    min-width: var(--stage-min-width);
+  }
+
+  .hospital-floor .iso-scroll .iso-stage:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .hospital-floor .iso-figure .iso-legend {
+    padding: 0.75rem 1rem 1rem;
+  }
+
+  .hospital-floor [data-keys='rooms'] {
+    align-self: center;
+    flex-wrap: nowrap;
+    margin-inline: -1rem;
+    padding: 0.25rem 1rem;
+    overflow-x: auto;
+    scroll-padding-inline: 1rem;
+    scrollbar-width: none;
+  }
+
+  .hospital-floor [data-keys='rooms']::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hospital-floor [data-keys='rooms'] .iso-key {
+    flex: none;
+  }
+}
+
+@media (max-width: 720px), (pointer: coarse) {
+  .hospital-floor [data-keys='rooms'] .iso-key[role='button'] {
+    box-sizing: border-box;
+    min-height: var(--touch-size);
+  }
+}

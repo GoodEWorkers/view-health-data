@@ -178,6 +178,17 @@
   white-space: nowrap;
 }
 
+@container inspector (max-width: 40rem) {
+  .in-detail-body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+  }
+
+  .in-detail-head code {
+    overflow-wrap: anywhere;
+  }
+}
+
 .in-file[data-detail-block] .in-detail-raw,
 .in-file[data-detail-empty] .in-detail-body,
 .in-file:not([data-detail-empty]) .in-detail-hint {

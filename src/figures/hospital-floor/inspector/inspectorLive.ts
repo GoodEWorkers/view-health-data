@@ -2,6 +2,8 @@
 
 import { DEPARTMENTS } from '../../../content/departments.ts';
 import { requestRoom } from '../activeRoom.ts';
+import { isPhone } from '../phone.ts';
+import { holdSheet } from '../sheet.ts';
 import { onInspectorState, requestInspector } from './inspectorChannel.ts';
 import { mountLinkHover, revealIn } from './linkHover.ts';
 import type { FileLink } from './linkHover.ts';
@@ -25,12 +27,15 @@ function mount(root: HTMLElement): void {
   const links: FileLink[] = shown.map(mountLinkHover);
   let current: number | null = null;
   let opener: Element | null = null;
+  let releaseSheet: (() => void) | null = null;
 
   function show(index: number | null): void {
     const wasClosed = current === null;
     shown.forEach((file, position) => (file.hidden = position !== index));
     if (index === null) {
       current = null;
+      releaseSheet?.();
+      releaseSheet = null;
       if (opener instanceof HTMLElement && opener.isConnected) opener.focus({ preventScroll: true });
       return;
     }
@@ -40,6 +45,7 @@ function mount(root: HTMLElement): void {
     }
     if (wasClosed) {
       opener = document.activeElement;
+      if (isPhone()) releaseSheet = holdSheet(root, panel!);
       panel!.focus({ preventScroll: true });
     }
     current = index;

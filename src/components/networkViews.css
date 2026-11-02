@@ -143,13 +143,6 @@
   margin: 0;
 }
 
-/* On phones the stage is only as tall as the drawing; a view opens it up so a long list has room. */
-@media (max-width: 720px) {
-  .iso-stage:has([data-network-views]:not([hidden])) {
-    min-height: min(34rem, calc(100dvh - 8rem));
-  }
-}
-
 @container inspector (max-width: 32rem) {
   .nv-glossary .in-summary {
     display: none;

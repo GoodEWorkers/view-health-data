@@ -37,7 +37,7 @@ const targetOf = ({ flow, external }: (typeof entries)[number]): string => {
 <style>
   h4 {
     margin: 1rem 0 0.25rem;
-    color: var(--anatomy-muted);
+    color: var(--anatomy-text);
     font-family: var(--anatomy-mono);
     font-size: 0.7rem;
     font-weight: 400;
@@ -93,7 +93,7 @@ const targetOf = ({ flow, external }: (typeof entries)[number]): string => {
 
   .trace-button:focus-visible,
   .trace-action:focus-visible {
-    outline: 1px solid var(--anatomy-muted);
+    outline: 2px solid var(--anatomy-strong);
     outline-offset: 2px;
   }
 
@@ -125,7 +125,7 @@ const targetOf = ({ flow, external }: (typeof entries)[number]): string => {
     background: color-mix(in srgb, var(--room) 12%, var(--anatomy-face));
   }
 
-  @media (pointer: coarse) {
+  @media (pointer: coarse), (max-width: 720px) {
     .trace-action,
     .trace-button {
       min-height: 2.75rem;

@@ -2,6 +2,8 @@
 
 import { onSelection, requestRoom } from '../activeRoom.ts';
 import { announceInspector, onInspectorRequest } from '../inspector/inspectorChannel.ts';
+import { isPhone } from '../phone.ts';
+import { sheetTransform } from '../sheet.ts';
 import { FOCUS_SCALE, STAGE_MARGIN, focusQuad, stepFocus } from './focus.ts';
 import type { Bounds } from './focus.ts';
 import { matrix3dOf } from './homography.ts';
@@ -72,8 +74,8 @@ function mount(layer: HTMLElement): void {
     fit = fitViewBox(svgBox.width, svgBox.height, { width: viewWidth, height: viewHeight }, svgBox.left - stageBox.left, svgBox.top - stageBox.top);
     bounds = { x: STAGE_MARGIN, y: STAGE_MARGIN, width: stageBox.width - 2 * STAGE_MARGIN, height: stageBox.height - 2 * STAGE_MARGIN };
     inspectArea = inspectBounds(stageBox.width, stageBox.height);
-    inspector?.panel.style.setProperty('width', `${inspectArea.width}px`);
-    inspector?.panel.style.setProperty('height', `${inspectArea.height}px`);
+    inspector?.panel.style.setProperty('width', isPhone() ? '' : `${inspectArea.width}px`);
+    inspector?.panel.style.setProperty('height', isPhone() ? '' : `${inspectArea.height}px`);
   }
 
   function placeScreen(view: ScreenView, index: number, rank: number, fades: InspectFades): void {
@@ -138,7 +140,7 @@ function mount(layer: HTMLElement): void {
     inspector.root.hidden = inspected === null && inspectLevel === 0;
     if (inspector.root.hidden || inspectArea.width <= 0 || inspectArea.height <= 0) return;
     const quad = still.matches ? rectQuad(inspectArea) : inspectQuad(views[inspectFrom]!.base, easeOut(inspectLevel), inspectArea);
-    inspector.panel.style.transform = matrix3dOf(inspectArea.width, inspectArea.height, quad);
+    inspector.panel.style.transform = isPhone() ? sheetTransform(still.matches ? 1 : easeOut(inspectLevel)) : matrix3dOf(inspectArea.width, inspectArea.height, quad);
     inspector.panel.style.opacity = fades.panel.toFixed(3);
     inspector.scrim.style.opacity = (1 - fades.backdrop).toFixed(3);
   }

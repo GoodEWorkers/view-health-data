@@ -1,4 +1,4 @@
-/* Hover only highlights; a click selects. Pointer cursors on everything clickable, the selected room's outline, legend keys drawn as buttons, and the pointer tooltip. live.ts sets data-selected and aria-pressed. */
+/* Hover only highlights; a click selects. Pointer cursors on everything clickable, the selected room's outline, legend keys drawn as buttons, and the tooltip (hovered room for a mouse, first tap for touch). live.ts sets data-selected and aria-pressed. */
 
 .hospital-floor .iso-svg :is([data-room], [data-equipment]) {
   cursor: pointer;
@@ -90,12 +90,6 @@
 .floor-tooltip strong {
   color: var(--anatomy-strong);
   font-weight: 600;
-}
-
-@media (hover: none), (pointer: coarse), (max-width: 720px) {
-  .floor-tooltip {
-    display: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

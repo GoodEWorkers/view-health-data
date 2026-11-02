@@ -1,0 +1,89 @@
+/* The fullscreen views on phones (720 px and below): each fills the viewport as a sheet with its own scroll and a close bar at the bottom, within the thumb's reach, while the page behind stops scrolling. From 721 px they stay laid over the stage. */
+
+.sheet-bar {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  html:has(.inspector:not([hidden])) {
+    overflow: hidden;
+  }
+
+  .inspector {
+    position: fixed;
+  }
+
+  .inspector-panel {
+    inset: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .sheet-bar {
+    display: flex;
+    flex: none;
+    padding: 0.5rem var(--in-pad);
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--anatomy-faint);
+    background: var(--anatomy-face);
+  }
+
+  .inspector .sheet-close {
+    flex: 1;
+    justify-content: center;
+    height: 3rem;
+    font-size: var(--in-md);
+  }
+
+  .in-escape {
+    display: none;
+  }
+
+  .in-view {
+    min-height: 2.75rem;
+  }
+
+  .nv-term dd a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding-inline: 0.5rem;
+    margin-inline: -0.5rem;
+  }
+
+  .nv-filter {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.25rem 0.75rem;
+    margin: -1rem calc(-1 * var(--in-pad)) 0;
+    padding: 0.75rem var(--in-pad) 0.5rem;
+    background: var(--anatomy-face);
+    box-shadow: 0 1px 0 var(--anatomy-faint);
+  }
+
+  .nv-filter label {
+    grid-column: 1 / -1;
+  }
+
+  .nv-filter input {
+    min-height: 2.75rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 720px), (pointer: coarse) {
+  .inspector .in-button {
+    height: 2.75rem;
+    min-width: 2.75rem;
+  }
+
+  .inspector .in-button.in-close {
+    width: 2.75rem;
+  }
+
+  .inspector .in-button:not(.in-close) {
+    width: auto;
+  }
+}

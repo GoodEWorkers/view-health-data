@@ -28,7 +28,7 @@ export const LAYERS = [
     label: 'Réseau',
     title: 'Réseau',
     hint: SHEET_HINT,
-    overview: 'Les mêmes échanges vus du réseau : zones, familles de protocoles et pare-feu. Survolez un câble pour suivre son trajet.',
+    overview: 'Les mêmes échanges vus du réseau : zones, familles de protocoles et pare-feu. Survolez ou touchez un câble pour suivre son trajet.',
   },
 ] as const;
 

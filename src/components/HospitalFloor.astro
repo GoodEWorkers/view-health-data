@@ -3,6 +3,7 @@ import './floorLayers.css';
 import './floorSelection.css';
 import './flowFocus.css';
 import './networkLayer.css';
+import './floorMobile.css';
 import { DEPARTMENTS } from '../content/departments.ts';
 import { SCREENS_MARKER, hospitalFloorCard } from '../figures/hospital-floor/build.ts';
 import { flowFocusRules } from '../figures/hospital-floor/flowFocusCss.ts';
@@ -23,6 +24,7 @@ const flowFocus = flowFocusRules(DEPARTMENTS.map(({ id }) => id));
 <script>
   import '../figures/hospital-floor/live.ts';
   import '../figures/hospital-floor/labelReveal.ts';
+  import '../figures/hospital-floor/stageScroll.ts';
   import '../figures/hospital-floor/network/networkLive.ts';
   import '../figures/hospital-floor/network/traceLive.ts';
 </script>
@@ -66,6 +68,11 @@ const flowFocus = flowFocusRules(DEPARTMENTS.map(({ id }) => id));
   .hospital-floor .iso-legend {
     margin: 0;
     padding: 0.75rem 1.5rem 1rem;
+    color: var(--anatomy-text);
+  }
+
+  .hospital-floor .iso-plate .iso-plate-corner {
+    color: var(--anatomy-text);
   }
 
   .hospital-floor {
@@ -166,23 +173,12 @@ const flowFocus = flowFocusRules(DEPARTMENTS.map(({ id }) => id));
 
   .hospital-floor [data-keys='rooms'] .iso-key:focus-visible,
   .hospital-floor .iso-stage:focus-visible {
-    outline: 1px solid var(--anatomy-muted);
+    outline: 2px solid var(--anatomy-strong);
     outline-offset: 4px;
   }
 
   .hospital-floor .iso-stage {
     outline-offset: 6px;
-  }
-
-  @media (max-width: 560px) {
-    .hospital-floor .iso-plate {
-      overflow: hidden;
-    }
-
-    .hospital-floor .iso-stage {
-      /* Cancels the 12px side padding of .iso-plate in iso.css; the figure keeps its own pad. */
-      margin-inline: -0.75rem;
-    }
   }
 
   .hospital-floor-announcer {

@@ -3,6 +3,7 @@ import './inspector.css';
 import './inspectorLayout.css';
 import './inspectorRaw.css';
 import './inspectorCards.css';
+import './inspectorSheet.css';
 import { INSPECTIONS } from '../content/decode/index.ts';
 import { TOKEN_LEGENDS } from '../content/decode/legend.ts';
 import { shortCode } from '../content/decode/types.ts';
@@ -147,6 +148,9 @@ const groupChanges = (rows: readonly { group?: string }[], position: number): bo
         );
       })
     }
+    <div class="sheet-bar">
+      <button type="button" class="in-button sheet-close" data-action="close">Fermer</button>
+    </div>
   </section>
 </div>
 

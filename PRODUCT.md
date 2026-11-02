@@ -51,8 +51,9 @@ standard or to `doc/sources.md`.
 - Figure 1 (the floor) stays an anatomy-kit SVG. The software, data and network
   layers are drawn into that same drawing: each room's IT equipment is lit and
   coloured cables link it; a label on each cable states what it carries and
-  appears only for the hovered cable or a room pinned on purpose, never on
-  phones, where it is too small and the panel carries it. On the software and
+  appears only for the hovered cable, the cable tapped once on touch, or a room
+  pinned on purpose; on phones the drawing is small, so the panel carries every
+  interface. On the software and
   data layers, opening the layer lights the computers, draws the jack wires
   between them and lifts the eight screens: skeleton interfaces with synthetic
   data on Logiciels, and on Données the message or document each service holds

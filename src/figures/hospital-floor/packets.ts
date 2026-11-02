@@ -48,8 +48,9 @@ export function createPackets(stage: Element, still: MediaQueryList): Packets | 
     pool.push(circle);
   };
 
-  function place(packet: Packet): void {
-    const point = packet.cable.path.getPointAtLength(Math.min(packet.age, packet.duration) * SPEED_PLATE_UNITS_PER_SECOND);
+  const pointOf = (packet: Packet): DOMPoint => packet.cable.path.getPointAtLength(Math.min(packet.age, packet.duration) * SPEED_PLATE_UNITS_PER_SECOND);
+
+  function paint(packet: Packet, point: DOMPoint): void {
     packet.circle.setAttribute('cx', point.x.toFixed(1));
     packet.circle.setAttribute('cy', point.y.toFixed(1));
     const scale = scaleAt(packet.age, packet.duration);
@@ -67,9 +68,7 @@ export function createPackets(stage: Element, still: MediaQueryList): Packets | 
     circle.style.setProperty('--room', colour);
     circle.dataset.from = ends.from;
     circle.dataset.to = ends.to;
-    const packet: Packet = { circle, cable, duration: cable.length / SPEED_PLATE_UNITS_PER_SECOND, age: 0, scale: -1 };
-    live.push(packet);
-    place(packet);
+    live.push({ circle, cable, duration: cable.length / SPEED_PLATE_UNITS_PER_SECOND, age: 0, scale: -1 });
     layer.append(circle);
   };
 
@@ -95,9 +94,10 @@ export function createPackets(stage: Element, still: MediaQueryList): Packets | 
       packet.age += seconds;
       const arrived = packet.age >= packet.duration + VANISH_SECONDS;
       if (arrived) recycle(packet);
-      else place(packet);
       return !arrived;
     });
+    const points = live.map(pointOf);
+    live.forEach((packet, index) => paint(packet, points[index]!));
     return running.length > 0 || live.length > 0;
   }
 

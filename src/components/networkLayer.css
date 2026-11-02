@@ -6,6 +6,10 @@
   --zone-in: clamp(0, var(--zone-show) * 2 - 1, 1);
 }
 
+.layout[data-layer='reseau'] .hospital-floor {
+  --numeral-opacity-rest: 0.72;
+}
+
 .hospital-floor [data-zone-patch] {
   opacity: var(--zone-in);
   pointer-events: none;
@@ -52,6 +56,12 @@
 .layout[data-layer='reseau'] .hospital-floor .cable-hit {
   pointer-events: stroke;
   cursor: pointer;
+}
+
+@media (pointer: coarse) {
+  .layout[data-layer='reseau'] .hospital-floor .cable-hit {
+    stroke-width: 9;
+  }
 }
 
 .hospital-floor [data-cable][data-traced] .cable-glow {

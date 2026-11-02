@@ -14,7 +14,7 @@ const familyLabel = (id: string): string => PROTOCOL_FAMILIES.find((family) => f
 <article class="in-file nv-rules" data-view="rules" style={`--room: var(--anatomy-strong); --deny: ${zoneColour('dmz')}`} hidden>
   <ViewHead title="Table de règles du pare-feu" summary={SUMMARY} chip="Matrice de flux" />
   <div class="nv-body nv-body-wide">
-    <p class="nv-hit-note" data-hit-note aria-live="polite">Survolez un câble sur le plan : la règle de son flux s'allume ici.</p>
+    <p class="nv-hit-note" data-hit-note aria-live="polite">Survolez ou touchez un câble sur le plan : la règle de son flux s'allume ici.</p>
     <div class="nv-scroll" role="region" aria-label="Table de règles" tabindex="0">
       <table class="nv-rules-table">
         <thead>
@@ -65,6 +65,6 @@ const familyLabel = (id: string): string => PROTOCOL_FAMILIES.find((family) => f
   </div>
   <footer class="in-foot">
     <span>{FIREWALL_RULES.length} règles, la dernière refuse tout le reste</span>
-    <span class="in-travel">Échap pour revenir au plan</span>
+    <span class="in-travel in-escape">Échap pour revenir au plan</span>
   </footer>
 </article>

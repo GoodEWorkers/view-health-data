@@ -32,6 +32,7 @@ import { DEFAULT_LAYER, LAYERS } from '../content/layers.ts';
     margin: 0 0 0.625rem;
     font-size: 0.9375rem;
     line-height: 1.55;
+    text-wrap: pretty;
   }
 
   .overview-layer {
@@ -45,8 +46,8 @@ import { DEFAULT_LAYER, LAYERS } from '../content/layers.ts';
     display: none;
   }
 
-  /* The header carries this sentence from 1280 px (header.css). */
-  @media (min-width: 1280px) {
+  /* The header carries this sentence from 80 em (header.css). */
+  @media (min-width: 80em) {
     .overview-layer {
       display: none;
     }
@@ -128,8 +129,10 @@ import { DEFAULT_LAYER, LAYERS } from '../content/layers.ts';
     font-size: 0.75rem;
   }
 
-  @media (pointer: coarse) {
+  @media (pointer: coarse), (max-width: 720px) {
     .room-chip {
+      align-content: center;
+      align-items: center;
       min-height: 2.75rem;
     }
   }

@@ -44,6 +44,15 @@ describe('hospitalFloorCard', () => {
     assert.ok(card.indexOf(SCREENS_MARKER) < card.indexOf('<figcaption'));
   });
 
+  it('wraps the stage in a scroller that phones pan sideways, with a hint above it that live code removes at the first gesture', () => {
+    const hint = indexOfMarker('data-stage-hint');
+    const scroller = indexOfMarker('data-stage-scroll');
+    assert.ok(hint < scroller);
+    assert.ok(scroller < indexOfMarker('class="iso-stage"'));
+    assert.ok(indexOfMarker('class="iso-stage"') < card.indexOf('</svg>'));
+    assert.match(card, /data-stage-hint>Faites défiler ou pincez pour zoomer<\/p>/);
+  });
+
   it('paints one selection outline per room after the walls and before the standing furniture, hidden until live.ts marks the room selected', () => {
     assert.equal(card.match(/class="iso-line room-selection"/g)?.length, DEPARTMENTS.length);
     const firstOutline = card.indexOf('room-selection-halo');

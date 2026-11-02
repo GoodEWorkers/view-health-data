@@ -134,7 +134,7 @@
   height: 8px;
   margin: -4px 0 0 -4px;
   border-radius: 50%;
-  background: #000;
+  background: var(--anatomy-strong);
   box-shadow:
     0 0 0 1.6px var(--anatomy-mid),
     inset 0 0 0 1.2px var(--anatomy-lo);

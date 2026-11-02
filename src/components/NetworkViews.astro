@@ -3,6 +3,7 @@ import './inspector.css';
 import './networkLists.css';
 import './networkSheet.css';
 import './networkViews.css';
+import './inspectorSheet.css';
 import { FLOW_ENTRIES } from '../figures/hospital-floor/network/sheets.ts';
 import FlowSheet from './network/FlowSheet.astro';
 import Glossary from './network/Glossary.astro';
@@ -33,6 +34,9 @@ const sameRoom = (entry: (typeof FLOW_ENTRIES)[number]) => FLOW_ENTRIES.filter((
     <Rules />
     <Partners />
     <Glossary />
+    <div class="sheet-bar">
+      <button type="button" class="in-button sheet-close" data-action="close">Fermer</button>
+    </div>
   </section>
 </div>
 

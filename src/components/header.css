@@ -1,4 +1,4 @@
-/* The slim top bar: title and the layer's sentence, layer control, glossary, credit. One 4 rem row from 1020 px, the sentence from 1280 px (PanelOverview shows it below that), two rows under 1020 px. */
+/* The slim top bar: title and the layer's sentence, layer control, glossary, credit. One 4 rem row from 63.7 em (1020 px by default), the sentence from 80 em (1280 px), two rows below. Breakpoints in em follow the reader's text size. */
 
 .site-header {
   --keys-show: 0;
@@ -28,14 +28,14 @@
 .header-overview {
   display: none;
   margin: 0.125rem 0 0;
-  min-height: 2.5em;
+  min-height: 2.7em;
   color: var(--anatomy-text);
   font-size: 0.8rem;
-  line-height: 1.25;
+  line-height: 1.35;
   text-wrap: balance;
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 80em) {
   .site-header {
     grid-template-columns: minmax(26.25rem, 1fr) auto minmax(min-content, 1fr);
   }
@@ -175,7 +175,7 @@
   background: color-mix(in srgb, var(--anatomy-strong) 6%, var(--anatomy-face));
 }
 
-@media (max-width: 1199px) {
+@media (max-width: 74.9375em) {
   .glossary-label {
     display: none;
   }
@@ -187,7 +187,7 @@
   }
 }
 
-@media (max-width: 1019px) {
+@media (max-width: 63.6875em) {
   .site-header {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
@@ -237,7 +237,7 @@
   }
 }
 
-@media (pointer: coarse) {
+@media (pointer: coarse), (max-width: 720px) {
   .layer-tab,
   .glossary-button {
     min-height: 2.75rem;
